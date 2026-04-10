@@ -18,7 +18,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['clothingID'])) {
     $clothingID = intval($_POST['clothingID']);
     $quantity = isset($_POST['quantity']) ? intval($_POST['quantity']) : 1;
     
-    if ($clothing ID > 0 && $quantity > 0) {
+    if ($clothingID > 0 && $quantity > 0) {
         if (isset($_SESSION['cart'][$clothingID])) {
             $_SESSION['cart'][$clothingID] += $quantity;
         } else {

@@ -62,63 +62,61 @@ $conn->close();
     <title>Admin Login - Pastimes</title>
     <link rel="stylesheet" href="../assets/style.css">
 </head>
-<body>
-    <header>
-        <nav class="navbar">
-            <div class="container">
-                <div class="logo">
-                    <h1>Pastimes - Admin</h1>
-                </div>
-                <ul class="nav-menu">
-                    <li><a href="../index.php">Home</a></li>
-                </ul>
+<body class="auth-page">
+    <main class="auth-layout">
+        <section class="auth-visual auth-visual-login" aria-label="Admin welcome panel">
+            <div class="auth-visual-overlay">
+                <p class="auth-visual-kicker">Pastimes Back Office</p>
+                <h1>ADMIN ACCESS</h1>
+                <p>Manage users, inventory, and orders with a streamlined control panel.</p>
             </div>
-        </nav>
-    </header>
+        </section>
 
-    <main>
-        <div class="container">
-            <div class="admin-login-form">
-                <h2>Admin Login</h2>
-                
+        <section class="auth-panel" aria-label="Admin login section">
+            <div class="auth-section-label">Admin Login</div>
+            <div class="auth-card admin-login-form">
+                <a href="../index.php" class="auth-brand" aria-label="Pastimes Home">PASTIMES</a>
+
                 <?php if ($error): ?>
-                    <div class="error-message">
+                    <div class="error-message auth-message">
                         <p><?php echo htmlspecialchars($error); ?></p>
                     </div>
                 <?php endif; ?>
-                
-                <form method="POST" action="admin-login.php" novalidate>
-                    <div class="form-group">
-                        <label for="email">Admin Email:</label>
-                        <input 
-                            type="email" 
-                            id="email" 
-                            name="email" 
-                            value="<?php echo htmlspecialchars($email); ?>" 
+
+                <div class="auth-icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" role="img" focusable="false">
+                        <path d="M12 12a5 5 0 1 0-5-5 5 5 0 0 0 5 5Zm0 2c-4.42 0-8 2.24-8 5v1h16v-1c0-2.76-3.58-5-8-5Z"></path>
+                    </svg>
+                </div>
+
+                <form method="POST" action="admin-login.php" class="auth-form" novalidate>
+                    <div class="form-group auth-field">
+                        <label for="email">Admin Email</label>
+                        <input
+                            type="email"
+                            id="email"
+                            name="email"
+                            value="<?php echo htmlspecialchars($email); ?>"
+                            placeholder="admin@example.com"
                             required
                         >
                     </div>
-                    
-                    <div class="form-group">
-                        <label for="password">Password:</label>
-                        <input 
-                            type="password" 
-                            id="password" 
-                            name="password" 
+
+                    <div class="form-group auth-field">
+                        <label for="password">Password</label>
+                        <input
+                            type="password"
+                            id="password"
+                            name="password"
+                            placeholder="Enter your password"
                             required
                         >
                     </div>
-                    
-                    <div class="form-group">
-                        <button type="submit" class="btn btn-primary">Admin Login</button>
-                    </div>
+
+                    <button type="submit" class="btn auth-btn auth-btn-primary">Admin Login</button>
                 </form>
             </div>
-        </div>
+        </section>
     </main>
-
-    <footer>
-        <p>&copy; 2026 Pastimes. All rights reserved.</p>
-    </footer>
 </body>
 </html>

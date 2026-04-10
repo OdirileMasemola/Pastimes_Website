@@ -68,74 +68,78 @@ $conn->close();
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login - Pastimes</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="../assets/style.css">
 </head>
-<body>
-    <header>
-        <nav class="navbar">
-            <div class="container">
-                <div class="logo">
-                    <h1>Pastimes</h1>
-                </div>
-                <ul class="nav-menu">
-                    <li><a href="../index.php">Home</a></li>
-                    <li><a href="register.php">Register</a></li>
-                    <li><a href="../admin/admin-login.php">Admin</a></li>
-                </ul>
+<body class="auth-page">
+    <main class="auth-layout">
+        <section class="auth-visual auth-visual-login" aria-label="Welcome panel">
+            <div class="auth-visual-overlay">
+                <p class="auth-visual-kicker">Pastimes Streetwear</p>
+                <h1>WELCOME BACK</h1>
+                <p>Discover curated pieces that define your everyday style.</p>
             </div>
-        </nav>
-    </header>
+        </section>
 
-    <main>
-        <div class="container">
-            <div class="login-form">
-                <h2>User Login</h2>
-                
+        <section class="auth-panel" aria-label="Login section">
+            <div class="auth-section-label">Login</div>
+            <div class="auth-card">
+                <a href="../index.php" class="auth-brand" aria-label="Pastimes Home">PASTIMES</a>
+
                 <?php if ($loggedInUser): ?>
-                    <div class="success-message">
+                    <div class="success-message auth-message">
                         <p>User <strong><?php echo htmlspecialchars($loggedInUser); ?></strong> is logged in.</p>
                     </div>
                 <?php endif; ?>
-                
+
                 <?php if ($error): ?>
-                    <div class="error-message">
+                    <div class="error-message auth-message">
                         <p><?php echo htmlspecialchars($error); ?></p>
                     </div>
                 <?php endif; ?>
-                
-                <form method="POST" action="login.php" novalidate>
-                    <div class="form-group">
-                        <label for="email">Email Address:</label>
-                        <input 
-                            type="email" 
-                            id="email" 
-                            name="email" 
-                            value="<?php echo htmlspecialchars($email); ?>" 
+
+                <div class="auth-icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" role="img" focusable="false">
+                        <path d="M12 12a5 5 0 1 0-5-5 5 5 0 0 0 5 5Zm0 2c-4.42 0-8 2.24-8 5v1h16v-1c0-2.76-3.58-5-8-5Z"></path>
+                    </svg>
+                </div>
+
+                <form method="POST" action="login.php" class="auth-form" novalidate>
+                    <div class="form-group auth-field">
+                        <label for="email">Email</label>
+                        <input
+                            type="email"
+                            id="email"
+                            name="email"
+                            value="<?php echo htmlspecialchars($email); ?>"
+                            placeholder="name@example.com"
                             required
                         >
                     </div>
-                    
-                    <div class="form-group">
-                        <label for="password">Password:</label>
-                        <input 
-                            type="password" 
-                            id="password" 
-                            name="password" 
+
+                    <div class="form-group auth-field">
+                        <label for="password">Password</label>
+                        <input
+                            type="password"
+                            id="password"
+                            name="password"
+                            placeholder="Enter your password"
                             required
                         >
                     </div>
-                    
-                    <div class="form-group">
-                        <button type="submit" class="btn btn-primary">Login</button>
-                        <a href="register.php" class="btn btn-secondary">Register</a>
+
+                    <div class="auth-links-row">
+                        <a href="#" class="auth-link">Forgot Password?</a>
                     </div>
+
+                    <button type="submit" class="btn auth-btn auth-btn-primary">Login</button>
+
+                    <p class="auth-switch-text">Don't have an account? <a href="register.php" class="auth-link">Sign Up</a></p>
                 </form>
             </div>
-        </div>
+        </section>
     </main>
-
-    <footer>
-        <p>&copy; 2026 Pastimes. All rights reserved.</p>
-    </footer>
 </body>
 </html>
