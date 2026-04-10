@@ -1,8 +1,8 @@
 <?php
 /**
- * Sell an Item Page
+ * My Messages Page
  *
- * Placeholder for user listing/submission flow
+ * Placeholder for user messages/notifications feature
  */
 
 session_start();
@@ -18,7 +18,7 @@ if (!isset($_SESSION['userID'])) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sell an Item - Pastimes</title>
+    <title>My Messages - Pastimes</title>
     <link rel="stylesheet" href="../assets/style.css">
 </head>
 <body>
@@ -39,8 +39,8 @@ if (!isset($_SESSION['userID'])) {
 
     <main>
         <div class="container">
-            <h2>Sell an Item</h2>
-            <p>Listing submissions are coming soon. You will be able to upload item details and photos here.</p>
+            <h2>My Messages</h2>
+            <p>You have no new messages.</p>
             <a href="account.php" class="btn btn-secondary">Back to Account</a>
         </div>
     </main>

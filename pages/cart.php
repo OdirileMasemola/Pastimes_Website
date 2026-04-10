@@ -101,7 +101,9 @@ if (isset($_GET['remove'])) {
                 </div>
             <?php else: ?>
                 <p>Your cart is empty.</p>
-                <a href="shop.php" class="btn btn-primary">Continue Shopping</a>
+                <div class="cart-actions">
+                    <a href="shop.php" class="btn btn-primary">Continue Shopping</a>
+                </div>
             <?php endif; ?>
         </div>
     </main>

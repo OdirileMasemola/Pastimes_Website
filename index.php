@@ -16,7 +16,7 @@ session_start();
     <title>Pastimes - Home</title>
     <link rel="stylesheet" href="assets/style.css">
 </head>
-<body>
+<body class="home-page">
     <header>
         <nav class="navbar">
             <div class="container">
