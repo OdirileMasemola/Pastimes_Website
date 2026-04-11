@@ -354,19 +354,20 @@ footer {
     background-size: cover;
     background-position: center;
     transform: scale(1.04);
+    filter: saturate(0.78) contrast(0.92) brightness(0.94);
     animation: authImageZoom 16s ease-in-out infinite alternate;
 }
 
 .auth-visual-login::before {
     background-image:
         linear-gradient(25deg, rgba(0, 0, 0, 0.72), rgba(0, 0, 0, 0.18)),
-        url('https://images.unsplash.com/photo-1483985988355-763728e1935b?auto=format&fit=crop&w=1400&q=80');
+    url('../images/ali-ghafouri-V8Fp21_gJ-E-unsplash.jpg');
 }
 
 .auth-visual-register::before {
     background-image:
         linear-gradient(25deg, rgba(0, 0, 0, 0.72), rgba(0, 0, 0, 0.2)),
-        url('https://images.unsplash.com/photo-1483181994834-aba9fd1e2514?auto=format&fit=crop&w=1400&q=80');
+    url('../images/anhelina-osaulenko-ypL-2HbvwNU-unsplash.jpg');
 }
 
 .auth-visual-overlay {
@@ -460,6 +461,20 @@ footer {
     width: 26px;
     height: 26px;
     fill: #1b1b1b;
+}
+
+.register-inline-image {
+    margin: 0 auto 1rem;
+    border-radius: 14px;
+    overflow: hidden;
+    border: 1px solid #e9e9e8;
+}
+
+.register-inline-image img {
+    width: 100%;
+    height: 148px;
+    object-fit: cover;
+    display: block;
 }
 
 .auth-form {
@@ -716,7 +731,7 @@ main h3 {
 .hero {
     background-image:
         linear-gradient(to right, rgba(0, 0, 0, 0.66), rgba(0, 0, 0, 0.24)),
-        url('https://images.unsplash.com/photo-1496747611176-843222e1e57c?auto=format&fit=crop&w=1800&q=80');
+        url('../images/the-ian-PLU3VxyEzxM-unsplash.jpg');
     background-position: center;
     background-size: cover;
     color: #fff;
@@ -915,6 +930,7 @@ main h3 {
     width: 100%;
     aspect-ratio: 4 / 5;
     object-fit: cover;
+    filter: saturate(0.82) contrast(0.94) brightness(0.97);
 }
 
 .product-card h3 {
@@ -953,6 +969,7 @@ main h3 {
     border-radius: 18px;
     border: 1px solid var(--line);
     box-shadow: var(--shadow-soft);
+    filter: saturate(0.82) contrast(0.94) brightness(0.97);
 }
 
 .product-info .category,

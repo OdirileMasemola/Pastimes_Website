@@ -26,6 +26,57 @@ if ($clothingID > 0) {
     $stmt->close();
 }
 
+$maleFashionImages = array(
+    '../images/charles-etoroma-PpLrGyWo7-Q-unsplash.jpg',
+    '../images/daniel-adesina-sIARkv6B7fI-unsplash.jpg',
+    '../images/mikhail-pasynkov-_GrR2bX183s-unsplash.jpg'
+);
+
+$femaleFashionImages = array(
+    '../images/anhelina-osaulenko-ypL-2HbvwNU-unsplash.jpg',
+    '../images/parsa-foroughi-Nz93TtvjM5o-unsplash.jpg',
+    '../images/stan-diordiev-U_HRcBSGYB0-unsplash.jpg'
+);
+
+$unisexFashionImages = array(
+    '../images/the-ian-PLU3VxyEzxM-unsplash.jpg'
+);
+
+function pickFashionImage($category, $clothingName, $clothingID, $maleFashionImages, $femaleFashionImages, $unisexFashionImages) {
+    $text = strtolower(trim($category . ' ' . $clothingName));
+    $femaleHints = array('dress', 'skirt', 'women', 'woman', 'ladies', 'blouse');
+    $maleHints = array('men', 'man', 'mens', 'hoodie', 'cargo', 'jacket', 'coat', 'sweater', 'jeans', 'boots');
+    $unisexHints = array('unisex', 't-shirt', 'tee', 'shirt', 'shorts', 'classic');
+
+    foreach ($femaleHints as $hint) {
+        if (strpos($text, $hint) !== false) {
+            return $femaleFashionImages[$clothingID % count($femaleFashionImages)];
+        }
+    }
+
+    foreach ($maleHints as $hint) {
+        if (strpos($text, $hint) !== false) {
+            return $maleFashionImages[$clothingID % count($maleFashionImages)];
+        }
+    }
+
+    foreach ($unisexHints as $hint) {
+        if (strpos($text, $hint) !== false) {
+            return $unisexFashionImages[$clothingID % count($unisexFashionImages)];
+        }
+    }
+
+    if ($clothingID % 2 === 0) {
+        return $maleFashionImages[$clothingID % count($maleFashionImages)];
+    }
+
+    return $femaleFashionImages[$clothingID % count($femaleFashionImages)];
+}
+$displayImage = '';
+if ($product) {
+    $displayImage = pickFashionImage($product['category'], $product['clothingName'], intval($product['clothingID']), $maleFashionImages, $femaleFashionImages, $unisexFashionImages);
+}
+
 $conn->close();
 ?>
 
@@ -64,7 +115,7 @@ $conn->close();
             <?php if ($product): ?>
                 <div class="product-details">
                     <div class="product-image">
-                        <img src="<?php echo htmlspecialchars($product['imageURL']); ?>" alt="<?php echo htmlspecialchars($product['clothingName']); ?>">
+                        <img src="<?php echo htmlspecialchars($displayImage); ?>" alt="<?php echo htmlspecialchars($product['clothingName']); ?>">
                     </div>
                     <div class="product-info">
                         <h2><?php echo htmlspecialchars($product['clothingName']); ?></h2>

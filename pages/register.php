@@ -112,6 +112,8 @@ $conn->close();
                     </svg>
                 </div>
 
+
+
                 <form method="POST" action="register.php" class="auth-form" novalidate>
                     <div class="form-group auth-field">
                         <label for="fullName">Full Name</label>
