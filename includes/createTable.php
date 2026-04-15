@@ -10,7 +10,7 @@
  */
 
 // Include database connection
-include 'DBConn.php';
+include ("DBConn.php");
 
 // Check if tblUser exists and drop it if it does
 $checkTable = "SHOW TABLES LIKE 'tblUser'";
