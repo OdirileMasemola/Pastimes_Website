@@ -76,6 +76,7 @@ $conn->close();
             <div class="auth-section-label">Admin Login</div>
             <div class="auth-card admin-login-form">
                 <a href="../index.php" class="auth-brand" aria-label="Pastimes Home">PASTIMES</a>
+                <a href="javascript:history.back()" class="back-arrow" aria-label="Go back" title="Go back">&larr;</a>
 
                 <?php if ($error): ?>
                     <div class="error-message auth-message">

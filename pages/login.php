@@ -87,6 +87,7 @@ $conn->close();
             <div class="auth-section-label">Login</div>
             <div class="auth-card">
                 <a href="../index.php" class="auth-brand" aria-label="Pastimes Home">PASTIMES</a>
+                <a href="javascript:history.back()" class="back-arrow" aria-label="Go back" title="Go back">&larr;</a>
 
                 <?php if ($loggedInUser): ?>
                     <div class="success-message auth-message">

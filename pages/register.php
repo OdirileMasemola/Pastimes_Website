@@ -93,6 +93,7 @@ $conn->close();
             <div class="auth-section-label">Sign-Up</div>
             <div class="auth-card">
                 <a href="../index.php" class="auth-brand" aria-label="Pastimes Home">PASTIMES</a>
+                <a href="javascript:history.back()" class="back-arrow" aria-label="Go back" title="Go back">&larr;</a>
 
                 <?php if ($error): ?>
                     <div class="error-message auth-message">
