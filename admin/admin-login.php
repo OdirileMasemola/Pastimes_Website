@@ -23,31 +23,37 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         // Query admin from database
         $sql = "SELECT adminID, adminName, passwordHash FROM tblAdmin WHERE adminEmail = ?";
         $stmt = $conn->prepare($sql);
-        $stmt->bind_param("s", $email);
-        $stmt->execute();
-        $result = $stmt->get_result();
         
-        if ($result->num_rows > 0) {
-            $admin = $result->fetch_assoc();
-            
-            // Verify password hash
-            $hashedPassword = md5($password);
-            if ($hashedPassword === $admin['passwordHash']) {
-                // Password matches, create session
-                $_SESSION['adminID'] = $admin['adminID'];
-                $_SESSION['adminName'] = $admin['adminName'];
-                $_SESSION['adminEmail'] = $email;
-                
-                header("Location: dashboard.php");
-                exit();
-            } else {
-                $error = "Invalid password.";
-            }
+        // Check if prepare failed
+        if (!$stmt) {
+            $error = "Database error: " . $conn->error;
         } else {
-            $error = "Admin account not found.";
+            $stmt->bind_param("s", $email);
+            $stmt->execute();
+            $result = $stmt->get_result();
+            
+            if ($result->num_rows > 0) {
+                $admin = $result->fetch_assoc();
+                
+                // Verify password hash
+                $hashedPassword = md5($password);
+                if ($hashedPassword === $admin['passwordHash']) {
+                    // Password matches, create session
+                    $_SESSION['adminID'] = $admin['adminID'];
+                    $_SESSION['adminName'] = $admin['adminName'];
+                    $_SESSION['adminEmail'] = $email;
+                    
+                    header("Location: dashboard.php");
+                    exit();
+                } else {
+                    $error = "Invalid password.";
+                }
+            } else {
+                $error = "Admin account not found.";
+            }
+            
+            $stmt->close();
         }
-        
-        $stmt->close();
     }
 }
 
