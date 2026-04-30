@@ -35,3 +35,11 @@ $conn->close();
 header("Location: manage-clothes.php");
 exit();
 ?>
+<?php
+/*
+This code is the original work of:
+ST10441421 - Odirile Masemola
+ST10450294 - Ripfumelo Mabasa
+All rights reserved.
+*/
+?>
