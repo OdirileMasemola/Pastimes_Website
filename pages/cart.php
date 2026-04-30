@@ -113,3 +113,11 @@ if (isset($_GET['remove'])) {
     </footer>
 </body>
 </html>
+<?php
+/*
+This code is the original work of:
+ST10441421 - Odirile Masemola
+ST10450294 - Ripfumelo Mabasa
+All rights reserved.
+*/
+?>

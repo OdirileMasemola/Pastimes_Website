@@ -52,3 +52,11 @@ session_start();
     </footer>
 </body>
 </html>
+<?php
+/*
+This code is the original work of:
+ST10441421 	6 Odirile Masemola
+ST10450294 	6 Ripfumelo Mabasa
+All rights reserved.
+*/
+?>
