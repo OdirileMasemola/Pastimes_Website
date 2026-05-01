@@ -8,7 +8,7 @@
  */
 
 session_start();
-include '../includes/DBConn.php';
+include("includes/DBConn.php");
 
 $fullName = '';
 $username = '';

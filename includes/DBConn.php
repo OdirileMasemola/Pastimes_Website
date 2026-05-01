@@ -6,7 +6,7 @@
  * using MySQLi
  */
 
-// Database configuration
+// declaring variables for database connection
 $servername = "localhost";
 $username = "root";
 $password = "";
