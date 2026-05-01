@@ -1,6 +1,6 @@
-T-Shirt Classic | Shirts | Comfortable cotton t-shirt for everyday wear | 149.99 | 50
-Jeans Blue | Pants | Classic blue denim jeans | 299.99 | 30
-Sweater Warm | Sweaters | Cozy sweater for cold weather | 199.99 | 25
-Jacket Leather | Jackets | Premium leather jacket | 499.99 | 15
-Dress Evening | Dresses | Elegant evening dress | 399.99 | 20
-Shorts Summer | Shorts | Breathable summer shorts | 99.99 | 40
+T-Shirt Classic | Shirts | Comfortable cotton t-shirt for everyday wear | R 149.99 | 50
+Jeans Blue | Pants | Classic blue denim jeans | 2R 99.99 | 30
+Sweater Warm | Sweaters | Cozy sweater for cold weather | R 199.99 | 25
+Jacket Leather | Jackets | Premium leather jacket | R 499.99 | 15
+Dress Evening | Dresses | Elegant evening dress | R 399.99 | 20
+Shorts Summer | Shorts | Breathable summer shorts | R 99.99 | 40

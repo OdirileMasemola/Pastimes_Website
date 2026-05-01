@@ -127,7 +127,8 @@ main {
 }
 
 .btn-secondary:hover {
-    background-color: #545b62;
+    background-color: #000;
+    color: #fff;
 }
 
 .btn-danger {
@@ -136,7 +137,8 @@ main {
 }
 
 .btn-danger:hover {
-    background-color: #c82333;
+    background-color: #000;
+    color: #fff;
 }
 
 .btn:disabled {
@@ -850,8 +852,9 @@ main h3 {
 }
 
 .btn-secondary:hover {
-    border-color: #9f9f9a;
-    color: #000;
+    background: #000;
+    border-color: #000;
+    color: #fff;
 }
 
 .btn-danger {
@@ -861,9 +864,9 @@ main h3 {
 }
 
 .btn-danger:hover {
-    background: #fdf2f2;
-    color: #8f1d1d;
-    border-color: #c88888;
+    background: #000;
+    color: #fff;
+    border-color: #000;
 }
 
 .btn:disabled {
@@ -1102,6 +1105,19 @@ table tr:hover,
 .dashboard-links li,
 .dashboard-section li {
     margin: 0;
+}
+
+.dashboard-links .btn-secondary {
+    background: #fff;
+    color: var(--text);
+    border-color: var(--line-strong);
+}
+
+.dashboard-links .btn-secondary:hover,
+.dashboard-links .btn-danger:hover {
+    background: #000 !important;
+    color: #fff !important;
+    border-color: #000 !important;
 }
 
 .dashboard-section {
