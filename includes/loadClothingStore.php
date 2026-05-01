@@ -10,7 +10,7 @@
  */
 
 // Include database connection
-include 'DBConn.php';
+include("includes/DBConn.php");
 
 // Array of tables to create
 $tables = array();
