@@ -13,6 +13,35 @@ if (!isset($_SESSION['adminID'])) {
     exit();
 }
 
+$message = '';
+$allowedStatuses = array('pending', 'processing', 'delivered');
+
+if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['orderID'], $_POST['status'])) {
+    $orderID = intval($_POST['orderID']);
+    $status = strtolower(trim($_POST['status']));
+
+    if ($orderID > 0 && in_array($status, $allowedStatuses, true)) {
+        $updateSql = "UPDATE tblOrder SET status = ? WHERE orderID = ?";
+        $updateStmt = $conn->prepare($updateSql);
+
+        if ($updateStmt) {
+            $updateStmt->bind_param("si", $status, $orderID);
+
+            if ($updateStmt->execute()) {
+                $message = "Order status updated successfully.";
+            } else {
+                $message = "Error updating order status: " . $conn->error;
+            }
+
+            $updateStmt->close();
+        } else {
+            $message = "Database error: " . $conn->error;
+        }
+    } else {
+        $message = "Please select a valid order status.";
+    }
+}
+
 $sql = "SELECT 
     o.orderID, 
     o.orderDate, 
@@ -63,6 +92,12 @@ $conn->close();
     <main>
         <div class="container">
             <h2>Manage Orders</h2>
+
+            <?php if ($message): ?>
+                <div class="success-message">
+                    <p><?php echo htmlspecialchars($message); ?></p>
+                </div>
+            <?php endif; ?>
             
             <?php if (count($orders) > 0): ?>
                 <table class="admin-table">
@@ -74,6 +109,7 @@ $conn->close();
                             <th>Order Date</th>
                             <th>Total Amount</th>
                             <th>Status</th>
+                            <th>Update Status</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -84,7 +120,18 @@ $conn->close();
                                 <td><?php echo htmlspecialchars($order['email']); ?></td>
                                 <td><?php echo htmlspecialchars($order['orderDate']); ?></td>
                                 <td>R <?php echo number_format($order['totalAmount'], 2); ?></td>
-                                <td><?php echo htmlspecialchars($order['status']); ?></td>
+                                <td><?php echo htmlspecialchars(ucfirst(strtolower($order['status']))); ?></td>
+                                <td>
+                                    <form method="POST" action="manage-orders.php" style="display: flex; gap: 8px; align-items: center;">
+                                        <input type="hidden" name="orderID" value="<?php echo $order['orderID']; ?>">
+                                        <select name="status" class="form-group" style="margin: 0;">
+                                            <option value="pending" <?php echo strtolower($order['status']) === 'pending' ? 'selected' : ''; ?>>Pending</option>
+                                            <option value="processing" <?php echo strtolower($order['status']) === 'processing' ? 'selected' : ''; ?>>Processing</option>
+                                            <option value="delivered" <?php echo strtolower($order['status']) === 'delivered' ? 'selected' : ''; ?>>Delivered</option>
+                                        </select>
+                                        <button type="submit" class="btn btn-primary">Update</button>
+                                    </form>
+                                </td>
                             </tr>
                         <?php endforeach; ?>
                     </tbody>

@@ -61,6 +61,17 @@ $tables['tblOrder'] = "CREATE TABLE IF NOT EXISTS tblOrder (
     FOREIGN KEY (userID) REFERENCES tblUser(userID) ON DELETE CASCADE
 )";
 
+// tblOrderItem table
+$tables['tblOrderItem'] = "CREATE TABLE IF NOT EXISTS tblOrderItem (
+    orderItemID INT AUTO_INCREMENT PRIMARY KEY,
+    orderID INT NOT NULL,
+    clothingID INT NOT NULL,
+    quantity INT NOT NULL,
+    priceAtPurchase DECIMAL(10,2) NOT NULL,
+    FOREIGN KEY (orderID) REFERENCES tblOrder(orderID) ON DELETE CASCADE,
+    FOREIGN KEY (clothingID) REFERENCES tblClothes(clothingID) ON DELETE CASCADE
+)";
+
 // Create all tables
 foreach ($tables as $tableName => $sql) {
     if ($conn->query($sql) === TRUE) {

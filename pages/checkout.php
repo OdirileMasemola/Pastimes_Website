@@ -1,9 +1,10 @@
 <?php
 /**
  * Checkout Page
- * 
- * Final step before placing an order
- * Displays order summary and creates order in database
+ *
+ * Final step before placing an order.
+ * Calculates the cart total from tblClothes, saves the order,
+ * and stores each cart item in tblOrderItem.
  */
 
 session_start();
@@ -14,28 +15,139 @@ if (!isset($_SESSION['userID'])) {
     exit();
 }
 
+if (!isset($_SESSION['cart'])) {
+    $_SESSION['cart'] = array();
+}
+
 $error = '';
 $success = '';
+$previewTotal = 0;
+$previewItems = isset($_SESSION['cart']) ? array_sum($_SESSION['cart']) : 0;
+
+// Work out the current cart total for display.
+if ($previewItems > 0) {
+    $previewStmt = $conn->prepare("SELECT price FROM tblClothes WHERE clothingID = ?");
+
+    if ($previewStmt) {
+        foreach ($_SESSION['cart'] as $clothingID => $quantity) {
+            $clothingID = intval($clothingID);
+            $quantity = intval($quantity);
+
+            if ($clothingID <= 0 || $quantity <= 0) {
+                continue;
+            }
+
+            $previewStmt->bind_param("i", $clothingID);
+            $previewStmt->execute();
+            $previewResult = $previewStmt->get_result();
+
+            if ($previewResult && $previewResult->num_rows > 0) {
+                $previewProduct = $previewResult->fetch_assoc();
+                $previewTotal += floatval($previewProduct['price']) * $quantity;
+            }
+        }
+
+        $previewStmt->close();
+    }
+}
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    // Create order
-    $userID = $_SESSION['userID'];
-    $totalAmount = 0;  // Calculate based on cart items
-    
-    // TODO: Calculate total amount from cart items
-    
-    $sql = "INSERT INTO tblOrder (userID, totalAmount, status) VALUES (?, ?, 'Pending')";
-    $stmt = $conn->prepare($sql);
-    $stmt->bind_param("id", $userID, $totalAmount);
-    
-    if ($stmt->execute()) {
-        $success = "Order placed successfully!";
-        $_SESSION['cart'] = array();  // Clear cart
+    if (count($_SESSION['cart']) === 0) {
+        $error = "Your cart is empty.";
     } else {
-        $error = "Error placing order: " . $conn->error;
+        $userID = $_SESSION['userID'];
+        $totalAmount = 0;
+        $cartItems = array();
+
+        $priceStmt = $conn->prepare("SELECT price FROM tblClothes WHERE clothingID = ?");
+
+        if (!$priceStmt) {
+            $error = "Database error: " . $conn->error;
+        } else {
+            foreach ($_SESSION['cart'] as $clothingID => $quantity) {
+                $clothingID = intval($clothingID);
+                $quantity = intval($quantity);
+
+                if ($clothingID <= 0 || $quantity <= 0) {
+                    continue;
+                }
+
+                $priceStmt->bind_param("i", $clothingID);
+                $priceStmt->execute();
+                $result = $priceStmt->get_result();
+
+                if ($result && $result->num_rows > 0) {
+                    $product = $result->fetch_assoc();
+                    $price = floatval($product['price']);
+                    $totalAmount += $price * $quantity;
+
+                    $cartItems[] = array(
+                        'clothingID' => $clothingID,
+                        'quantity' => $quantity,
+                        'price' => $price
+                    );
+                }
+            }
+
+            if (count($cartItems) === 0) {
+                $error = "No valid items were found in your cart.";
+            } else {
+                $conn->begin_transaction();
+
+                try {
+                    $orderSql = "INSERT INTO tblOrder (userID, totalAmount, status) VALUES (?, ?, 'pending')";
+                    $orderStmt = $conn->prepare($orderSql);
+
+                    if (!$orderStmt) {
+                        throw new Exception("Database error: " . $conn->error);
+                    }
+
+                    $orderStmt->bind_param("id", $userID, $totalAmount);
+
+                    if (!$orderStmt->execute()) {
+                        throw new Exception("Error placing order: " . $conn->error);
+                    }
+
+                    $orderID = $conn->insert_id;
+                    $orderStmt->close();
+
+                    $itemSql = "INSERT INTO tblOrderItem (orderID, clothingID, quantity, priceAtPurchase) VALUES (?, ?, ?, ?)";
+                    $itemStmt = $conn->prepare($itemSql);
+
+                    if (!$itemStmt) {
+                        throw new Exception("Database error: " . $conn->error);
+                    }
+
+                    foreach ($cartItems as $item) {
+                        $itemStmt->bind_param(
+                            "iiid",
+                            $orderID,
+                            $item['clothingID'],
+                            $item['quantity'],
+                            $item['price']
+                        );
+
+                        if (!$itemStmt->execute()) {
+                            throw new Exception("Error saving order items: " . $conn->error);
+                        }
+                    }
+
+                    $itemStmt->close();
+                    $conn->commit();
+
+                    $success = "Order placed successfully!";
+                    $_SESSION['cart'] = array();
+                    $previewTotal = 0;
+                    $previewItems = 0;
+                } catch (Exception $exception) {
+                    $conn->rollback();
+                    $error = $exception->getMessage();
+                }
+            }
+
+            $priceStmt->close();
+        }
     }
-    
-    $stmt->close();
 }
 
 $conn->close();
@@ -70,28 +182,28 @@ $conn->close();
     <main>
         <div class="container">
             <h2>Checkout</h2>
-            
+
             <?php if ($error): ?>
                 <div class="error-message">
                     <p><?php echo htmlspecialchars($error); ?></p>
                 </div>
             <?php endif; ?>
-            
+
             <?php if ($success): ?>
                 <div class="success-message">
                     <p><?php echo htmlspecialchars($success); ?></p>
                 </div>
             <?php endif; ?>
-            
+
             <form method="POST" action="checkout.php">
                 <div class="checkout-section">
                     <h3>Order Summary</h3>
-                    <p>Total Items: <?php echo count($_SESSION['cart']); ?></p>
-                    <p>Total Amount: R 0.00 (To be calculated)</p>
+                    <p>Total Items: <?php echo htmlspecialchars($previewItems); ?></p>
+                    <p>Total Amount: R <?php echo number_format($previewTotal, 2); ?></p>
                 </div>
-                
+
                 <div class="form-group">
-                    <button type="submit" class="btn btn-primary">Place Order</button>
+                    <button type="submit" class="btn btn-primary" <?php echo $previewItems === 0 ? 'disabled' : ''; ?>>Place Order</button>
                     <a href="cart.php" class="btn btn-secondary">Back to Cart</a>
                 </div>
             </form>
