@@ -987,6 +987,119 @@ main h3 {
     margin: auto 0.9rem 0.9rem;
 }
 
+/* Shop page specific layout & flat cards */
+.shop-page .shop-layout {
+    display: flex;
+    gap: 16px;
+    align-items: flex-start;
+    width: 100%;
+}
+
+.shop-page .shop-sidebar {
+    width: 280px;
+    flex: 0 0 280px;
+}
+
+.shop-page .shop-main {
+    flex: 1 1 auto;
+}
+
+.shop-page .search-wrap {
+    position: relative;
+}
+
+.shop-page .search-icon {
+    position: absolute;
+    left: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--muted);
+}
+
+.shop-page .search-input {
+    width: 100%;
+    padding: 0.72rem 0.72rem 0.72rem 36px;
+    border: 1px solid var(--line-strong);
+    background: #fff;
+    color: var(--text);
+    border-radius: 0; /* keep flat */
+}
+
+.shop-page .filter-label {
+    display: block;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    margin-bottom: 0.5rem;
+    color: var(--muted);
+}
+
+.shop-page .filter-select {
+    width: 100%;
+    padding: 0.64rem 0.6rem;
+    border: 1px solid var(--line-strong);
+    background: #fff;
+    color: var(--text);
+    border-radius: 0;
+}
+
+.shop-page .filter-block {
+    margin-bottom: 0.9rem;
+}
+
+.shop-page .products-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+}
+
+.shop-page .product-card {
+    background: transparent;
+    border: none;
+    border-radius: 0;
+    box-shadow: none;
+    overflow: visible;
+    padding: 0;
+}
+
+.shop-page .product-card img {
+    width: 100%;
+    aspect-ratio: 4 / 5;
+    object-fit: cover;
+    display: block;
+}
+
+.shop-page .product-card h3 {
+    font-size: 0.95rem;
+    font-weight: 500;
+    margin: 8px 0 4px;
+    color: var(--text);
+    text-align: left;
+}
+
+.shop-page .product-card .price {
+    font-size: 0.92rem;
+    font-weight: 500;
+    margin: 0 0 8px;
+    text-align: left;
+}
+
+@media (max-width: 960px) {
+    .shop-page .products-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    .shop-page .shop-sidebar {
+        width: 240px;
+        flex: 0 0 240px;
+    }
+}
+
+@media (max-width: 640px) {
+    .shop-page .shop-layout { flex-direction: column; }
+    .shop-page .shop-sidebar { width: 100%; flex: 0 0 auto; }
+    .shop-page .products-grid { grid-template-columns: 1fr; }
+}
+
 .product-details {
     display: grid;
     grid-template-columns: minmax(260px, 1fr) minmax(280px, 1fr);

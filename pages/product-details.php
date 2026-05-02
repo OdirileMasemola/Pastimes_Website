@@ -7,7 +7,7 @@
  */
 
 session_start();
-include("includes/DBConn.php");
+include '../includes/DBConn.php';
 
 $clothingID = isset($_GET['id']) ? intval($_GET['id']) : 0;
 $product = null;
