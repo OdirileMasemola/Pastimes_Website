@@ -6,7 +6,7 @@
  */
 
 session_start();
-include("includes/DBConn.php");
+    include '../includes/DBConn.php';
 
 if (!isset($_SESSION['userID'])) {
     header("Location: login.php");
