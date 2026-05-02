@@ -7,7 +7,7 @@
  */
 
 session_start();
-include("includes/DBConn.php");
+include '../includes/DBConn.php';
 
 if (!isset($_SESSION['adminID'])) {
     header("Location: admin-login.php");
