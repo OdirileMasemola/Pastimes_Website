@@ -64,6 +64,10 @@ $conn->close();
                     <h4>Profile Information</h4>
                     <table class="info-table">
                         <tr>
+                            <th>Username:</th>
+                            <td><?php echo htmlspecialchars($user['username']); ?></td>
+                        </tr>
+                        <tr>
                             <th>Full Name:</th>
                             <td><?php echo htmlspecialchars($user['fullName']); ?></td>
                         </tr>

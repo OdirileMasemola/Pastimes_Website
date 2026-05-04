@@ -2,60 +2,101 @@
 /**
  * User Login Page
  * 
- * Accepts username/email and password
- * Validates against hashed password in database
- * Creates session if credentials are valid
+ * Accepts username, email, and password.
+ * Shows the logged-in user data on the same page when credentials are valid.
  */
 
 session_start();
 include '../includes/DBConn.php';
 
+$username = '';
 $email = '';
 $password = '';
 $error = '';
-$loggedInUser = '';
+$loginSuccess = false;
+$userRecord = null;
+
+if (isset($_SESSION['userID']) && $_SERVER['REQUEST_METHOD'] !== 'POST') {
+    $sessionUserID = (int) $_SESSION['userID'];
+    $sessionStmt = $conn->prepare('SELECT * FROM tblUser WHERE userID = ? LIMIT 1');
+
+    if ($sessionStmt) {
+        $sessionStmt->bind_param('i', $sessionUserID);
+        $sessionStmt->execute();
+        $sessionResult = $sessionStmt->get_result();
+
+        if ($sessionResult && $sessionResult->num_rows > 0) {
+            $userRecord = $sessionResult->fetch_assoc();
+            $loginSuccess = true;
+        }
+
+        $sessionStmt->close();
+    }
+}
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+    $username = isset($_POST['username']) ? trim($_POST['username']) : '';
     $email = isset($_POST['email']) ? $_POST['email'] : '';
     $password = isset($_POST['password']) ? $_POST['password'] : '';
     
     // Basic validation
-    if (empty($email) || empty($password)) {
-        $error = "Please enter both email and password.";
+    if (empty($username) || empty($email) || empty($password)) {
+        $error = "Please enter your username, email, and password.";
     } else {
         // Query user from database
-        $sql = "SELECT userID, fullName, passwordHash, isVerified FROM tblUser WHERE email = ?";
+        $sql = "SELECT * FROM tblUser WHERE username = ? AND email = ? LIMIT 1";
         $stmt = $conn->prepare($sql);
-        $stmt->bind_param("s", $email);
-        $stmt->execute();
-        $result = $stmt->get_result();
         
-        if ($result->num_rows > 0) {
-            $user = $result->fetch_assoc();
-            
-            // Check if user is verified
-            if ($user['isVerified'] == 0) {
-                $error = "Your account is pending verification by an administrator.";
-            } else {
-                // Verify password hash
-                $hashedPassword = md5($password);
-                if ($hashedPassword === $user['passwordHash']) {
-                    // Password matches, create session
-                    $_SESSION['userID'] = $user['userID'];
-                    $_SESSION['userName'] = $user['fullName'];
-                    $_SESSION['userEmail'] = $email;
-                    $loggedInUser = $user['fullName'];
-                    header("Location: account.php");
-                    exit();
-                } else {
-                    $error = "Invalid password.";
-                }
-            }
+        if (!$stmt) {
+            $error = "Database error: " . $conn->error;
         } else {
-            $error = "User not found. Please register to create an account.";
-        }
+            $stmt->bind_param("ss", $username, $email);
+            $stmt->execute();
+            $result = $stmt->get_result();
         
-        $stmt->close();
+            if ($result->num_rows > 0) {
+                $user = $result->fetch_assoc();
+
+                // Check if user is verified
+                if ((int) $user['isVerified'] === 0) {
+                    $error = "Your account is pending verification by an administrator.";
+                } else {
+                    // Verify password hash
+                    $hashedPassword = md5($password);
+                    if ($hashedPassword === $user['passwordHash']) {
+                        $_SESSION['userID'] = (int) $user['userID'];
+                        $_SESSION['userName'] = $user['fullName'];
+                        $_SESSION['userUsername'] = $user['username'];
+                        $_SESSION['userEmail'] = $user['email'];
+                        $userRecord = $user;
+                        $loginSuccess = true;
+                    } else {
+                        $error = "Invalid password.";
+                    }
+                }
+            } else {
+                $error = "User not found. Please register to create an account.";
+            }
+            
+            $stmt->close();
+        }
+    }
+}
+
+if ($loginSuccess && $userRecord === null && isset($_SESSION['userID'])) {
+    $userID = (int) $_SESSION['userID'];
+    $userStmt = $conn->prepare('SELECT * FROM tblUser WHERE userID = ? LIMIT 1');
+
+    if ($userStmt) {
+        $userStmt->bind_param('i', $userID);
+        $userStmt->execute();
+        $userResult = $userStmt->get_result();
+
+        if ($userResult && $userResult->num_rows > 0) {
+            $userRecord = $userResult->fetch_assoc();
+        }
+
+        $userStmt->close();
     }
 }
 
@@ -89,9 +130,9 @@ $conn->close();
                 <a href="../index.php" class="auth-brand" aria-label="Pastimes Home">PASTIMES</a>
                 <a href="javascript:history.back()" class="back-arrow" aria-label="Go back" title="Go back">&larr;</a>
 
-                <?php if ($loggedInUser): ?>
+                <?php if ($loginSuccess && $userRecord): ?>
                     <div class="success-message auth-message">
-                        <p>User <strong><?php echo htmlspecialchars($loggedInUser); ?></strong> is logged in.</p>
+                        <p>User <strong><?php echo htmlspecialchars($userRecord['fullName']); ?></strong> is logged in.</p>
                     </div>
                 <?php endif; ?>
 
@@ -107,38 +148,83 @@ $conn->close();
                     </svg>
                 </div>
 
-                <form method="POST" action="login.php" class="auth-form" novalidate>
-                    <div class="form-group auth-field">
-                        <label for="email">Email</label>
-                        <input
-                            type="email"
-                            id="email"
-                            name="email"
-                            value="<?php echo htmlspecialchars($email); ?>"
-                            placeholder="name@example.com"
-                            required
-                        >
+                <?php if (!$loginSuccess): ?>
+                    <form method="POST" action="login.php" class="auth-form">
+                        <div class="form-group auth-field">
+                            <label for="username">Username</label>
+                            <input
+                                type="text"
+                                id="username"
+                                name="username"
+                                value="<?php echo htmlspecialchars($username); ?>"
+                                placeholder="Enter your username"
+                                required
+                            >
+                        </div>
+
+                        <div class="form-group auth-field">
+                            <label for="email">Email</label>
+                            <input
+                                type="email"
+                                id="email"
+                                name="email"
+                                value="<?php echo htmlspecialchars($email); ?>"
+                                placeholder="name@example.com"
+                                required
+                            >
+                        </div>
+
+                        <div class="form-group auth-field">
+                            <label for="password">Password</label>
+                            <input
+                                type="password"
+                                id="password"
+                                name="password"
+                                placeholder="Enter your password"
+                                required
+                            >
+                        </div>
+
+                        <div class="auth-links-row">
+                            <a href="#" class="auth-link">Forgot Password?</a>
+                        </div>
+
+                        <button type="submit" class="btn auth-btn auth-btn-primary">Login</button>
+
+                        <p class="auth-switch-text">Don't have an account? <a href="register.php" class="auth-link">Sign Up</a></p>
+                    </form>
+                <?php else: ?>
+                    <div class="auth-result-table-wrap">
+                        <table class="admin-table auth-result-table">
+                            <thead>
+                                <tr>
+                                    <th>Column</th>
+                                    <th>Value</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php foreach ($userRecord as $columnName => $value): ?>
+                                    <?php if ($columnName === 'passwordHash'): ?>
+                                        <?php continue; ?>
+                                    <?php endif; ?>
+                                    <tr>
+                                        <td><?php echo htmlspecialchars($columnName); ?></td>
+                                        <td>
+                                            <?php
+                                            if ($columnName === 'isVerified') {
+                                                echo ((int) $value === 1) ? 'Verified' : 'Pending Verification';
+                                            } else {
+                                                echo htmlspecialchars((string) $value);
+                                            }
+                                            ?>
+                                        </td>
+                                    </tr>
+                                <?php endforeach; ?>
+                            </tbody>
+                        </table>
                     </div>
-
-                    <div class="form-group auth-field">
-                        <label for="password">Password</label>
-                        <input
-                            type="password"
-                            id="password"
-                            name="password"
-                            placeholder="Enter your password"
-                            required
-                        >
-                    </div>
-
-                    <div class="auth-links-row">
-                        <a href="#" class="auth-link">Forgot Password?</a>
-                    </div>
-
-                    <button type="submit" class="btn auth-btn auth-btn-primary">Login</button>
-
-                    <p class="auth-switch-text">Don't have an account? <a href="register.php" class="auth-link">Sign Up</a></p>
-                </form>
+                    <p class="auth-switch-text"><a href="logout.php" class="auth-link">Logout</a></p>
+                <?php endif; ?>
             </div>
         </section>
     </main>

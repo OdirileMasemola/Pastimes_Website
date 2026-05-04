@@ -9,6 +9,11 @@
 session_start();
 include '../includes/DBConn.php';
 
+if (isset($_SESSION['adminID'])) {
+    header("Location: dashboard.php");
+    exit();
+}
+
 $email = '';
 $password = '';
 $error = '';
@@ -96,7 +101,7 @@ $conn->close();
                     </svg>
                 </div>
 
-                <form method="POST" action="admin-login.php" class="auth-form" novalidate>
+                <form method="POST" action="admin-login.php" class="auth-form">
                     <div class="form-group auth-field">
                         <label for="email">Admin Email</label>
                         <input

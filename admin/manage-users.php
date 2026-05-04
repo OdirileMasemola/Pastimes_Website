@@ -66,6 +66,7 @@ $conn->close();
                     <thead>
                         <tr>
                             <th>User ID</th>
+                            <th>Username</th>
                             <th>Full Name</th>
                             <th>Email</th>
                             <th>Status</th>
@@ -76,6 +77,7 @@ $conn->close();
                         <?php foreach ($users as $user): ?>
                             <tr>
                                 <td><?php echo htmlspecialchars($user['userID']); ?></td>
+                                <td><?php echo htmlspecialchars($user['username']); ?></td>
                                 <td><?php echo htmlspecialchars($user['fullName']); ?></td>
                                 <td><?php echo htmlspecialchars($user['email']); ?></td>
                                 <td><?php echo $user['isVerified'] ? 'Verified' : 'Pending'; ?></td>

@@ -36,21 +36,40 @@ if ($userID > 0) {
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && $user) {
     $fullName = isset($_POST['fullName']) ? $_POST['fullName'] : '';
+    $username = isset($_POST['username']) ? $_POST['username'] : '';
     $isVerified = isset($_POST['isVerified']) ? 1 : 0;
-    
-    $updateSql = "UPDATE tblUser SET fullName = ?, isVerified = ? WHERE userID = ?";
-    $updateStmt = $conn->prepare($updateSql);
-    $updateStmt->bind_param("sii", $fullName, $isVerified, $userID);
-    
-    if ($updateStmt->execute()) {
-        $success = "User updated successfully!";
-        $user['fullName'] = $fullName;
-        $user['isVerified'] = $isVerified;
+
+    $duplicateSql = "SELECT userID FROM tblUser WHERE (username = ? OR email = ?) AND userID <> ? LIMIT 1";
+    $duplicateStmt = $conn->prepare($duplicateSql);
+
+    if (!$duplicateStmt) {
+        $error = "Database error: " . $conn->error;
     } else {
-        $error = "Error updating user: " . $conn->error;
+        $duplicateStmt->bind_param("ssi", $username, $user['email'], $userID);
+        $duplicateStmt->execute();
+        $duplicateResult = $duplicateStmt->get_result();
+
+        if ($duplicateResult->num_rows > 0) {
+            $error = "Username already exists for another customer.";
+        } else {
+            $updateSql = "UPDATE tblUser SET fullName = ?, username = ?, isVerified = ? WHERE userID = ?";
+            $updateStmt = $conn->prepare($updateSql);
+            $updateStmt->bind_param("ssii", $fullName, $username, $isVerified, $userID);
+            
+            if ($updateStmt->execute()) {
+                $success = "User updated successfully!";
+                $user['fullName'] = $fullName;
+                $user['username'] = $username;
+                $user['isVerified'] = $isVerified;
+            } else {
+                $error = "Error updating user: " . $conn->error;
+            }
+            
+            $updateStmt->close();
+        }
+
+        $duplicateStmt->close();
     }
-    
-    $updateStmt->close();
 }
 
 $conn->close();
@@ -112,6 +131,17 @@ All rights reserved.
                         >
                     </div>
                     
+                    <div class="form-group">
+                        <label for="username">Username:</label>
+                        <input 
+                            type="text" 
+                            id="username" 
+                            name="username" 
+                            value="<?php echo htmlspecialchars($user['username']); ?>" 
+                            required
+                        >
+                    </div>
+
                     <div class="form-group">
                         <label for="email">Email:</label>
                         <input 

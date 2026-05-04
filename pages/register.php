@@ -33,21 +33,21 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     } elseif (strlen($password) < 6) {
         $error = "Password must be at least 6 characters long.";
     } else {
-        // Check if email already exists
-        $checkEmail = "SELECT userID FROM tblUser WHERE email = ?";
-        $stmt = $conn->prepare($checkEmail);
-        $stmt->bind_param("s", $email);
+        // Check if username or email already exists
+        $checkUser = "SELECT userID FROM tblUser WHERE email = ? OR username = ? LIMIT 1";
+        $stmt = $conn->prepare($checkUser);
+        $stmt->bind_param("ss", $email, $username);
         $stmt->execute();
         $result = $stmt->get_result();
         
         if ($result->num_rows > 0) {
-            $error = "Email already registered. Please login or use a different email.";
+            $error = "Username or email already registered. Please login or use different details.";
         } else {
             // Hash password and insert new user
             $hashedPassword = md5($password);
-            $insertUser = "INSERT INTO tblUser (fullName, email, passwordHash, isVerified) VALUES (?, ?, ?, 0)";
+            $insertUser = "INSERT INTO tblUser (username, fullName, email, passwordHash, isVerified) VALUES (?, ?, ?, ?, 0)";
             $insertStmt = $conn->prepare($insertUser);
-            $insertStmt->bind_param("sss", $fullName, $email, $hashedPassword);
+            $insertStmt->bind_param("ssss", $username, $fullName, $email, $hashedPassword);
             
             if ($insertStmt->execute()) {
                 $success = "Registration successful! Your account is pending admin verification. You will be able to login once verified.";
@@ -115,7 +115,7 @@ $conn->close();
 
 
 
-                <form method="POST" action="register.php" class="auth-form" novalidate>
+                <form method="POST" action="register.php" class="auth-form">
                     <div class="form-group auth-field">
                         <label for="fullName">Full Name</label>
                         <input

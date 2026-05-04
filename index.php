@@ -33,7 +33,11 @@ session_start();
                         <li><a href="pages/login.php">Login</a></li>
                         <li><a href="pages/register.php">Register</a></li>
                     <?php endif; ?>
-                    <li><a href="admin/admin-login.php">Admin</a></li>
+                    <?php if (isset($_SESSION['adminID'])): ?>
+                        <li><a href="admin/dashboard.php">Admin</a></li>
+                    <?php else: ?>
+                        <li><a href="admin/admin-login.php">Admin</a></li>
+                    <?php endif; ?>
                 </ul>
             </div>
         </nav>

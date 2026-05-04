@@ -1,88 +1,84 @@
 <?php
 /**
  * Create Table Script
- * 
- * This script will:
- * - Check if tblUser exists
- * - Delete tblUser if it exists
- * - Recreate tblUser
- * - Load data from userData.txt file
+ *
+ * Drops tblUser when it exists, recreates it, and reloads seed data from
+ * data/userData.txt.
  */
 
-// Include database connection
-include 'DBConn.php';
+require_once __DIR__ . '/DBConn.php';
 
-// Check if tblUser exists and drop it if it does
-$checkTable = "SHOW TABLES LIKE 'tblUser'";
-$result = $conn->query($checkTable);
+$dataFile = __DIR__ . '/../data/userData.txt';
 
-if ($result && $result->num_rows > 0) {
-    // Table exists, so drop it
-    $dropTable = "DROP TABLE tblUser";
-    if ($conn->query($dropTable) === TRUE) {
-        echo "Existing tblUser table dropped.<br>";
-    } else {
-        echo "Error dropping table: " . $conn->error . "<br>";
-    }
+if (!$conn->query('DROP TABLE IF EXISTS tblUser')) {
+    die('Error dropping tblUser: ' . $conn->error);
 }
 
-// Create tblUser table
-$createTable = "CREATE TABLE tblUser (
+$createTable = "CREATE TABLE IF NOT EXISTS tblUser (
     userID INT AUTO_INCREMENT PRIMARY KEY,
+    username VARCHAR(50) NOT NULL UNIQUE,
     fullName VARCHAR(100) NOT NULL,
     email VARCHAR(100) NOT NULL UNIQUE,
     passwordHash VARCHAR(255) NOT NULL,
-    isVerified BOOLEAN DEFAULT FALSE,
-    createdDate TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-)";
+    address VARCHAR(255) DEFAULT NULL,
+    city VARCHAR(50) DEFAULT NULL,
+    zipCode VARCHAR(10) DEFAULT NULL,
+    phone VARCHAR(20) DEFAULT NULL,
+    isVerified TINYINT(1) NOT NULL DEFAULT 0,
+    createdDate TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updatedDate TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4";
 
-if ($conn->query($createTable) === TRUE) {
-    echo "tblUser table created successfully.<br>";
-    
-    // Load data from userData.txt file
-    $dataFile = '../data/userData.txt';
-    if (file_exists($dataFile)) {
-        $file = fopen($dataFile, 'r');
-        $count = 0;
-        
-        while (!feof($file)) {
-            $line = trim(fgets($file));
-            if (!empty($line)) {
-                // Parse the line: name | email | passwordHash
-                $parts = explode('|', $line);
-                if (count($parts) >= 3) {
-                    $name = $conn->real_escape_string(trim($parts[0]));
-                    $email = $conn->real_escape_string(trim($parts[1]));
-                    $hash = $conn->real_escape_string(trim($parts[2]));
-                    
-                    $insertQuery = "INSERT INTO tblUser (fullName, email, passwordHash, isVerified) 
-                                   VALUES ('$name', '$email', '$hash', 1)";
-                    
-                    if ($conn->query($insertQuery) === TRUE) {
-                        $count++;
-                    } else {
-                        echo "Error inserting record: " . $conn->error . "<br>";
-                    }
-                }
-            }
-        }
-        
-        fclose($file);
-        echo "$count records inserted successfully.<br>";
-    } else {
-        echo "userData.txt file not found.<br>";
-    }
-} else {
-    echo "Error creating table: " . $conn->error . "<br>";
+if (!$conn->query($createTable)) {
+    die('Error creating tblUser: ' . $conn->error);
 }
 
+$insertStmt = $conn->prepare('INSERT INTO tblUser (username, fullName, email, passwordHash, isVerified) VALUES (?, ?, ?, ?, ?)');
+
+if (!$insertStmt) {
+    die('Error preparing insert statement: ' . $conn->error);
+}
+
+$loadedRows = 0;
+
+if (file_exists($dataFile)) {
+    $fileHandle = fopen($dataFile, 'r');
+
+    if ($fileHandle) {
+        while (($line = fgets($fileHandle)) !== false) {
+            $line = trim($line);
+
+            if ($line === '') {
+                continue;
+            }
+
+            $parts = array_map('trim', explode('|', $line));
+
+            if (count($parts) < 4) {
+                continue;
+            }
+
+            $username = $parts[0];
+            $fullName = $parts[1];
+            $email = $parts[2];
+            $passwordHash = $parts[3];
+            $isVerified = isset($parts[4]) ? (int) $parts[4] : 1;
+
+            $insertStmt->bind_param('ssssi', $username, $fullName, $email, $passwordHash, $isVerified);
+
+            if ($insertStmt->execute()) {
+                $loadedRows++;
+            }
+        }
+
+        fclose($fileHandle);
+    }
+}
+
+$insertStmt->close();
+
+echo 'tblUser recreated successfully.<br>';
+echo $loadedRows . ' user records loaded from userData.txt.<br>';
+
 $conn->close();
-?>
-<?php
-/*
-This code is the original work of:
-ST10441421 - Odirile Masemola
-ST10450294 - Ripfumelo Mabasa
-All rights reserved.
-*/
 ?>

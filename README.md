@@ -103,29 +103,29 @@ Pastimes_Website/
 
 ## Features Implemented
 
-✅ Database connection (DBConn.php)
-✅ Create/Load database tables
-✅ User registration with pending verification
-✅ User login with password hashing
-✅ Admin login
-✅ User authentication & sessions
-✅ Shopping cart functionality
-✅ Product catalog
-✅ Admin management panels
-✅ Basic responsive CSS styling
+- Database connection (DBConn.php)
+- Create/Load database tables
+- User registration with pending verification
+- User login with password hashing
+- Admin login
+- User authentication & sessions
+- Shopping cart functionality
+- Product catalog
+- Admin management panels
+- Basic responsive CSS styling
 
 ## Features To Complete
 
-- [ ] Complete checkout process (calculate totals, process payments)
-- [ ] Order management (update order status)
-- [ ] User messaging system
-- [ ] Product image uploads
-- [ ] Email notifications
-- [ ] Advanced search/filtering
-- [ ] User reviews and ratings
-- [ ] Sell items functionality
-- [ ] More comprehensive error handling
-- [ ] Input validation enhancements
+- Complete checkout process (calculate totals, process payments)
+- Order management (update order status)
+- User messaging system
+- Product image uploads
+- Email notifications
+- Advanced search/filtering
+- User reviews and ratings
+- Sell items functionality
+- More comprehensive error handling
+- Input validation enhancements
 
 ## Setup Instructions
 

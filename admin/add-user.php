@@ -14,6 +14,7 @@ if (!isset($_SESSION['adminID'])) {
 }
 
 $fullName = '';
+$username = '';
 $email = '';
 $password = '';
 $error = '';
@@ -21,26 +22,45 @@ $success = '';
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $fullName = isset($_POST['fullName']) ? $_POST['fullName'] : '';
+    $username = isset($_POST['username']) ? $_POST['username'] : '';
     $email = isset($_POST['email']) ? $_POST['email'] : '';
     $password = isset($_POST['password']) ? $_POST['password'] : '';
     
-    if (empty($fullName) || empty($email) || empty($password)) {
+    if (empty($fullName) || empty($username) || empty($email) || empty($password)) {
         $error = "All fields are required.";
     } else {
-        $hashedPassword = md5($password);
-        $sql = "INSERT INTO tblUser (fullName, email, passwordHash, isVerified) VALUES (?, ?, ?, 1)";
-        $stmt = $conn->prepare($sql);
-        $stmt->bind_param("sss", $fullName, $email, $hashedPassword);
-        
-        if ($stmt->execute()) {
-            $success = "User added successfully!";
-            $fullName = '';
-            $email = '';
+        $checkSql = "SELECT userID FROM tblUser WHERE email = ? OR username = ? LIMIT 1";
+        $checkStmt = $conn->prepare($checkSql);
+
+        if (!$checkStmt) {
+            $error = "Database error: " . $conn->error;
         } else {
-            $error = "Error adding user: " . $conn->error;
+            $checkStmt->bind_param("ss", $email, $username);
+            $checkStmt->execute();
+            $checkResult = $checkStmt->get_result();
+
+            if ($checkResult->num_rows > 0) {
+                $error = "Username or email already exists.";
+            } else {
+                $hashedPassword = md5($password);
+                $sql = "INSERT INTO tblUser (username, fullName, email, passwordHash, isVerified) VALUES (?, ?, ?, ?, 1)";
+                $stmt = $conn->prepare($sql);
+                $stmt->bind_param("ssss", $username, $fullName, $email, $hashedPassword);
+                
+                if ($stmt->execute()) {
+                    $success = "User added successfully!";
+                    $fullName = '';
+                    $username = '';
+                    $email = '';
+                } else {
+                    $error = "Error adding user: " . $conn->error;
+                }
+                
+                $stmt->close();
+            }
+
+            $checkStmt->close();
         }
-        
-        $stmt->close();
     }
 }
 
@@ -95,7 +115,7 @@ All rights reserved.
                 </div>
             <?php endif; ?>
             
-            <form method="POST" action="add-user.php" novalidate>
+                <form method="POST" action="add-user.php">
                 <div class="form-group">
                     <label for="fullName">Full Name:</label>
                     <input 
@@ -106,6 +126,17 @@ All rights reserved.
                         required
                     >
                 </div>
+
+                    <div class="form-group">
+                        <label for="username">Username:</label>
+                        <input 
+                            type="text" 
+                            id="username" 
+                            name="username" 
+                            value="<?php echo htmlspecialchars($username); ?>" 
+                            required
+                        >
+                    </div>
                 
                 <div class="form-group">
                     <label for="email">Email:</label>
