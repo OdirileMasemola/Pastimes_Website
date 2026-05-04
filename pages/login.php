@@ -17,21 +17,8 @@ $loginSuccess = false;
 $userRecord = null;
 
 if (isset($_SESSION['userID']) && $_SERVER['REQUEST_METHOD'] !== 'POST') {
-    $sessionUserID = (int) $_SESSION['userID'];
-    $sessionStmt = $conn->prepare('SELECT * FROM tblUser WHERE userID = ? LIMIT 1');
-
-    if ($sessionStmt) {
-        $sessionStmt->bind_param('i', $sessionUserID);
-        $sessionStmt->execute();
-        $sessionResult = $sessionStmt->get_result();
-
-        if ($sessionResult && $sessionResult->num_rows > 0) {
-            $userRecord = $sessionResult->fetch_assoc();
-            $loginSuccess = true;
-        }
-
-        $sessionStmt->close();
-    }
+    header('Location: ../index.php');
+    exit();
 }
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
@@ -68,8 +55,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                         $_SESSION['userName'] = $user['fullName'];
                         $_SESSION['userUsername'] = $user['username'];
                         $_SESSION['userEmail'] = $user['email'];
-                        $userRecord = $user;
-                        $loginSuccess = true;
+
+                        $stmt->close();
+                        $conn->close();
+                        header('Location: ../index.php');
+                        exit();
                     } else {
                         $error = "Invalid password.";
                     }
@@ -80,23 +70,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             
             $stmt->close();
         }
-    }
-}
-
-if ($loginSuccess && $userRecord === null && isset($_SESSION['userID'])) {
-    $userID = (int) $_SESSION['userID'];
-    $userStmt = $conn->prepare('SELECT * FROM tblUser WHERE userID = ? LIMIT 1');
-
-    if ($userStmt) {
-        $userStmt->bind_param('i', $userID);
-        $userStmt->execute();
-        $userResult = $userStmt->get_result();
-
-        if ($userResult && $userResult->num_rows > 0) {
-            $userRecord = $userResult->fetch_assoc();
-        }
-
-        $userStmt->close();
     }
 }
 
@@ -130,12 +103,6 @@ $conn->close();
                 <a href="../index.php" class="auth-brand" aria-label="Pastimes Home">PASTIMES</a>
                 <a href="javascript:history.back()" class="back-arrow" aria-label="Go back" title="Go back">&larr;</a>
 
-                <?php if ($loginSuccess && $userRecord): ?>
-                    <div class="success-message auth-message">
-                        <p>User <strong><?php echo htmlspecialchars($userRecord['fullName']); ?></strong> is logged in.</p>
-                    </div>
-                <?php endif; ?>
-
                 <?php if ($error): ?>
                     <div class="error-message auth-message">
                         <p><?php echo htmlspecialchars($error); ?></p>
@@ -148,83 +115,50 @@ $conn->close();
                     </svg>
                 </div>
 
-                <?php if (!$loginSuccess): ?>
-                    <form method="POST" action="login.php" class="auth-form">
-                        <div class="form-group auth-field">
-                            <label for="username">Username</label>
-                            <input
-                                type="text"
-                                id="username"
-                                name="username"
-                                value="<?php echo htmlspecialchars($username); ?>"
-                                placeholder="Enter your username"
-                                required
-                            >
-                        </div>
-
-                        <div class="form-group auth-field">
-                            <label for="email">Email</label>
-                            <input
-                                type="email"
-                                id="email"
-                                name="email"
-                                value="<?php echo htmlspecialchars($email); ?>"
-                                placeholder="name@example.com"
-                                required
-                            >
-                        </div>
-
-                        <div class="form-group auth-field">
-                            <label for="password">Password</label>
-                            <input
-                                type="password"
-                                id="password"
-                                name="password"
-                                placeholder="Enter your password"
-                                required
-                            >
-                        </div>
-
-                        <div class="auth-links-row">
-                            <a href="#" class="auth-link">Forgot Password?</a>
-                        </div>
-
-                        <button type="submit" class="btn auth-btn auth-btn-primary">Login</button>
-
-                        <p class="auth-switch-text">Don't have an account? <a href="register.php" class="auth-link">Sign Up</a></p>
-                    </form>
-                <?php else: ?>
-                    <div class="auth-result-table-wrap">
-                        <table class="admin-table auth-result-table">
-                            <thead>
-                                <tr>
-                                    <th>Column</th>
-                                    <th>Value</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <?php foreach ($userRecord as $columnName => $value): ?>
-                                    <?php if ($columnName === 'passwordHash'): ?>
-                                        <?php continue; ?>
-                                    <?php endif; ?>
-                                    <tr>
-                                        <td><?php echo htmlspecialchars($columnName); ?></td>
-                                        <td>
-                                            <?php
-                                            if ($columnName === 'isVerified') {
-                                                echo ((int) $value === 1) ? 'Verified' : 'Pending Verification';
-                                            } else {
-                                                echo htmlspecialchars((string) $value);
-                                            }
-                                            ?>
-                                        </td>
-                                    </tr>
-                                <?php endforeach; ?>
-                            </tbody>
-                        </table>
+                <form method="POST" action="login.php" class="auth-form">
+                    <div class="form-group auth-field">
+                        <label for="username">Username</label>
+                        <input
+                            type="text"
+                            id="username"
+                            name="username"
+                            value="<?php echo htmlspecialchars($username); ?>"
+                            placeholder="Enter your username"
+                            required
+                        >
                     </div>
-                    <p class="auth-switch-text"><a href="logout.php" class="auth-link">Logout</a></p>
-                <?php endif; ?>
+
+                    <div class="form-group auth-field">
+                        <label for="email">Email</label>
+                        <input
+                            type="email"
+                            id="email"
+                            name="email"
+                            value="<?php echo htmlspecialchars($email); ?>"
+                            placeholder="name@example.com"
+                            required
+                        >
+                    </div>
+
+                    <div class="form-group auth-field">
+                        <label for="password">Password</label>
+                        <input
+                            type="password"
+                            id="password"
+                            name="password"
+                            placeholder="Enter your password"
+                            required
+                        >
+                    </div>
+
+                    <div class="auth-links-row">
+                        <a href="#" class="auth-link">Forgot Password?</a>
+                    </div>
+
+                    <button type="submit" class="btn auth-btn auth-btn-primary">Login</button>
+
+                    <p class="auth-switch-text">Don't have an account? <a href="register.php" class="auth-link">Sign Up</a></p>
+                </form>
             </div>
         </section>
     </main>

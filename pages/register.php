@@ -18,10 +18,45 @@ $confirmPassword = '';
 $error = '';
 $success = '';
 
+/**
+ * Ensures tblUser has the minimum columns required by this page.
+ * This guards against legacy schemas missing username/isVerified.
+ */
+function ensureUserTableSchema(mysqli $conn, &$errorMessage)
+{
+    $requiredColumns = array(
+        'username' => "ALTER TABLE tblUser ADD COLUMN username VARCHAR(50) NOT NULL UNIQUE AFTER userID",
+        'fullName' => "ALTER TABLE tblUser ADD COLUMN fullName VARCHAR(100) NOT NULL AFTER username",
+        'email' => "ALTER TABLE tblUser ADD COLUMN email VARCHAR(100) NOT NULL UNIQUE AFTER fullName",
+        'passwordHash' => "ALTER TABLE tblUser ADD COLUMN passwordHash VARCHAR(255) NOT NULL AFTER email",
+        'isVerified' => "ALTER TABLE tblUser ADD COLUMN isVerified TINYINT(1) NOT NULL DEFAULT 0 AFTER phone"
+    );
+
+    foreach ($requiredColumns as $columnName => $alterSql) {
+        $columnCheck = $conn->query("SHOW COLUMNS FROM tblUser LIKE '" . $conn->real_escape_string($columnName) . "'");
+
+        if ($columnCheck === false) {
+            $errorMessage = "Error checking user table structure: " . $conn->error;
+            return false;
+        }
+
+        if ($columnCheck->num_rows === 0) {
+            if (!$conn->query($alterSql)) {
+                $errorMessage = "User table schema is outdated. Please run /includes/loadClothingStore.php. Technical details: " . $conn->error;
+                return false;
+            }
+        }
+
+        $columnCheck->free();
+    }
+
+    return true;
+}
+
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    $fullName = isset($_POST['fullName']) ? $_POST['fullName'] : '';
-    $username = isset($_POST['username']) ? $_POST['username'] : '';
-    $email = isset($_POST['email']) ? $_POST['email'] : '';
+    $fullName = isset($_POST['fullName']) ? trim($_POST['fullName']) : '';
+    $username = isset($_POST['username']) ? trim($_POST['username']) : '';
+    $email = isset($_POST['email']) ? trim($_POST['email']) : '';
     $password = isset($_POST['password']) ? $_POST['password'] : '';
     $confirmPassword = isset($_POST['confirmPassword']) ? $_POST['confirmPassword'] : '';
     
@@ -32,36 +67,49 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $error = "Passwords do not match.";
     } elseif (strlen($password) < 6) {
         $error = "Password must be at least 6 characters long.";
+    } elseif (!ensureUserTableSchema($conn, $error)) {
+        // $error has already been set by ensureUserTableSchema().
     } else {
         // Check if username or email already exists
         $checkUser = "SELECT userID FROM tblUser WHERE email = ? OR username = ? LIMIT 1";
         $stmt = $conn->prepare($checkUser);
-        $stmt->bind_param("ss", $email, $username);
-        $stmt->execute();
-        $result = $stmt->get_result();
-        
-        if ($result->num_rows > 0) {
-            $error = "Username or email already registered. Please login or use different details.";
+
+        if (!$stmt) {
+            $error = "Unable to validate your details right now. Please try again. Technical details: " . $conn->error;
         } else {
-            // Hash password and insert new user
-            $hashedPassword = md5($password);
-            $insertUser = "INSERT INTO tblUser (username, fullName, email, passwordHash, isVerified) VALUES (?, ?, ?, ?, 0)";
-            $insertStmt = $conn->prepare($insertUser);
-            $insertStmt->bind_param("ssss", $username, $fullName, $email, $hashedPassword);
-            
-            if ($insertStmt->execute()) {
-                $success = "Registration successful! Your account is pending admin verification. You will be able to login once verified.";
-                $fullName = '';
-                $username = '';
-                $email = '';
-            } else {
-                $error = "Error registering user: " . $conn->error;
-            }
-            
-            $insertStmt->close();
-        }
+            $stmt->bind_param("ss", $email, $username);
+            $stmt->execute();
+            $stmt->store_result();
+            $existingUsers = $stmt->num_rows;
         
-        $stmt->close();
+            if ($existingUsers > 0) {
+                $error = "Username or email already registered. Please login or use different details.";
+            } else {
+                // Hash password and insert new user
+                $hashedPassword = md5($password);
+                $insertUser = "INSERT INTO tblUser (username, fullName, email, passwordHash, isVerified) VALUES (?, ?, ?, ?, 0)";
+                $insertStmt = $conn->prepare($insertUser);
+
+                if (!$insertStmt) {
+                    $error = "Unable to create account right now. Please try again. Technical details: " . $conn->error;
+                } else {
+                    $insertStmt->bind_param("ssss", $username, $fullName, $email, $hashedPassword);
+
+                    if ($insertStmt->execute()) {
+                        $success = "Registration successful! Your account is pending admin verification. You will be able to login once verified.";
+                        $fullName = '';
+                        $username = '';
+                        $email = '';
+                    } else {
+                        $error = "Error registering user: " . $conn->error;
+                    }
+
+                    $insertStmt->close();
+                }
+            }
+
+            $stmt->close();
+        }
     }
 }
 

@@ -1,5 +1,6 @@
-rebbeca_m | Rebbecca Mathabatha | rmathabatha@example.com | 29ef52e7563626a96cea7f4b4085c124 | 1
-toby_m | Toby Masemola | tmasemola@abc.co.za | 5f4dcc3b5aa765d61d8327deb882cf99 | 1
-johnnie_s | Johnnie Stolz | johnnieS@example.com | 098f6bcd4621d373cade4e832627b4f6 | 1
-maria_m | Maria Mokgale | mariamokgale@rosebankcollege.co.za | 96ceb8a4ea8fe93f52f6d41a8e4ab13e | 1
-david_c | David Chauke | davidchauke2@gmail.com | 7d793037a6d2e824a13edeac4e913e73 | 1
+rebbeca_m | Rebbecca Mathabatha | rmathabatha@example.com | 21232f297a57a5a743894a0e4a801fc3 | 1
+toby_m | Toby Masemola | tmasemola@abc.co.za | 21232f297a57a5a743894a0e4a801fc3 | 1
+johnnie_s | Johnnie Stolz | johnnieS@example.com | 21232f297a57a5a743894a0e4a801fc3 | 1
+maria_m | Maria Mokgale | mariamokgale@rosebankcollege.co.za | 21232f297a57a5a743894a0e4a801fc3 | 1
+david_c | David Chauke | davidchauke2@gmail.com | 21232f297a57a5a743894a0e4a801fc3 | 1
+password: admin
