@@ -77,12 +77,18 @@ $tableSql = array(
     'tblClothes' => "CREATE TABLE IF NOT EXISTS tblClothes (
         clothingID INT AUTO_INCREMENT PRIMARY KEY,
         clothingName VARCHAR(150) NOT NULL,
+        brand VARCHAR(100) DEFAULT NULL,
         category VARCHAR(50) NOT NULL,
         description TEXT,
+        size VARCHAR(20) DEFAULT NULL,
+        clothingCondition VARCHAR(50) DEFAULT NULL,
         price DECIMAL(8,2) NOT NULL,
         quantity INT NOT NULL DEFAULT 0,
         imageURL VARCHAR(255) DEFAULT NULL,
-        createdDate TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        sellerID INT DEFAULT NULL,
+        approvalStatus VARCHAR(50) DEFAULT 'pending',
+        createdDate TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        CONSTRAINT fk_clothes_seller FOREIGN KEY (sellerID) REFERENCES tblUser(userID) ON DELETE SET NULL ON UPDATE CASCADE
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4",
     'tblOrder' => "CREATE TABLE IF NOT EXISTS tblOrder (
         orderID INT AUTO_INCREMENT PRIMARY KEY,

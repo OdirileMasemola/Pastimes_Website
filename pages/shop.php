@@ -9,7 +9,7 @@
 session_start();
 include '../includes/DBConn.php';
 
-$sql = "SELECT * FROM tblClothes";
+$sql = "SELECT * FROM tblClothes WHERE approvalStatus = 'approved'";
 $result = $conn->query($sql);
 $clothes = array();
 

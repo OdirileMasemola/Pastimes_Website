@@ -18,6 +18,7 @@ $userCount = 0;
 $pendingUserCount = 0;
 $clothingCount = 0;
 $orderCount = 0;
+$pendingSellerCount = 0;
 
 $userResult = $conn->query("SELECT COUNT(*) AS total FROM tblUser");
 if ($userResult && $userRow = $userResult->fetch_assoc()) {
@@ -37,6 +38,11 @@ if ($clothingResult && $clothingRow = $clothingResult->fetch_assoc()) {
 $orderResult = $conn->query("SELECT COUNT(*) AS total FROM tblOrder");
 if ($orderResult && $orderRow = $orderResult->fetch_assoc()) {
     $orderCount = (int) $orderRow['total'];
+}
+
+$pendingSellerResult = $conn->query("SELECT COUNT(*) AS total FROM tblClothes WHERE approvalStatus = 'pending'");
+if ($pendingSellerResult && $pendingSellerRow = $pendingSellerResult->fetch_assoc()) {
+    $pendingSellerCount = (int) $pendingSellerRow['total'];
 }
 
 $conn->close();
@@ -91,6 +97,10 @@ $conn->close();
                     <p class="admin-stat-value"><?php echo $clothingCount; ?></p>
                 </article>
                 <article class="admin-stat-card">
+                    <h3>Pending Seller Requests</h3>
+                    <p class="admin-stat-value"><?php echo $pendingSellerCount; ?></p>
+                </article>
+                <article class="admin-stat-card">
                     <h3>Total Orders</h3>
                     <p class="admin-stat-value"><?php echo $orderCount; ?></p>
                 </article>
@@ -112,6 +122,14 @@ $conn->close();
                     <div class="dashboard-actions">
                         <a href="manage-clothes.php" class="btn btn-primary">View All Clothes</a>
                         <a href="add-clothing.php" class="btn btn-secondary">Add New Clothing</a>
+                    </div>
+                </div>
+                
+                <div class="dashboard-section">
+                    <h3>Manage Seller Requests</h3>
+                    <p>Review and approve/reject clothing items submitted by sellers.</p>
+                    <div class="dashboard-actions">
+                        <a href="manage-seller-requests.php" class="btn btn-primary">View Seller Requests (<?php echo $pendingSellerCount; ?>)</a>
                     </div>
                 </div>
                 
