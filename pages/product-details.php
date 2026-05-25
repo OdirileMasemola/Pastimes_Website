@@ -75,6 +75,12 @@ function pickFashionImage($category, $clothingName, $clothingID, $maleFashionIma
 $displayImage = '';
 if ($product) {
     $displayImage = pickFashionImage($product['category'], $product['clothingName'], intval($product['clothingID']), $maleFashionImages, $femaleFashionImages, $unisexFashionImages);
+    
+    if (!empty($product['imageURL'])) {
+        if (file_exists($product['imageURL'])) {
+            $displayImage = $product['imageURL'];
+        }
+    }
 }
 
 $conn->close();

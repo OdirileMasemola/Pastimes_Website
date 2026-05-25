@@ -99,6 +99,7 @@ $conn->close();
                     <ul>
                         <li><a href="my-orders.php" class="btn btn-secondary">My Orders</a></li>
                         <li><a href="my-messages.php" class="btn btn-secondary">My Messages</a></li>
+                        <li><a href="my-listings.php" class="btn btn-secondary">My Listings</a></li>
                         <li><a href="sell-item.php" class="btn btn-secondary">Sell an Item</a></li>
                     </ul>
                 </div>

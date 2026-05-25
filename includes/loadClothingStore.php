@@ -44,7 +44,7 @@ function loadDelimitedFile(mysqli $conn, string $filePath, callable $rowHandler)
 
 $conn->query('SET FOREIGN_KEY_CHECKS=0');
 
-foreach (array('tblOrderItem', 'tblOrder', 'tblClothes', 'tblUser', 'tblAdmin') as $tableName) {
+foreach (array('tblMessage', 'tblOrderItem', 'tblOrder', 'tblClothes', 'tblUser', 'tblAdmin') as $tableName) {
     if (!$conn->query("DROP TABLE IF EXISTS {$tableName}")) {
         die('Error dropping ' . $tableName . ': ' . $conn->error);
     }
@@ -106,6 +106,17 @@ $tableSql = array(
         priceAtPurchase DECIMAL(10,2) NOT NULL,
         CONSTRAINT fk_orderitem_order FOREIGN KEY (orderID) REFERENCES tblOrder(orderID) ON DELETE CASCADE ON UPDATE CASCADE,
         CONSTRAINT fk_orderitem_clothing FOREIGN KEY (clothingID) REFERENCES tblClothes(clothingID) ON DELETE CASCADE ON UPDATE CASCADE
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4",
+    'tblMessage' => "CREATE TABLE IF NOT EXISTS tblMessage (
+        messageID INT AUTO_INCREMENT PRIMARY KEY,
+        senderType VARCHAR(20) NOT NULL,
+        senderID INT NOT NULL,
+        receiverID INT NOT NULL,
+        subject VARCHAR(200) NOT NULL,
+        messageText TEXT NOT NULL,
+        sentDate TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        isRead TINYINT(1) NOT NULL DEFAULT 0,
+        CONSTRAINT fk_message_receiver FOREIGN KEY (receiverID) REFERENCES tblUser(userID) ON DELETE CASCADE ON UPDATE CASCADE
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4"
 );
 

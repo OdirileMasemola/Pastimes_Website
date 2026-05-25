@@ -64,9 +64,11 @@ $conn->close();
                         <tr>
                             <th>ID</th>
                             <th>Name</th>
+                            <th>Brand</th>
                             <th>Category</th>
                             <th>Price</th>
                             <th>Quantity</th>
+                            <th>Status</th>
                             <th>Actions</th>
                         </tr>
                     </thead>
@@ -75,9 +77,11 @@ $conn->close();
                             <tr>
                                 <td><?php echo htmlspecialchars($item['clothingID']); ?></td>
                                 <td><?php echo htmlspecialchars($item['clothingName']); ?></td>
+                                <td><?php echo htmlspecialchars($item['brand'] ?? 'N/A'); ?></td>
                                 <td><?php echo htmlspecialchars($item['category']); ?></td>
                                 <td>R <?php echo number_format($item['price'], 2); ?></td>
                                 <td><?php echo htmlspecialchars($item['quantity']); ?></td>
+                                <td><?php echo htmlspecialchars(ucfirst($item['approvalStatus'])); ?></td>
                                 <td>
                                     <a href="edit-clothing.php?id=<?php echo $item['clothingID']; ?>" class="btn btn-secondary">Edit</a>
                                     <a href="delete-clothing.php?id=<?php echo $item['clothingID']; ?>" class="btn btn-danger" onclick="return confirm('Are you sure?');">Delete</a>

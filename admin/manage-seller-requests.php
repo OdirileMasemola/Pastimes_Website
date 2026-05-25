@@ -16,31 +16,52 @@ if (!isset($_SESSION['adminID'])) {
 $message = '';
 $messageType = '';
 
-// Handle approve action
+// Handle approve/reject/delete actions
 if (isset($_GET['action']) && isset($_GET['id'])) {
     $action = $_GET['action'];
     $clothingID = intval($_GET['id']);
     
-    if (($action === 'approve' || $action === 'reject') && $clothingID > 0) {
-        $newStatus = ($action === 'approve') ? 'approved' : 'rejected';
-        
-        $updateSql = "UPDATE tblClothes SET approvalStatus = ? WHERE clothingID = ?";
-        $updateStmt = $conn->prepare($updateSql);
-        
-        if (!$updateStmt) {
-            $message = "Database error: " . $conn->error;
-            $messageType = "error";
-        } else {
-            $updateStmt->bind_param("si", $newStatus, $clothingID);
+    if ($clothingID > 0) {
+        if ($action === 'approve' || $action === 'reject') {
+            $newStatus = ($action === 'approve') ? 'approved' : 'rejected';
             
-            if ($updateStmt->execute()) {
-                $message = "Item " . htmlspecialchars($action) . "ed successfully.";
-                $messageType = "success";
-            } else {
-                $message = "Error updating item: " . $updateStmt->error;
+            $updateSql = "UPDATE tblClothes SET approvalStatus = ? WHERE clothingID = ?";
+            $updateStmt = $conn->prepare($updateSql);
+            
+            if (!$updateStmt) {
+                $message = "Database error: " . $conn->error;
                 $messageType = "error";
+            } else {
+                $updateStmt->bind_param("si", $newStatus, $clothingID);
+                
+                if ($updateStmt->execute()) {
+                    $message = "Item " . htmlspecialchars($action) . "ed successfully.";
+                    $messageType = "success";
+                } else {
+                    $message = "Error updating item: " . $updateStmt->error;
+                    $messageType = "error";
+                }
+                $updateStmt->close();
             }
-            $updateStmt->close();
+        } elseif ($action === 'delete') {
+            $deleteSql = "DELETE FROM tblClothes WHERE clothingID = ?";
+            $deleteStmt = $conn->prepare($deleteSql);
+            
+            if (!$deleteStmt) {
+                $message = "Database error: " . $conn->error;
+                $messageType = "error";
+            } else {
+                $deleteStmt->bind_param("i", $clothingID);
+                
+                if ($deleteStmt->execute()) {
+                    $message = "Item deleted successfully.";
+                    $messageType = "success";
+                } else {
+                    $message = "Error deleting item: " . $deleteStmt->error;
+                    $messageType = "error";
+                }
+                $deleteStmt->close();
+            }
         }
     }
 }
@@ -221,6 +242,7 @@ $conn->close();
                         <div class="action-buttons">
                             <a href="?action=approve&id=<?php echo $item['clothingID']; ?>" class="btn btn-approve" onclick="return confirm('Approve this item?');">Approve</a>
                             <a href="?action=reject&id=<?php echo $item['clothingID']; ?>" class="btn btn-reject" onclick="return confirm('Reject this item?');">Reject</a>
+                            <a href="?action=delete&id=<?php echo $item['clothingID']; ?>" class="btn btn-reject" onclick="return confirm('Delete this item permanently?');">Delete</a>
                         </div>
                     </div>
                 <?php endforeach; ?>

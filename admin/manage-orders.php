@@ -14,7 +14,7 @@ if (!isset($_SESSION['adminID'])) {
 }
 
 $message = '';
-$allowedStatuses = array('pending', 'processing', 'delivered');
+$allowedStatuses = array('pending', 'processing', 'shipped', 'delivered', 'cancelled');
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['orderID'], $_POST['status'])) {
     $orderID = intval($_POST['orderID']);
@@ -127,7 +127,9 @@ $conn->close();
                                         <select name="status" class="form-group" style="margin: 0;">
                                             <option value="pending" <?php echo strtolower($order['status']) === 'pending' ? 'selected' : ''; ?>>Pending</option>
                                             <option value="processing" <?php echo strtolower($order['status']) === 'processing' ? 'selected' : ''; ?>>Processing</option>
+                                            <option value="shipped" <?php echo strtolower($order['status']) === 'shipped' ? 'selected' : ''; ?>>Shipped</option>
                                             <option value="delivered" <?php echo strtolower($order['status']) === 'delivered' ? 'selected' : ''; ?>>Delivered</option>
+                                            <option value="cancelled" <?php echo strtolower($order['status']) === 'cancelled' ? 'selected' : ''; ?>>Cancelled</option>
                                         </select>
                                         <button type="submit" class="btn btn-primary">Update</button>
                                     </form>

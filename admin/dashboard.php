@@ -45,6 +45,18 @@ if ($pendingSellerResult && $pendingSellerRow = $pendingSellerResult->fetch_asso
     $pendingSellerCount = (int) $pendingSellerRow['total'];
 }
 
+$recentOrders = array();
+$orderDetailsResult = $conn->query("SELECT o.orderID, o.orderDate, o.totalAmount, o.status, u.fullName 
+                                     FROM tblOrder o 
+                                     INNER JOIN tblUser u ON o.userID = u.userID 
+                                     ORDER BY o.orderDate DESC 
+                                     LIMIT 5");
+if ($orderDetailsResult && $orderDetailsResult->num_rows > 0) {
+    while ($row = $orderDetailsResult->fetch_assoc()) {
+        $recentOrders[] = $row;
+    }
+}
+
 $conn->close();
 ?>
 
@@ -140,6 +152,44 @@ $conn->close();
                         <a href="manage-orders.php" class="btn btn-primary">View All Orders</a>
                     </div>
                 </div>
+
+                <div class="dashboard-section">
+                    <h3>Send Messages</h3>
+                    <p>Send messages to customers.</p>
+                    <div class="dashboard-actions">
+                        <a href="admin-send-message.php" class="btn btn-primary">Send Message</a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="admin-recent-orders" style="margin-top: 30px;">
+                <h3>Recent Orders</h3>
+                <?php if (count($recentOrders) > 0): ?>
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>Order ID</th>
+                                <th>Customer</th>
+                                <th>Date</th>
+                                <th>Total</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php foreach ($recentOrders as $order): ?>
+                                <tr>
+                                    <td><?php echo htmlspecialchars($order['orderID']); ?></td>
+                                    <td><?php echo htmlspecialchars($order['fullName']); ?></td>
+                                    <td><?php echo date('M d, Y', strtotime($order['orderDate'])); ?></td>
+                                    <td>R <?php echo number_format($order['totalAmount'], 2); ?></td>
+                                    <td><?php echo htmlspecialchars(ucfirst(strtolower($order['status']))); ?></td>
+                                </tr>
+                            <?php endforeach; ?>
+                        </tbody>
+                    </table>
+                <?php else: ?>
+                    <p>No recent orders.</p>
+                <?php endif; ?>
             </div>
         </div>
     </main>

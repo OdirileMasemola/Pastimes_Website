@@ -162,6 +162,17 @@ $conn->close();
                         </select>
                     </div>
 
+                    <hr>
+
+                    <div class="filter-block">
+                        <label class="filter-label">PRICE RANGE</label>
+                        <div style="display: flex; gap: 10px; align-items: center;">
+                            <input id="minPrice" type="number" placeholder="Min" style="width: 50%; padding: 5px; border: 1px solid #ddd; border-radius: 3px;">
+                            <span>-</span>
+                            <input id="maxPrice" type="number" placeholder="Max" style="width: 50%; padding: 5px; border: 1px solid #ddd; border-radius: 3px;">
+                        </div>
+                    </div>
+
                     <?php if (!empty($genders)): ?>
                         <hr>
                         <div class="filter-block">
@@ -198,8 +209,18 @@ $conn->close();
                                     $dataGender = isset($item['gender']) ? $item['gender'] : '';
                                     $dataSale = isset($item['onSale']) ? ($item['onSale'] ? '1' : '0') : (isset($item['sale']) ? ($item['sale'] ? '1' : '0') : '');
                                 ?>
-                                <div class="product-card" data-name="<?php echo htmlspecialchars(strtolower($item['clothingName'])); ?>" data-category="<?php echo htmlspecialchars(strtolower($item['category'])); ?>" data-brand="<?php echo htmlspecialchars(strtolower($dataBrand)); ?>" data-gender="<?php echo htmlspecialchars(strtolower($dataGender)); ?>" data-sale="<?php echo $dataSale; ?>">
-                                    <img src="<?php echo htmlspecialchars($displayImage); ?>" alt="<?php echo htmlspecialchars($item['clothingName']); ?>">
+                                <div class="product-card" data-name="<?php echo htmlspecialchars(strtolower($item['clothingName'])); ?>" data-category="<?php echo htmlspecialchars(strtolower($item['category'])); ?>" data-brand="<?php echo htmlspecialchars(strtolower($dataBrand)); ?>" data-gender="<?php echo htmlspecialchars(strtolower($dataGender)); ?>" data-sale="<?php echo $dataSale; ?>" data-price="<?php echo $item['price']; ?>">
+                                    <?php
+                                        $imageToDisplay = $displayImage;
+                                        if (!empty($item['imageURL'])) {
+                                            if (file_exists($item['imageURL'])) {
+                                                $imageToDisplay = $item['imageURL'];
+                                            } else {
+                                                $imageToDisplay = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="200" height="200"%3E%3Crect fill="%23e0e0e0" width="200" height="200"/%3E%3Ctext fill="%23666" text-anchor="middle" x="100" y="100" font-size="14"%3EImage not found%3C/text%3E%3C/svg%3E';
+                                            }
+                                        }
+                                    ?>
+                                    <img src="<?php echo htmlspecialchars($imageToDisplay); ?>" alt="<?php echo htmlspecialchars($item['clothingName']); ?>">
                                     <h3><?php echo htmlspecialchars($item['clothingName']); ?></h3>
                                     <p class="price">R <?php echo number_format($item['price'], 2); ?></p>
                                     <a href="product-details.php?id=<?php echo $item['clothingID']; ?>" class="btn btn-primary">View Details</a>
@@ -222,6 +243,8 @@ $conn->close();
         const brandSelect = document.getElementById('brandSelect');
         const genderSelect = document.getElementById('genderSelect');
         const saleSelect = document.getElementById('saleSelect');
+        const minPrice = document.getElementById('minPrice');
+        const maxPrice = document.getElementById('maxPrice');
         const productsGrid = document.getElementById('productsGrid');
         const cards = Array.from(productsGrid.querySelectorAll('.product-card'));
 
@@ -237,6 +260,8 @@ $conn->close();
             const brand = brandSelect ? brandSelect.value : '';
             const gender = genderSelect ? genderSelect.value : '';
             const sale = saleSelect ? saleSelect.value : '';
+            const minVal = minPrice ? parseFloat(minPrice.value) || 0 : 0;
+            const maxVal = maxPrice ? parseFloat(maxPrice.value) || Infinity : Infinity;
 
             cards.forEach(card => {
                 let visible = true;
@@ -245,15 +270,17 @@ $conn->close();
                 if (brand && (card.dataset.brand !== brand.toLowerCase())) visible = false;
                 if (gender && (card.dataset.gender !== gender.toLowerCase())) visible = false;
                 if (sale !== undefined && sale !== null && sale !== '' ) {
-                    // match exact '1' or '0'
                     if ((card.dataset.sale || '') !== sale) visible = false;
                 }
+                
+                const price = parseFloat(card.dataset.price) || 0;
+                if (price < minVal || price > maxVal) visible = false;
 
                 card.style.display = visible ? '' : 'none';
             });
         }
 
-        [searchInput, categorySelect, brandSelect, genderSelect, saleSelect].forEach(el=>{
+        [searchInput, categorySelect, brandSelect, genderSelect, saleSelect, minPrice, maxPrice].forEach(el=>{
             if (!el) return;
             el.addEventListener('input', filterProducts);
             el.addEventListener('change', filterProducts);
