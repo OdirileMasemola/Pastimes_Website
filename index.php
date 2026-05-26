@@ -59,8 +59,7 @@ session_start();
 <?php
 /*
 This code is the original work of:
-ST10441421 	6 Odirile Masemola
-ST10450294 	6 Ripfumelo Mabasa
-All rights reserved.
+ST10441421 	- Odirile Masemola
+ST10450294 	- Ripfumelo Mabasa
 */
 ?>
