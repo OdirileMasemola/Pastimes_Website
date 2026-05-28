@@ -44,26 +44,7 @@ if (isset($_GET['remove'])) {
     <link rel="stylesheet" href="../assets/style.css">
 </head>
 <body>
-    <header>
-        <nav class="navbar">
-            <div class="container">
-                <div class="logo">
-                    <h1>Pastimes</h1>
-                </div>
-                <ul class="nav-menu">
-                    <li><a href="../index.php">Home</a></li>
-                    <li><a href="shop.php">Shop</a></li>
-                    <li><a href="cart.php">Cart (<?php echo count($_SESSION['cart']); ?>)</a></li>
-                    <?php if (isset($_SESSION['userID'])): ?>
-                        <li><a href="account.php">My Account</a></li>
-                        <li><a href="logout.php">Logout</a></li>
-                    <?php else: ?>
-                        <li><a href="login.php">Login</a></li>
-                    <?php endif; ?>
-                </ul>
-            </div>
-        </nav>
-    </header>
+    <?php include '../includes/navbar.php'; ?>
 
     <main>
         <div class="container">
@@ -111,6 +92,28 @@ if (isset($_GET['remove'])) {
     <footer>
         <p>&copy; 2026 Pastimes. All rights reserved.</p>
     </footer>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const navbarToggle = document.getElementById('navbarToggle');
+            const navbarLinks = document.getElementById('navbarLinks');
+            
+            if (navbarToggle && navbarLinks) {
+                navbarToggle.addEventListener('click', function() {
+                    navbarToggle.classList.toggle('active');
+                    navbarLinks.classList.toggle('active');
+                });
+                
+                const links = navbarLinks.querySelectorAll('a');
+                links.forEach(link => {
+                    link.addEventListener('click', function() {
+                        navbarToggle.classList.remove('active');
+                        navbarLinks.classList.remove('active');
+                    });
+                });
+            }
+        });
+    </script>
 </body>
 </html>
 <?php

@@ -2,6 +2,12 @@
 
 /* Basic Pastimes Website Stylesheet */
 
+html,
+body {
+    margin: 0;
+    padding: 0;
+}
+
 * {
     margin: 0;
     padding: 0;
@@ -13,6 +19,12 @@ body {
     line-height: 1.6;
     color: #333;
     background-color: #f4f4f4;
+    padding-top: 80px;
+}
+
+/* Home page - no top padding since hero extends to top */
+.home-page {
+    padding-top: 0;
 }
 
 .container {
@@ -21,47 +33,402 @@ body {
     padding: 0 20px;
 }
 
-/* Header and Navigation */
-header {
-    background-color: #333;
-    color: white;
-    padding: 1rem 0;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+/* ===== Modern Navbar Styles ===== */
+.navbar-wrapper {
+    position: fixed;
+    top: 24px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 1000;
+    width: fit-content;
+    max-width: calc(100% - 32px);
+    padding: 0.7rem 0.7rem 0.7rem 1.75rem;
+    /* Strong blur = frosted glass feel; dark-tinted but see-through */
+    backdrop-filter: blur(24px) saturate(1.5);
+    -webkit-backdrop-filter: blur(24px) saturate(1.5);
+    /* Dark enough to read text, transparent enough to feel airy */
+    background: rgba(18, 18, 18, 0.45);
+    border: 1px solid rgba(255, 255, 255, 0.11);
+    border-radius: 999px;
+    box-shadow:
+        0 8px 40px rgba(0, 0, 0, 0.38),
+        inset 0 1px 0 rgba(255, 255, 255, 0.07),
+        inset 0 -1px 0 rgba(0, 0, 0, 0.2);
+    transition: border-radius 0.3s ease;
+}
+
+.navbar-wrapper.mobile-open {
+    border-radius: 28px;
 }
 
 .navbar {
     display: flex;
-    justify-content: space-between;
+    justify-content: center;
+    align-items: center;
+    gap: 2.2rem;
+    flex-wrap: nowrap;
+}
+
+.navbar-brand {
+    flex-shrink: 0;
+    display: flex;
     align-items: center;
 }
 
+.brand-text {
+    font-size: 1.15rem;
+    font-weight: 700;
+    /* Bright white so it reads clearly against the transparent pill */
+    color: #FFFFFF;
+    letter-spacing: 0.5px;
+    transition: color 0.3s ease;
+}
+
+.navbar-brand a {
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+}
+
+.brand-text:hover {
+    color: #FFFFFF;
+}
+
+/* ===== Nav Links with Vertical Scroll Hover Animation ===== */
+.navbar-links {
+    display: flex;
+    gap: 2rem;
+    align-items: center;
+}
+
+.nav-link {
+    text-decoration: none;
+    font-size: 0.95rem;
+    font-weight: 500;
+    position: relative;
+    padding: 0;
+    white-space: nowrap;
+    display: inline-flex;
+    align-items: flex-start;
+    height: 1.15em;
+    overflow: hidden;
+    line-height: 1.15em;
+}
+
+.nav-link-inner {
+    display: flex;
+    flex-direction: column;
+    transition: transform 0.38s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    gap: 0;
+}
+
+.nav-link-inner span {
+    display: block;
+    height: 1.15em;
+    line-height: 1.15em;
+    white-space: nowrap;
+}
+
+/* Default state — light grey, clearly readable on dark pill */
+.nav-link-inner span:first-child {
+    color: #D0D0D0;
+}
+
+/* Hover state — pure white slides in */
+.nav-link-inner span:last-child {
+    color: #FFFFFF;
+}
+
+.nav-link:hover .nav-link-inner {
+    transform: translateY(-50%);
+}
+
+/* ===== Navbar Action Buttons ===== */
+.navbar-actions {
+    display: flex;
+    gap: 0.45rem;
+    align-items: center;
+    flex-shrink: 0;
+}
+
+/*
+ * Scoped overrides — only affects buttons inside the navbar.
+ * navbar.php uses: btn btn-secondary (Login, Account, Admin)
+ *                  btn btn-primary   (Register)
+ *                  btn btn-danger    (Logout)
+ */
+
+/* ---- Shared pill base for all navbar buttons ---- */
+.navbar-actions .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.52rem 1.3rem;
+    border-radius: 999px;
+    font-size: 0.88rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    text-transform: none;
+    cursor: pointer;
+    text-decoration: none;
+    min-height: unset;
+    margin: 0;
+    white-space: nowrap;
+    transition: background 0.35s ease,
+                color 0.35s ease,
+                border-color 0.35s ease,
+                box-shadow 0.35s ease;
+    transform: none;
+}
+
+.navbar-actions .btn:hover {
+    transform: none;
+}
+
+/* ---- Secondary (Login, Account, Admin) ----
+   Transparent with a faint white border — matches the "LogIn" button
+   in the reference: ghosted, barely-there, text clearly visible       */
+.navbar-actions .btn-secondary {
+    background: rgba(255, 255, 255, 0.08);
+    color: #D8D8D8;
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.10),
+        0 2px 8px rgba(0, 0, 0, 0.2);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+}
+
+.navbar-actions .btn-secondary:hover {
+    background: rgba(255, 255, 255, 0.16);
+    color: #FFFFFF;
+    border-color: rgba(255, 255, 255, 0.32);
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.14),
+        0 4px 16px rgba(0, 0, 0, 0.28);
+}
+
+/* ---- Primary (Register) ----
+   Starts as a slightly frosted white pill — on hover smoothly fills
+   to solid white and text flips to pure black. No hard jump.          */
+.navbar-actions .btn-primary {
+    /* Semi-transparent white — visible but not fully solid */
+    background: rgba(255, 255, 255, 0.20);
+    color: #FFFFFF;
+    border: 1px solid rgba(255, 255, 255, 0.35);
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.30),
+        0 2px 12px rgba(0, 0, 0, 0.18);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    /* Longer ease so the fill-to-solid feels fluid, not snappy */
+    transition: background 0.45s ease,
+                color 0.45s ease,
+                border-color 0.35s ease,
+                box-shadow 0.45s ease;
+}
+
+/* Smooth fill: transparent → solid white, text white → black */
+.navbar-actions .btn-primary:hover {
+    background: rgba(242, 242, 242, 0.97);
+    color: #0a0a0a;
+    border-color: rgba(255, 255, 255, 0.75);
+    box-shadow:
+        0 0 24px 5px rgba(220, 220, 220, 0.30),
+        inset 0 1px 0 rgba(255, 255, 255, 1),
+        0 4px 18px rgba(0, 0, 0, 0.20);
+}
+
+/* ---- Danger (Logout) — transparent red-tinted pill ---- */
+.navbar-actions .btn-danger {
+    background: rgba(180, 50, 50, 0.12);
+    color: #f09090;
+    border: 1px solid rgba(200, 80, 80, 0.22);
+    box-shadow:
+        inset 0 1px 0 rgba(255, 150, 150, 0.07),
+        0 2px 8px rgba(0, 0, 0, 0.18);
+}
+
+.navbar-actions .btn-danger:hover {
+    background: rgba(200, 60, 60, 0.26);
+    color: #ffb8b8;
+    border-color: rgba(220, 100, 100, 0.42);
+    box-shadow:
+        inset 0 1px 0 rgba(255, 150, 150, 0.10),
+        0 4px 14px rgba(140, 30, 30, 0.28);
+}
+
+/* ===== Hamburger Menu ===== */
+.navbar-toggle {
+    display: none;
+    flex-direction: column;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0.4rem;
+    gap: 5px;
+    order: 2;
+}
+
+.navbar-toggle span {
+    width: 24px;
+    height: 2px;
+    background-color: #C0C0C0;
+    border-radius: 1px;
+    transition: all 0.3s ease;
+}
+
+.navbar-toggle.active span:nth-child(1) {
+    transform: rotate(45deg) translate(9px, 9px);
+}
+
+.navbar-toggle.active span:nth-child(2) {
+    opacity: 0;
+}
+
+.navbar-toggle.active span:nth-child(3) {
+    transform: rotate(-45deg) translate(8px, -8px);
+}
+
+/* ===== Mobile Responsive ===== */
+@media (max-width: 768px) {
+    body {
+        padding-top: 100px;
+    }
+
+    .navbar-wrapper {
+        padding: 0.6rem 1rem;
+    }
+
+    .navbar {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0.75rem;
+    }
+
+    .navbar-brand {
+        order: 1;
+    }
+
+    .navbar-toggle {
+        display: flex;
+    }
+
+    .navbar-links {
+        order: 3;
+        flex-basis: 100%;
+        gap: 0.75rem;
+        max-height: 0;
+        opacity: 0;
+        overflow: hidden;
+        transition: max-height 0.3s ease, opacity 0.3s ease;
+        flex-direction: column;
+        justify-content: flex-start;
+        pointer-events: none;
+    }
+
+    .navbar-links.active {
+        max-height: 1000px;
+        opacity: 1;
+        pointer-events: auto;
+        margin-top: 0.75rem;
+    }
+
+    /* On mobile, show plain links (no hover animation needed) */
+    .nav-link {
+        height: auto;
+        overflow: visible;
+        padding: 0.5rem 0;
+        font-size: 0.8rem;
+    }
+
+    .nav-link-inner {
+        flex-direction: row;
+        transform: none !important;
+    }
+
+    /* Hide the duplicate white span on mobile */
+    .nav-link-inner span:last-child {
+        display: none;
+    }
+
+    .nav-link-inner span:first-child {
+        color: #C0C0C0;
+    }
+
+    .navbar-actions {
+        order: 4;
+        flex-direction: column;
+        flex-wrap: nowrap;
+        gap: 0.5rem;
+    }
+
+    .navbar-actions .btn {
+        width: 100%;
+    }
+
+    .brand-text {
+        font-size: 0.95rem;
+    }
+}
+
+@media (max-width: 480px) {
+    body {
+        padding-top: 90px;
+    }
+
+    .navbar-wrapper {
+        max-width: calc(100% - 16px);
+        padding: 0.5rem 0.8rem;
+        top: 10px;
+    }
+
+    .brand-text {
+        font-size: 0.85rem;
+    }
+
+    .navbar-links {
+        gap: 0.5rem;
+    }
+
+    .nav-link {
+        font-size: 0.75rem;
+    }
+}
+
+/* Header fallback (for compatibility) */
+header {
+    background: transparent;
+    border: none;
+    padding: 0;
+}
+
+/* Old navbar menu fallback */
 .logo h1 {
-    font-size: 1.8rem;
+    font-size: 1.4rem;
 }
 
 .nav-menu {
     list-style: none;
-    display: flex;
-    gap: 2rem;
-    flex-wrap: wrap;
-}
-
-.nav-menu a {
-    color: white;
-    text-decoration: none;
-    transition: color 0.3s;
-}
-
-.nav-menu a:hover {
-    color: #ffc107;
+    display: none;
 }
 
 /* Main Content */
 main {
     background-color: white;
-    margin: 2rem 0;
+    margin: 1rem auto;
     padding: 2rem;
     border-radius: 5px;
+    max-width: 1200px;
+}
+
+/* Home page main - remove constraints for full-width hero */
+.home-page main {
+    max-width: 100%;
+    margin: 0;
+    padding: 0;
+    background-color: transparent;
+    border-radius: 0;
 }
 
 /* Forms */
@@ -96,54 +463,6 @@ main {
     outline: none;
     border-color: #333;
     box-shadow: 0 0 5px rgba(51, 51, 51, 0.3);
-}
-
-/* Buttons */
-.btn {
-    display: inline-block;
-    padding: 0.75rem 1.5rem;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    text-decoration: none;
-    font-size: 1rem;
-    transition: all 0.3s;
-    margin-right: 0.5rem;
-    margin-bottom: 0.5rem;
-}
-
-.btn-primary {
-    background-color: #007bff;
-    color: white;
-}
-
-.btn-primary:hover {
-    background-color: #0056b3;
-}
-
-.btn-secondary {
-    background-color: #6c757d;
-    color: white;
-}
-
-.btn-secondary:hover {
-    background-color: #000;
-    color: #fff;
-}
-
-.btn-danger {
-    background-color: #dc3545;
-    color: white;
-}
-
-.btn-danger:hover {
-    background-color: #000;
-    color: #fff;
-}
-
-.btn:disabled {
-    background-color: #ccc;
-    cursor: not-allowed;
 }
 
 /* Messages */
@@ -240,21 +559,170 @@ table tr:hover {
     width: calc(100% - 2rem);
     margin: 1rem;
     text-align: center;
+    border-radius: 50px;
 }
 
 /* Hero Section */
 .hero {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
-    padding: 4rem 2rem;
-    text-align: center;
-    border-radius: 5px;
-    margin-bottom: 2rem;
+    position: relative;
+    min-height: 100vh;
+    width: 100%;
+    max-width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    overflow: hidden;
+    margin: 0;
+    padding: 0;
+    margin-top: 0;
+    padding-top: 0;
 }
 
-.hero h2 {
-    font-size: 2.5rem;
-    margin-bottom: 1rem;
+/* Home page hero - ensure it's truly full screen */
+.home-page .hero {
+    width: 100vw;
+    max-width: 100vw;
+    margin-left: calc(-50vw + 50%);
+}
+
+.hero-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.35);
+    z-index: 1;
+}
+
+.hero-content {
+    position: relative;
+    z-index: 2;
+    text-align: center;
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 2rem;
+}
+
+.hero-title {
+    font-size: clamp(2.4rem, 5vw, 3.8rem);
+    font-weight: 700;
+    color: #FFFFFF;
+    line-height: 1.15;
+    letter-spacing: -0.02em;
+    margin: 0 0 1.5rem 0;
+    opacity: 0;
+    transform: translateY(20px);
+    animation: heroFadeInUp 0.75s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+    animation-delay: 0.1s;
+}
+
+.hero-subtitle {
+    font-size: clamp(1rem, 2vw, 1.25rem);
+    font-weight: 400;
+    color: rgba(255, 255, 255, 0.90);
+    line-height: 1.6;
+    letter-spacing: 0.01em;
+    margin: 0 0 2.5rem 0;
+    opacity: 0;
+    transform: translateY(20px);
+    animation: heroFadeInUp 0.75s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+    animation-delay: 0.3s;
+}
+
+.hero-buttons {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.hero-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.85rem 2.2rem;
+    border-radius: 999px;
+    font-size: 1rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    text-decoration: none;
+    text-transform: none;
+    cursor: pointer;
+    border: none;
+    transition: all 0.45s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    opacity: 0;
+    transform: translateY(20px);
+    animation: heroFadeInUp 0.75s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+    animation-delay: 0.5s;
+    min-height: auto;
+    margin: 0;
+    white-space: nowrap;
+}
+
+/* Primary Button - Light pill button with dark text */
+.hero-btn-primary {
+    background: rgba(242, 242, 242, 0.95);
+    color: #0a0a0a;
+    border: 1px solid rgba(255, 255, 255, 0.50);
+    box-shadow:
+        0 0 20px 4px rgba(220, 220, 220, 0.25),
+        inset 0 1px 0 rgba(255, 255, 255, 0.95),
+        0 4px 16px rgba(0, 0, 0, 0.16);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+}
+
+.hero-btn-primary:hover {
+    background: #FFFFFF;
+    color: #0a0a0a;
+    border-color: rgba(255, 255, 255, 1);
+    box-shadow:
+        0 0 32px 8px rgba(220, 220, 220, 0.40),
+        inset 0 1px 0 rgba(255, 255, 255, 1),
+        0 8px 24px rgba(0, 0, 0, 0.20);
+}
+
+.hero-btn-primary:active {
+    transform: translateY(2px);
+}
+
+/* Secondary Button - Transparent dark/glass button with light text */
+.hero-btn-secondary {
+    background: rgba(255, 255, 255, 0.08);
+    color: #FFFFFF;
+    border: 1.5px solid rgba(255, 255, 255, 0.25);
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.12),
+        0 4px 12px rgba(0, 0, 0, 0.18);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+}
+
+.hero-btn-secondary:hover {
+    background: rgba(255, 255, 255, 0.15);
+    color: #FFFFFF;
+    border-color: rgba(255, 255, 255, 0.45);
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.18),
+        0 6px 20px rgba(0, 0, 0, 0.24);
+}
+
+.hero-btn-secondary:active {
+    transform: translateY(2px);
+}
+
+/* Hero Animation */
+@keyframes heroFadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 /* Dashboard */
@@ -309,8 +777,26 @@ footer {
         grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
     }
     
-    .hero h2 {
-        font-size: 1.8rem;
+    .hero {
+        min-height: 80vh;
+    }
+    
+    .hero-title {
+        font-size: clamp(1.8rem, 4vw, 2.8rem);
+    }
+    
+    .hero-subtitle {
+        font-size: clamp(0.9rem, 1.8vw, 1.1rem);
+        margin-bottom: 2rem;
+    }
+    
+    .hero-buttons {
+        gap: 0.75rem;
+    }
+    
+    .hero-btn {
+        padding: 0.75rem 1.8rem;
+        font-size: 0.95rem;
     }
     
     table {
@@ -319,6 +805,39 @@ footer {
     
     .btn {
         padding: 0.6rem 1rem;
+        font-size: 0.9rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .hero {
+        min-height: 70vh;
+    }
+    
+    .hero-content {
+        max-width: 100%;
+        padding: 1.5rem;
+    }
+    
+    .hero-title {
+        font-size: clamp(1.5rem, 3.5vw, 2.2rem);
+        margin-bottom: 1rem;
+    }
+    
+    .hero-subtitle {
+        font-size: clamp(0.85rem, 1.5vw, 1rem);
+        margin-bottom: 1.5rem;
+        line-height: 1.5;
+    }
+    
+    .hero-buttons {
+        flex-direction: column;
+        gap: 0.6rem;
+    }
+    
+    .hero-btn {
+        width: 100%;
+        padding: 0.8rem 1.5rem;
         font-size: 0.9rem;
     }
 }
@@ -1022,7 +1541,7 @@ main h3 {
     border: 1px solid var(--line-strong);
     background: #fff;
     color: var(--text);
-    border-radius: 0; /* keep flat */
+    border-radius: 0;
 }
 
 .shop-page .filter-label {

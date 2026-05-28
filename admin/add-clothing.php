@@ -114,13 +114,7 @@ ST10450294 	- Ripfumelo Mabasa
 </head>
 <body>
     <header>
-        <nav class="navbar">
-            <div class="container">
-                <div class="logo">
-                    <h1>Pastimes - Admin Panel</h1>
-                </div>
-            </div>
-        </nav>
+        <?php include '../includes/navbar.php'; ?>
     </header>
 
     <main>

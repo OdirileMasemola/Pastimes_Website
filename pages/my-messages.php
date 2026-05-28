@@ -30,7 +30,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['action'])) {
             $subject = 'Re: ' . (isset($_POST['originalSubject']) ? trim($_POST['originalSubject']) : 'Message');
             
             $stmt = $conn->prepare("INSERT INTO tblMessage (senderType, senderID, receiverID, subject, messageText) VALUES (?, ?, ?, ?, ?)");
-            if ($stmt) {
+            if (!$stmt) {
+                $message = "Error preparing statement: " . $conn->error;
+                $messageType = "error";
+            } else {
                 $stmt->bind_param("siiss", $senderType, $userID, $receiverID, $subject, $replyText);
                 if ($stmt->execute()) {
                     $message = "Reply sent successfully.";
@@ -52,6 +55,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['action'])) {
             $stmt->bind_param("ii", $messageID, $userID);
             $stmt->execute();
             $stmt->close();
+        } else {
+            // Error preparing statement, but we don't need to show error to user
+            error_log("Error preparing mark_read statement: " . $conn->error);
         }
     }
 }
@@ -64,6 +70,11 @@ $sql = "SELECT m.messageID, m.senderType, m.senderID, m.subject, m.messageText, 
         WHERE m.receiverID = ?
         ORDER BY m.sentDate DESC";
 $stmt = $conn->prepare($sql);
+
+if (!$stmt) {
+    die("Error preparing statement: " . $conn->error);
+}
+
 $stmt->bind_param("i", $userID);
 $stmt->execute();
 $result = $stmt->get_result();
@@ -224,21 +235,7 @@ $conn->close();
     </style>
 </head>
 <body>
-    <header>
-        <nav class="navbar">
-            <div class="container">
-                <div class="logo">
-                    <h1>Pastimes</h1>
-                </div>
-                <ul class="nav-menu">
-                    <li><a href="../index.php">Home</a></li>
-                    <li><a href="shop.php">Shop</a></li>
-                    <li><a href="account.php">My Account</a></li>
-                    <li><a href="logout.php">Logout</a></li>
-                </ul>
-            </div>
-        </nav>
-    </header>
+    <?php include '../includes/navbar.php'; ?>
 
     <main>
         <div class="container">
@@ -326,6 +323,28 @@ $conn->close();
                 }
             }
         }
+    </script>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const navbarToggle = document.getElementById('navbarToggle');
+            const navbarLinks = document.getElementById('navbarLinks');
+            
+            if (navbarToggle && navbarLinks) {
+                navbarToggle.addEventListener('click', function() {
+                    navbarToggle.classList.toggle('active');
+                    navbarLinks.classList.toggle('active');
+                });
+                
+                const links = navbarLinks.querySelectorAll('a');
+                links.forEach(link => {
+                    link.addEventListener('click', function() {
+                        navbarToggle.classList.remove('active');
+                        navbarLinks.classList.remove('active');
+                    });
+                });
+            }
+        });
     </script>
 </body>
 </html>

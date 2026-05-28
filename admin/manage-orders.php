@@ -75,18 +75,7 @@ $conn->close();
 </head>
 <body>
     <header>
-        <nav class="navbar">
-            <div class="container">
-                <div class="logo">
-                    <h1>Pastimes - Admin Panel</h1>
-                </div>
-                <ul class="nav-menu">
-                    <li><a href="dashboard.php">Dashboard</a></li>
-                    <li><a href="manage-orders.php">Manage Orders</a></li>
-                    <li><a href="admin-logout.php">Logout</a></li>
-                </ul>
-            </div>
-        </nav>
+        <?php include '../includes/navbar.php'; ?>
     </header>
 
     <main>

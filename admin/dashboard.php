@@ -69,20 +69,7 @@ $conn->close();
     <link rel="stylesheet" href="../assets/style.css">
 </head>
 <body class="admin-dashboard-page">
-    <header>
-        <nav class="navbar">
-            <div class="container">
-                <div class="logo">
-                    <h1>Pastimes - Admin Dashboard</h1>
-                </div>
-                <ul class="nav-menu">
-                    <li><a href="../index.php">Home</a></li>
-                    <li><a href="dashboard.php">Dashboard</a></li>
-                    <li><a href="admin-logout.php">Logout (<?php echo htmlspecialchars($_SESSION['adminName']); ?>)</a></li>
-                </ul>
-            </div>
-        </nav>
-    </header>
+    <?php include '../includes/navbar.php'; ?>
 
     <main class="admin-main">
         <div class="container">
@@ -197,6 +184,28 @@ $conn->close();
     <footer>
         <p>&copy; 2026 Pastimes. All rights reserved.</p>
     </footer>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const navbarToggle = document.getElementById('navbarToggle');
+            const navbarLinks = document.getElementById('navbarLinks');
+            
+            if (navbarToggle && navbarLinks) {
+                navbarToggle.addEventListener('click', function() {
+                    navbarToggle.classList.toggle('active');
+                    navbarLinks.classList.toggle('active');
+                });
+                
+                const links = navbarLinks.querySelectorAll('a');
+                links.forEach(link => {
+                    link.addEventListener('click', function() {
+                        navbarToggle.classList.remove('active');
+                        navbarLinks.classList.remove('active');
+                    });
+                });
+            }
+        });
+    </script>
 </body>
 </html>
 <?php

@@ -1,0 +1,142 @@
+<?php
+/**
+ * Navbar Include File
+ * Shared navbar component for all pages
+ */
+
+// Determine the correct paths based on current file location
+$isAdminPage = strpos($_SERVER['PHP_SELF'], '/admin/') !== false;
+$isPagePage = strpos($_SERVER['PHP_SELF'], '/pages/') !== false;
+
+if ($isAdminPage) {
+    // Admin pages: admin/xxx.php
+    $indexPath = '../../index.php';
+    $shopPath = '../../pages/shop.php';
+    $sellPath = '../../pages/sell-item.php';
+    $loginPath = '../../pages/login.php';
+    $registerPath = '../../pages/register.php';
+    $accountPath = '../../pages/account.php';
+    $logoutPath = '../../pages/logout.php';
+    $adminDashboardPath = 'dashboard.php';
+    $adminLoginPath = 'admin-login.php';
+    $myOrdersPath = '../../pages/my-orders.php';
+    $cartPath = '../../pages/cart.php';
+} elseif ($isPagePage) {
+    // Pages folder: pages/xxx.php
+    $indexPath = '../index.php';
+    $shopPath = 'shop.php';
+    $sellPath = 'sell-item.php';
+    $loginPath = 'login.php';
+    $registerPath = 'register.php';
+    $accountPath = 'account.php';
+    $logoutPath = 'logout.php';
+    $adminDashboardPath = '../admin/dashboard.php';
+    $adminLoginPath = '../admin/admin-login.php';
+    $myOrdersPath = 'my-orders.php';
+    $cartPath = 'cart.php';
+} else {
+    // Root pages: xxx.php
+    $indexPath = 'index.php';
+    $shopPath = 'pages/shop.php';
+    $sellPath = 'pages/sell-item.php';
+    $loginPath = 'pages/login.php';
+    $registerPath = 'pages/register.php';
+    $accountPath = 'pages/account.php';
+    $logoutPath = 'pages/logout.php';
+    $adminDashboardPath = 'admin/dashboard.php';
+    $adminLoginPath = 'admin/admin-login.php';
+    $myOrdersPath = 'pages/my-orders.php';
+    $cartPath = 'pages/cart.php';
+}
+?>
+<nav class="navbar-wrapper">
+    <div class="navbar">
+        <div class="navbar-brand">
+            <a href="<?php echo $indexPath; ?>">
+                <span class="brand-text">Pastimes</span>
+            </a>
+        </div>
+        
+        <button class="navbar-toggle" id="navbarToggle" aria-label="Toggle navigation menu">
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
+        
+        <div class="navbar-links" id="navbarLinks">
+            <a href="<?php echo $indexPath; ?>" class="nav-link">
+                <div class="nav-link-inner">
+                    <span>Home</span>
+                    <span>Home</span>
+                </div>
+            </a>
+            <a href="<?php echo $shopPath; ?>" class="nav-link">
+                <div class="nav-link-inner">
+                    <span>Shop</span>
+                    <span>Shop</span>
+                </div>
+            </a>
+            <a href="<?php echo $sellPath; ?>" class="nav-link">
+                <div class="nav-link-inner">
+                    <span>Sell</span>
+                    <span>Sell</span>
+                </div>
+            </a>
+            <?php if (isset($_SESSION['userID'])): ?>
+                <a href="<?php echo $myOrdersPath; ?>" class="nav-link">
+                    <div class="nav-link-inner">
+                        <span>Orders</span>
+                        <span>Orders</span>
+                    </div>
+                </a>
+                <a href="<?php echo $cartPath; ?>" class="nav-link">
+                    <div class="nav-link-inner">
+                        <span>Cart</span>
+                        <span>Cart</span>
+                    </div>
+                </a>
+            <?php endif; ?>
+        </div>
+        
+        <div class="navbar-actions">
+            <?php if (isset($_SESSION['userID'])): ?>
+                <a href="<?php echo $accountPath; ?>" class="btn btn-secondary">Account</a>
+                <a href="<?php echo $logoutPath; ?>" class="btn btn-danger">Logout</a>
+            <?php else: ?>
+                <a href="<?php echo $loginPath; ?>" class="btn btn-secondary">Login</a>
+                <a href="<?php echo $registerPath; ?>" class="btn btn-primary">Register</a>
+            <?php endif; ?>
+            <?php if (isset($_SESSION['adminID'])): ?>
+                <a href="<?php echo $adminDashboardPath; ?>" class="btn btn-secondary">Admin</a>
+            <?php else: ?>
+                <a href="<?php echo $adminLoginPath; ?>" class="btn btn-secondary">Admin</a>
+            <?php endif; ?>
+        </div>
+    </div>
+</nav>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const navbarToggle = document.getElementById('navbarToggle');
+    const navbarLinks = document.getElementById('navbarLinks');
+    const navbarWrapper = document.querySelector('.navbar-wrapper');
+    
+    if (navbarToggle && navbarLinks) {
+        navbarToggle.addEventListener('click', function() {
+            navbarToggle.classList.toggle('active');
+            navbarLinks.classList.toggle('active');
+            navbarWrapper.classList.toggle('mobile-open');
+        });
+        
+        // Close menu when a link is clicked
+        const links = navbarLinks.querySelectorAll('a');
+        links.forEach(link => {
+            link.addEventListener('click', function() {
+                navbarToggle.classList.remove('active');
+                navbarLinks.classList.remove('active');
+                navbarWrapper.classList.remove('mobile-open');
+            });
+        });
+    }
+});
+</script>
