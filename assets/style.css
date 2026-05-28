@@ -6,6 +6,8 @@ html,
 body {
     margin: 0;
     padding: 0;
+    width: 100%;
+    overflow-x: hidden;
 }
 
 * {
@@ -209,34 +211,33 @@ body {
 }
 
 /* ---- Primary (Register) ----
-   Starts as a slightly frosted white pill — on hover smoothly fills
-   to solid white and text flips to pure black. No hard jump.          */
+   Solid white button with dark text                                    */
 .navbar-actions .btn-primary {
-    /* Semi-transparent white — visible but not fully solid */
-    background: rgba(255, 255, 255, 0.20);
-    color: #FFFFFF;
-    border: 1px solid rgba(255, 255, 255, 0.35);
+    /* Solid white background */
+    background: #FFFFFF;
+    color: #0a0a0a;
+    border: 1px solid rgba(255, 255, 255, 1);
     box-shadow:
-        inset 0 1px 0 rgba(255, 255, 255, 0.30),
-        0 2px 12px rgba(0, 0, 0, 0.18);
+        0 0 20px 4px rgba(220, 220, 220, 0.25),
+        inset 0 1px 0 rgba(255, 255, 255, 1),
+        0 4px 16px rgba(0, 0, 0, 0.16);
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
-    /* Longer ease so the fill-to-solid feels fluid, not snappy */
-    transition: background 0.45s ease,
-                color 0.45s ease,
+    transition: background 0.35s ease,
+                color 0.35s ease,
                 border-color 0.35s ease,
-                box-shadow 0.45s ease;
+                box-shadow 0.35s ease;
 }
 
-/* Smooth fill: transparent → solid white, text white → black */
+/* Hover: even brighter with enhanced glow */
 .navbar-actions .btn-primary:hover {
-    background: rgba(242, 242, 242, 0.97);
-    color: #0a0a0a;
-    border-color: rgba(255, 255, 255, 0.75);
+    background: #FFFFFF;
+    color: #000000;
+    border-color: rgba(255, 255, 255, 1);
     box-shadow:
-        0 0 24px 5px rgba(220, 220, 220, 0.30),
+        0 0 32px 8px rgba(220, 220, 220, 0.40),
         inset 0 1px 0 rgba(255, 255, 255, 1),
-        0 4px 18px rgba(0, 0, 0, 0.20);
+        0 8px 24px rgba(0, 0, 0, 0.20);
 }
 
 /* ---- Danger (Logout) — transparent red-tinted pill ---- */
@@ -429,6 +430,7 @@ main {
     padding: 0;
     background-color: transparent;
     border-radius: 0;
+    height: 100vh;
 }
 
 /* Forms */
@@ -565,7 +567,7 @@ table tr:hover {
 /* Hero Section */
 .hero {
     position: relative;
-    min-height: 100vh;
+    height: 100vh;
     width: 100%;
     max-width: 100%;
     display: flex;
@@ -725,7 +727,185 @@ table tr:hover {
     }
 }
 
-/* Dashboard */
+/* Trusted Brands Section */
+.brands-section {
+    width: 100%;
+    background: #0f0f0f;
+    padding: 100px 0;
+    overflow: hidden;
+}
+
+.brands-header {
+    max-width: 1200px;
+    margin: 0 auto 60px;
+    padding: 0 24px;
+    text-align: center;
+}
+
+.brands-title {
+    font-size: clamp(2rem, 4vw, 2.8rem);
+    font-weight: 700;
+    color: #ffffff;
+    margin: 0 0 16px 0;
+    letter-spacing: -0.01em;
+}
+
+.brands-subtitle {
+    font-size: clamp(0.95rem, 1.8vw, 1.1rem);
+    font-weight: 400;
+    color: rgba(246, 247, 248, 0.7);
+    margin: 0;
+    line-height: 1.6;
+}
+
+.brands-slider {
+    position: relative;
+    overflow: hidden;
+    width: 100%;
+}
+
+/* Fade effect on left and right edges */
+.brands-slider::before,
+.brands-slider::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    width: 100px;
+    height: 100%;
+    z-index: 10;
+    pointer-events: none;
+}
+
+.brands-slider::before {
+    left: 0;
+    background: linear-gradient(to right, #0f0f0f, transparent);
+}
+
+.brands-slider::after {
+    right: 0;
+    background: linear-gradient(to left, #0f0f0f, transparent);
+}
+
+.brands-track {
+    display: flex;
+    gap: 40px;
+    animation: brand-scroll 25s linear infinite;
+    padding: 20px;
+}
+
+.brand-card {
+    flex-shrink: 0;
+    width: 280px;
+    height: 280px;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+    transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+                filter 0.4s ease;
+}
+
+.brand-card:hover {
+    transform: scale(1.05);
+    filter: brightness(1.1);
+}
+
+.brand-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+@keyframes brand-scroll {
+    from {
+        transform: translateX(0);
+    }
+    to {
+        transform: translateX(-50%);
+    }
+}
+
+/* Brands Section Responsive */
+@media (max-width: 768px) {
+    .brands-section {
+        padding: 80px 0;
+    }
+
+    .brands-header {
+        margin-bottom: 50px;
+    }
+
+    .brands-title {
+        font-size: clamp(1.5rem, 3.5vw, 2.2rem);
+        margin-bottom: 12px;
+    }
+
+    .brands-subtitle {
+        font-size: clamp(0.85rem, 1.6vw, 0.95rem);
+    }
+
+    .brands-slider::before,
+    .brands-slider::after {
+        width: 60px;
+    }
+
+    .brands-track {
+        gap: 30px;
+        padding: 16px;
+    }
+
+    .brand-card {
+        width: 220px;
+        height: 220px;
+    }
+
+    @keyframes brand-scroll {
+        from {
+            transform: translateX(0);
+        }
+        to {
+            transform: translateX(-50%);
+        }
+    }
+}
+
+@media (max-width: 480px) {
+    .brands-section {
+        padding: 60px 0;
+    }
+
+    .brands-header {
+        margin-bottom: 40px;
+        padding: 0 16px;
+    }
+
+    .brands-title {
+        font-size: clamp(1.2rem, 3vw, 1.8rem);
+        margin-bottom: 10px;
+    }
+
+    .brands-subtitle {
+        font-size: clamp(0.8rem, 1.4vw, 0.9rem);
+    }
+
+    .brands-slider::before,
+    .brands-slider::after {
+        width: 40px;
+    }
+
+    .brands-track {
+        gap: 20px;
+        padding: 12px;
+    }
+
+    .brand-card {
+        width: 160px;
+        height: 160px;
+        border-radius: 12px;
+    }
+}
+
+/* Footer */
 .dashboard-section {
     background: #f8f9fa;
     padding: 1.5rem;
@@ -759,11 +939,148 @@ table tr:hover {
 
 /* Footer */
 footer {
-    background-color: #333;
-    color: white;
-    text-align: center;
-    padding: 1.5rem;
-    margin-top: 2rem;
+    background: #050505;
+    color: #f6f7f8;
+    padding: 32px 36px 60px;
+    width: 100%;
+    margin-top: 0;
+}
+
+.footer-top-card {
+    height: 130px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 32px 32px 0 0;
+    background: radial-gradient(circle at center, rgba(255, 255, 255, 0.06), transparent 55%);
+}
+
+.footer-content {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.footer-brand {
+    margin-top: 24px;
+}
+
+.footer-brand-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #ffffff;
+    margin: 0 0 12px 0;
+    letter-spacing: 0.5px;
+}
+
+.footer-copyright {
+    font-size: 0.85rem;
+    color: rgba(246, 247, 248, 0.6);
+    margin: 0;
+}
+
+.footer-grid {
+    margin-top: 80px;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 60px;
+}
+
+.footer-column {
+    display: flex;
+    flex-direction: column;
+}
+
+.footer-heading {
+    color: #ffffff;
+    font-size: 0.875rem;
+    font-weight: 600;
+    margin: 0 0 22px 0;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+}
+
+.footer-links {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+}
+
+.footer-link {
+    display: block;
+    color: rgba(246, 247, 248, 0.6);
+    margin-bottom: 14px;
+    text-decoration: none;
+    font-size: 0.9rem;
+    transition: color 0.3s ease;
+}
+
+.footer-link:hover {
+    color: #ffffff;
+}
+
+/* Footer Responsive Design */
+@media (max-width: 768px) {
+    footer {
+        padding: 28px 20px 44px;
+    }
+
+    .footer-grid {
+        grid-template-columns: 1fr;
+        gap: 32px;
+        margin-top: 50px;
+    }
+
+    .footer-top-card {
+        height: 100px;
+        border-radius: 24px 24px 0 0;
+    }
+
+    .footer-brand-title {
+        font-size: 1.25rem;
+    }
+
+    .footer-heading {
+        font-size: 0.8rem;
+    }
+
+    .footer-link {
+        font-size: 0.85rem;
+    }
+}
+
+@media (max-width: 480px) {
+    footer {
+        padding: 24px 16px 36px;
+    }
+
+    .footer-top-card {
+        height: 80px;
+        border-radius: 20px 20px 0 0;
+    }
+
+    .footer-brand-title {
+        font-size: 1.1rem;
+    }
+
+    .footer-copyright {
+        font-size: 0.8rem;
+    }
+
+    .footer-grid {
+        gap: 24px;
+        margin-top: 40px;
+    }
+
+    .footer-heading {
+        font-size: 0.75rem;
+        margin-bottom: 16px;
+    }
+
+    .footer-link {
+        font-size: 0.8rem;
+        margin-bottom: 12px;
+    }
 }
 
 /* Responsive Design */
@@ -1962,18 +2279,17 @@ table tr:hover,
 
 footer {
     margin-top: 0;
-    background: transparent;
-    color: #686868;
-    border-top: 1px solid var(--line);
-    min-height: var(--footer-height);
-    padding: 1rem 0 1.1rem;
-    text-align: center;
-    font-size: 0.84rem;
+    background: #050505;
+    color: #f6f7f8;
+    border-top: none;
+    padding: 32px 36px 60px;
+    text-align: left;
+    font-size: 0.9rem;
 }
 
 footer p {
-    width: min(1180px, 92vw);
-    margin: 0 auto;
+    width: auto;
+    margin: 0;
 }
 
 .auth-page header,
