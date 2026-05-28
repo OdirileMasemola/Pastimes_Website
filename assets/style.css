@@ -1237,6 +1237,33 @@ table tr:hover {
     .product-modal-info h2 {
         font-size: 1.4rem;
     }
+
+    /* How Pastimes Works Responsive - Tablet */
+    .how-section {
+        padding: 80px 0;
+    }
+
+    .how-header {
+        margin-bottom: 60px;
+    }
+
+    .how-title {
+        font-size: clamp(1.8rem, 3.5vw, 2.2rem);
+    }
+
+    .how-cards {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 30px;
+        padding: 0 16px;
+    }
+
+    .how-card {
+        height: 300px;
+    }
+
+    .how-glass {
+        padding: 32px 24px;
+    }
 }
 
 @media (max-width: 480px) {
@@ -1258,16 +1285,57 @@ table tr:hover {
         padding: 16px;
     }
 
-    .product-modal {
-        width: 95%;
-        max-height: 80vh;
+    /* How Pastimes Works Responsive - Mobile */
+    .how-section {
+        padding: 60px 0;
     }
 
-    .product-modal-content {
-        padding: 16px;
-        gap: 16px;
+    .how-header {
+        margin-bottom: 40px;
+    }
+
+    .how-title {
+        font-size: clamp(1.4rem, 3vw, 1.8rem);
+    }
+
+    .how-subtitle {
+        font-size: 0.9rem;
+    }
+
+    .how-cards {
+        grid-template-columns: 1fr;
+        gap: 24px;
+        padding: 0 12px;
+    }
+
+    .how-card {
+        height: 280px;
+    }
+
+    .how-glass {
+        padding: 28px 20px;
+    }
+
+    .how-card-title {
+        font-size: 1.2rem;
+        margin-bottom: 12px;
+    }
+
+    .how-card-text {
+        font-size: 0.9rem;
     }
 }
+
+.product-modal {
+    width: 95%;
+    max-height: 80vh;
+}
+
+.product-modal-content {
+    padding: 16px;
+    gap: 16px;
+}
+
 
 /* Footer */
 .dashboard-section {
@@ -1445,6 +1513,159 @@ footer {
         font-size: 0.8rem;
         margin-bottom: 12px;
     }
+}
+
+/* How Pastimes Works Section */
+.how-section {
+    width: 100%;
+    background: #0a0a0a;
+    padding: 100px 0;
+    overflow: hidden;
+}
+
+.how-header {
+    max-width: 1200px;
+    margin: 0 auto 80px;
+    padding: 0 24px;
+    text-align: center;
+}
+
+.how-title {
+    font-size: clamp(2rem, 4vw, 2.8rem);
+    font-weight: 700;
+    color: #ffffff;
+    margin: 0 0 16px 0;
+    letter-spacing: -0.02em;
+}
+
+.how-subtitle {
+    font-size: clamp(0.95rem, 2vw, 1.1rem);
+    color: rgba(246, 247, 248, 0.6);
+    margin: 0;
+    max-width: 500px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+/* Cards Grid */
+.how-cards {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 24px;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 40px;
+    perspective: 1000px;
+}
+
+/* Individual Card */
+.how-card {
+    position: relative;
+    height: 320px;
+    cursor: pointer;
+}
+
+/* Gradient Background Panel */
+.how-gradient {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border-radius: 20px;
+    opacity: 0.15;
+    transform: skewY(-8deg);
+    transition: all 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    z-index: 1;
+}
+
+/* Blur Glow Effect Behind Card */
+.how-gradient-blur {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 100%;
+    height: 100%;
+    transform: translate(-50%, -50%);
+    border-radius: 20px;
+    filter: blur(40px);
+    opacity: 0;
+    transition: all 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    z-index: 0;
+    background: inherit;
+}
+
+/* Glassmorphism Card Content */
+.how-glass {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(15, 15, 15, 0.6);
+    backdrop-filter: blur(12px);
+    border-radius: 20px;
+    padding: 40px 32px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    border: 1px solid rgba(246, 247, 248, 0.08);
+    transition: all 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    z-index: 2;
+    overflow: hidden;
+}
+
+.how-card:hover .how-glass {
+    background: rgba(15, 15, 15, 0.75);
+    border-color: rgba(246, 247, 248, 0.15);
+    transform: translateY(-4px);
+}
+
+/* Hover Effects on Gradient and Blur */
+.how-card:hover .how-gradient {
+    opacity: 0.25;
+    transform: skewY(-2deg);
+}
+
+.how-card:hover .how-gradient-blur {
+    opacity: 0.1;
+}
+
+/* Step Number */
+.how-step {
+    font-size: 2rem;
+    font-weight: 700;
+    color: rgba(246, 247, 248, 0.3);
+    margin-bottom: 20px;
+    letter-spacing: 0.05em;
+    transition: color 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.how-card:hover .how-step {
+    color: rgba(246, 247, 248, 0.6);
+}
+
+/* Card Title */
+.how-card-title {
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: #ffffff;
+    margin: 0 0 16px 0;
+    line-height: 1.3;
+    transition: color 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+/* Card Text */
+.how-card-text {
+    font-size: 0.95rem;
+    color: rgba(246, 247, 248, 0.7);
+    margin: 0;
+    line-height: 1.6;
+    transition: color 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.how-card:hover .how-card-text {
+    color: rgba(246, 247, 248, 0.85);
 }
 
 /* Responsive Design */

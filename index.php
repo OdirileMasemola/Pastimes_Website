@@ -191,6 +191,49 @@ session_start();
         </div>
     </div>
 
+    <!-- How Pastimes Works Section -->
+    <section class="how-section">
+        <div class="how-header">
+            <h2 class="how-title">How Pastimes Works</h2>
+            <p class="how-subtitle">A simple way to shop, sell, and manage pre-loved fashion online.</p>
+        </div>
+
+        <div class="how-cards">
+            <!-- Card 1: Browse Quality Fashion -->
+            <div class="how-card">
+                <div class="how-gradient" style="background: linear-gradient(135deg, #FF3366, #20A4F3);"></div>
+                <div class="how-gradient-blur"></div>
+                <div class="how-glass">
+                    <div class="how-step">01</div>
+                    <h3 class="how-card-title">Browse Quality Fashion</h3>
+                    <p class="how-card-text">Explore selected second-hand clothing from trusted brands and find pieces that match your style.</p>
+                </div>
+            </div>
+
+            <!-- Card 2: Buy With Ease -->
+            <div class="how-card">
+                <div class="how-gradient" style="background: linear-gradient(135deg, #2EC4B6, #20A4F3);"></div>
+                <div class="how-gradient-blur"></div>
+                <div class="how-glass">
+                    <div class="how-step">02</div>
+                    <h3 class="how-card-title">Buy With Ease</h3>
+                    <p class="how-card-text">Add products to your cart, checkout easily, and track your orders from your account.</p>
+                </div>
+            </div>
+
+            <!-- Card 3: Sell Your Items -->
+            <div class="how-card">
+                <div class="how-gradient" style="background: linear-gradient(135deg, #FF3366, #2EC4B6);"></div>
+                <div class="how-gradient-blur"></div>
+                <div class="how-glass">
+                    <div class="how-step">03</div>
+                    <h3 class="how-card-title">Sell Your Items</h3>
+                    <p class="how-card-text">List your own branded clothing, manage your listings, and let admins review your submissions.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
     <!-- Footer Section -->
     <footer class="footer">
         <!-- Top Card Area -->
