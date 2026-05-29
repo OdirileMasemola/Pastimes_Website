@@ -234,6 +234,51 @@ session_start();
         </div>
     </section>
 
+    <!-- Become a Seller Section -->
+    <section class="seller-section">
+        <div class="seller-header">
+            <span class="seller-badge">Seller Program</span>
+            <h2 class="seller-title">Become a Seller</h2>
+            <p class="seller-subtitle">Turn your wardrobe into cash by listing quality pre-loved fashion on Pastimes.</p>
+        </div>
+
+        <div class="seller-grid-bg">
+            <div class="seller-card">
+                <div class="border-trail"></div>
+                
+                <div class="seller-decorative seller-decorative-tl">+</div>
+                <div class="seller-decorative seller-decorative-tr">+</div>
+                <div class="seller-decorative seller-decorative-bl">+</div>
+                <div class="seller-decorative seller-decorative-br">+</div>
+
+                <div class="seller-card-content">
+                    <!-- Left Side -->
+                    <div class="seller-card-left">
+                        <h3 class="seller-card-title">Sell Your Pre-Loved Fashion</h3>
+                        <p class="seller-card-description">Upload your branded clothing, add product details, and submit your item for admin review.</p>
+                        
+                        <ul class="seller-benefits">
+                            <li class="seller-benefit">List items in minutes</li>
+                            <li class="seller-benefit">Reach fashion shoppers</li>
+                            <li class="seller-benefit">Manage listings from your account</li>
+                        </ul>
+                    </div>
+
+                    <!-- Right Side -->
+                    <div class="seller-card-right">
+                        <h3 class="seller-card-title-right">Start Selling</h3>
+                        <p class="seller-card-highlight">No monthly fees</p>
+                        <p class="seller-card-info">Submit your items and wait for approval before they appear in the shop.</p>
+                        
+                        <a href="pages/sell-item.php" class="seller-button">Start Selling</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <p class="seller-trust-note">Secure seller submissions reviewed by Pastimes admins.</p>
+    </section>
+
     <!-- Footer Section -->
     <footer class="footer">
         <!-- Top Card Area -->
