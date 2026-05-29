@@ -201,7 +201,7 @@ session_start();
         <div class="how-cards">
             <!-- Card 1: Browse Quality Fashion -->
             <div class="how-card">
-                <div class="how-gradient" style="background: linear-gradient(135deg, #FF3366, #20A4F3);"></div>
+                <div class="how-gradient" style="background: linear-gradient(135deg, #FF3366, #FF6B00);"></div>
                 <div class="how-gradient-blur"></div>
                 <div class="how-glass">
                     <div class="how-step">01</div>
@@ -223,7 +223,7 @@ session_start();
 
             <!-- Card 3: Sell Your Items -->
             <div class="how-card">
-                <div class="how-gradient" style="background: linear-gradient(135deg, #FF3366, #2EC4B6);"></div>
+                <div class="how-gradient" style="background: linear-gradient(135deg, #2EC4B6, #39FF14);"></div>
                 <div class="how-gradient-blur"></div>
                 <div class="how-glass">
                     <div class="how-step">03</div>
