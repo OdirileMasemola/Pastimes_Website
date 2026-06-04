@@ -82,6 +82,7 @@ $conn->close();
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login - Pastimes</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -89,16 +90,16 @@ $conn->close();
 </head>
 <body class="auth-page">
     <main class="auth-layout">
-        <section class="auth-visual auth-visual-login" aria-label="Welcome panel">
+        <section class="auth-visual auth-visual-login" aria-label="Fashion showcase">
             <div class="auth-visual-overlay">
-                <p class="auth-visual-kicker">Pastimes Streetwear</p>
-                <h1>WELCOME BACK</h1>
-                <p>Discover curated pieces that define your everyday style.</p>
+                <p class="auth-visual-kicker">Welcome Back</p>
+                <h1>Sign In</h1>
+                <p>Discover premium pre-loved fashion pieces and exclusive deals on Pastimes.</p>
             </div>
         </section>
 
-        <section class="auth-panel" aria-label="Login section">
-            <div class="auth-section-label">Login</div>
+        <section class="auth-panel" aria-label="Sign in section">
+            <div class="auth-section-label">Account</div>
             <div class="auth-card">
                 <a href="../index.php" class="auth-brand" aria-label="Pastimes Home">PASTIMES</a>
                 <a href="javascript:history.back()" class="back-arrow" aria-label="Go back" title="Go back">&larr;</a>
@@ -109,38 +110,20 @@ $conn->close();
                     </div>
                 <?php endif; ?>
 
-                <div class="auth-icon" aria-hidden="true">
-                    <svg viewBox="0 0 24 24" role="img" focusable="false">
-                        <path d="M12 12a5 5 0 1 0-5-5 5 5 0 0 0 5 5Zm0 2c-4.42 0-8 2.24-8 5v1h16v-1c0-2.76-3.58-5-8-5Z"></path>
-                    </svg>
-                </div>
-
                 <form method="POST" action="login.php" class="auth-form">
-                    <div class="form-group auth-field">
-                        <label for="username">Username</label>
-                        <input
-                            type="text"
-                            id="username"
-                            name="username"
-                            value="<?php echo htmlspecialchars($username); ?>"
-                            placeholder="Enter your username"
-                            required
-                        >
-                    </div>
-
-                    <div class="form-group auth-field">
+                    <div class="auth-field">
                         <label for="email">Email</label>
                         <input
                             type="email"
                             id="email"
                             name="email"
                             value="<?php echo htmlspecialchars($email); ?>"
-                            placeholder="name@example.com"
+                            placeholder="your@email.com"
                             required
                         >
                     </div>
 
-                    <div class="form-group auth-field">
+                    <div class="auth-field">
                         <label for="password">Password</label>
                         <input
                             type="password"
@@ -151,13 +134,22 @@ $conn->close();
                         >
                     </div>
 
-                    <div class="auth-links-row">
-                        <a href="#" class="auth-link">Forgot Password?</a>
+                    <div class="auth-field">
+                        <label for="username" style="display: none;">Username</label>
+                        <input
+                            type="text"
+                            id="username"
+                            name="username"
+                            value="<?php echo htmlspecialchars($username); ?>"
+                            placeholder="Username"
+                            required
+                            style="display: none;"
+                        >
                     </div>
 
-                    <button type="submit" class="btn auth-btn auth-btn-primary">Login</button>
+                    <button type="submit" class="auth-btn auth-btn-primary">Sign In</button>
 
-                    <p class="auth-switch-text">Don't have an account? <a href="register.php" class="auth-link">Sign Up</a></p>
+                    <p class="auth-switch-text">Don't have an account? <a href="register.php" class="auth-link">Create one</a></p>
                 </form>
             </div>
         </section>

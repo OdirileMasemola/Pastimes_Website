@@ -71,21 +71,25 @@ $conn->close();
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Login - Pastimes</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="../assets/style.css">
 </head>
 <body class="auth-page">
     <main class="auth-layout">
-        <section class="auth-visual auth-visual-login" aria-label="Admin welcome panel">
+        <section class="auth-visual auth-visual-login" aria-label="Admin panel">
             <div class="auth-visual-overlay">
-                <p class="auth-visual-kicker">Pastimes Back Office</p>
-                <h1>ADMIN ACCESS</h1>
-                <p>Manage users, inventory, and orders with a streamlined control panel.</p>
+                <p class="auth-visual-kicker">Administration</p>
+                <h1>Admin Access</h1>
+                <p>Manage the Pastimes platform: users, inventory, orders, and marketplace operations.</p>
             </div>
         </section>
 
         <section class="auth-panel" aria-label="Admin login section">
-            <div class="auth-section-label">Admin Login</div>
-            <div class="auth-card admin-login-form">
+            <div class="auth-section-label">Administration</div>
+            <div class="auth-card">
                 <a href="../index.php" class="auth-brand" aria-label="Pastimes Home">PASTIMES</a>
                 <a href="javascript:history.back()" class="back-arrow" aria-label="Go back" title="Go back">&larr;</a>
 
@@ -95,37 +99,31 @@ $conn->close();
                     </div>
                 <?php endif; ?>
 
-                <div class="auth-icon" aria-hidden="true">
-                    <svg viewBox="0 0 24 24" role="img" focusable="false">
-                        <path d="M12 12a5 5 0 1 0-5-5 5 5 0 0 0 5 5Zm0 2c-4.42 0-8 2.24-8 5v1h16v-1c0-2.76-3.58-5-8-5Z"></path>
-                    </svg>
-                </div>
-
                 <form method="POST" action="admin-login.php" class="auth-form">
-                    <div class="form-group auth-field">
+                    <div class="auth-field">
                         <label for="email">Admin Email</label>
                         <input
                             type="email"
                             id="email"
                             name="email"
                             value="<?php echo htmlspecialchars($email); ?>"
-                            placeholder="admin@example.com"
+                            placeholder="admin@pastimes.com"
                             required
                         >
                     </div>
 
-                    <div class="form-group auth-field">
+                    <div class="auth-field">
                         <label for="password">Password</label>
                         <input
                             type="password"
                             id="password"
                             name="password"
-                            placeholder="Enter your password"
+                            placeholder="Enter admin password"
                             required
                         >
                     </div>
 
-                    <button type="submit" class="btn auth-btn auth-btn-primary">Admin Login</button>
+                    <button type="submit" class="auth-btn auth-btn-primary">Sign In</button>
                 </form>
             </div>
         </section>

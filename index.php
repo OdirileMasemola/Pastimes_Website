@@ -14,10 +14,19 @@ session_start();
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Pastimes - Home</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="stylesheet" href="assets/style.css">
 </head>
 <body class="home-page">
     <?php include 'includes/navbar.php'; ?>
+    
+    <!-- Shopping Cart Icon -->
+    <a href="pages/cart.php" class="cart-icon-link" title="Shopping Cart">
+        <i class="fa-solid fa-bag-shopping"></i>
+        <?php if (isset($_SESSION['cart']) && count($_SESSION['cart']) > 0): ?>
+            <span class="cart-badge"><?php echo count($_SESSION['cart']); ?></span>
+        <?php endif; ?>
+    </a>
 
     <main>
         <section class="hero" style="background-image: url('images/homepagewallpaper.jpg');">

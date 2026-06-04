@@ -264,6 +264,60 @@ body {
         0 4px 14px rgba(140, 30, 30, 0.28);
 }
 
+/* ===== Shopping Cart Icon ===== */
+.cart-icon-link {
+    position: fixed;
+    top: 36px;
+    right: 24px;
+    z-index: 1001;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 48px;
+    height: 48px;
+    font-size: 1.4rem;
+    color: #FFFFFF;
+    text-decoration: none;
+    transition: all 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
+    border-radius: 50%;
+    background: rgba(18, 18, 18, 0.35);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.cart-icon-link:hover {
+    transform: scale(1.15);
+    background: rgba(18, 18, 18, 0.55);
+    border-color: rgba(255, 255, 255, 0.3);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+.cart-badge {
+    position: absolute;
+    top: -6px;
+    right: -6px;
+    background: #E74C3C;
+    color: #FFFFFF;
+    font-size: 0.65rem;
+    font-weight: 700;
+    padding: 2px 5px;
+    border-radius: 10px;
+    min-width: 20px;
+    text-align: center;
+    border: 2px solid rgba(18, 18, 18, 0.95);
+    animation: badgePulse 0.6s ease-out;
+}
+
+@keyframes badgePulse {
+    0% {
+        transform: scale(1.3);
+    }
+    100% {
+        transform: scale(1);
+    }
+}
+
 /* ===== Hamburger Menu ===== */
 .navbar-toggle {
     display: none;
@@ -960,18 +1014,19 @@ table tr:hover {
 /* Product Card */
 .product-card {
     position: relative;
-    background: #1a1a1a;
+    background: #000000;
     border-radius: 16px;
     overflow: hidden;
     cursor: pointer;
-    transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    transition: all 0.6s cubic-bezier(0.4, 0.0, 0.2, 1);
     display: flex;
     flex-direction: column;
     height: 100%;
+    border: 1px solid #333333;
 }
 
 .product-card:hover {
-    background: #252525;
+    background: #1a1a1a;
     transform: translateY(-8px);
     box-shadow: 0 16px 48px rgba(0, 0, 0, 0.4);
 }
@@ -1016,19 +1071,20 @@ table tr:hover {
     display: flex;
     flex-direction: column;
     justify-content: space-between;
+    background: #000000;
 }
 
 .product-name {
     font-size: 1rem;
     font-weight: 600;
-    color: #0a0a0a;
+    color: #b0b0b0;
     margin: 0 0 8px 0;
     line-height: 1.4;
 }
 
 .product-brand {
     font-size: 0.85rem;
-    color: #333333;
+    color: #888888;
     margin: 0 0 12px 0;
     text-transform: uppercase;
     letter-spacing: 0.05em;
@@ -1037,7 +1093,7 @@ table tr:hover {
 .product-price {
     font-size: 1.2rem;
     font-weight: 700;
-    color: #0a0a0a;
+    color: #b0b0b0;
     margin: 0;
 }
 
