@@ -39,6 +39,16 @@ $conn->close();
 <body>
     <?php include '../includes/navbar.php'; ?>
     
+    <!-- Message Icon (only for logged-in users) -->
+    <?php if (isset($_SESSION['userID'])): ?>
+        <a href="<?php echo $myMessagesPath; ?>" class="message-icon-link" title="Messages">
+            <i class="fas fa-envelope"></i>
+            <?php if ($unreadMessageCount > 0): ?>
+                <span class="message-badge"><?php echo $unreadMessageCount; ?></span>
+            <?php endif; ?>
+        </a>
+    <?php endif; ?>
+    
     <!-- Shopping Cart Icon -->
     <a href="cart.php" class="cart-icon-link" title="Shopping Cart">
         <i class="fa-solid fa-bag-shopping"></i>

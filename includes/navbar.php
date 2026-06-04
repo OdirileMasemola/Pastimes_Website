@@ -21,6 +21,7 @@ if ($isAdminPage) {
     $adminLoginPath = 'admin-login.php';
     $myOrdersPath = '../../pages/my-orders.php';
     $cartPath = '../../pages/cart.php';
+    $myMessagesPath = '../../pages/my-messages.php';
 } elseif ($isPagePage) {
     // Pages folder: pages/xxx.php
     $indexPath = '../index.php';
@@ -34,6 +35,7 @@ if ($isAdminPage) {
     $adminLoginPath = '../admin/admin-login.php';
     $myOrdersPath = 'my-orders.php';
     $cartPath = 'cart.php';
+    $myMessagesPath = 'my-messages.php';
 } else {
     // Root pages: xxx.php
     $indexPath = 'index.php';
@@ -47,6 +49,24 @@ if ($isAdminPage) {
     $adminLoginPath = 'admin/admin-login.php';
     $myOrdersPath = 'pages/my-orders.php';
     $cartPath = 'pages/cart.php';
+    $myMessagesPath = 'pages/my-messages.php';
+}
+
+// Count unread messages for logged-in users
+$unreadMessageCount = 0;
+if (isset($_SESSION['userID'])) {
+    include_once __DIR__ . '/DBConn.php';
+    $msgStmt = $conn->prepare("SELECT COUNT(*) as unreadCount FROM tblMessage WHERE receiverID = ? AND isRead = 0");
+    if ($msgStmt) {
+        $msgStmt->bind_param("i", $_SESSION['userID']);
+        $msgStmt->execute();
+        $msgResult = $msgStmt->get_result();
+        if ($msgResult && $msgResult->num_rows > 0) {
+            $msgRow = $msgResult->fetch_assoc();
+            $unreadMessageCount = (int)$msgRow['unreadCount'];
+        }
+        $msgStmt->close();
+    }
 }
 ?>
 <nav class="navbar-wrapper">
@@ -87,12 +107,6 @@ if ($isAdminPage) {
                     <div class="nav-link-inner">
                         <span>Orders</span>
                         <span>Orders</span>
-                    </div>
-                </a>
-                <a href="<?php echo $cartPath; ?>" class="nav-link">
-                    <div class="nav-link-inner">
-                        <span>Cart</span>
-                        <span>Cart</span>
                     </div>
                 </a>
             <?php endif; ?>
