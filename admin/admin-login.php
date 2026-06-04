@@ -77,21 +77,22 @@ $conn->close();
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="../assets/style.css">
 </head>
-<body class="auth-page">
+<body class="auth-page admin-auth-page">
     <main class="auth-layout">
         <section class="auth-visual auth-visual-login" aria-label="Admin panel">
             <div class="auth-visual-overlay">
-                <p class="auth-visual-kicker">Administration</p>
-                <h1>Admin Access</h1>
-                <p>Manage the Pastimes platform: users, inventory, orders, and marketplace operations.</p>
+                <p class="auth-visual-kicker">Admin Panel</p>
+                <h1>Store Management</h1>
             </div>
         </section>
 
         <section class="auth-panel" aria-label="Admin login section">
-            <div class="auth-section-label">Administration</div>
+            <a href="javascript:history.back()" class="back-arrow" aria-label="Go back" title="Go back">&larr;</a>
             <div class="auth-card">
                 <a href="../index.php" class="auth-brand" aria-label="Pastimes Home">PASTIMES</a>
-                <a href="javascript:history.back()" class="back-arrow" aria-label="Go back" title="Go back">&larr;</a>
+
+                <h2 class="auth-heading">Admin access</h2>
+                <p class="auth-subtitle">Sign in to manage the Pastimes store</p>
 
                 <?php if ($error): ?>
                     <div class="error-message auth-message">
@@ -123,7 +124,9 @@ $conn->close();
                         >
                     </div>
 
-                    <button type="submit" class="auth-btn auth-btn-primary">Sign In</button>
+                    <button type="submit" class="auth-btn auth-btn-primary">Admin Login</button>
+
+                    <p class="auth-switch-text"><a href="../pages/login.php" class="auth-link">Back to user login</a></p>
                 </form>
             </div>
         </section>

@@ -132,17 +132,18 @@ $conn->close();
     <main class="auth-layout auth-layout-register">
         <section class="auth-visual auth-visual-register" aria-label="Fashion showcase">
             <div class="auth-visual-overlay">
-                <p class="auth-visual-kicker">Join Us</p>
+                <p class="auth-visual-kicker">Join Pastimes</p>
                 <h1>Create Account</h1>
-                <p>Start buying and selling premium pre-loved fashion on Pastimes today.</p>
             </div>
         </section>
 
         <section class="auth-panel" aria-label="Sign-up section">
-            <div class="auth-section-label">Account</div>
+            <a href="javascript:history.back()" class="back-arrow" aria-label="Go back" title="Go back">&larr;</a>
             <div class="auth-card">
                 <a href="../index.php" class="auth-brand" aria-label="Pastimes Home">PASTIMES</a>
-                <a href="javascript:history.back()" class="back-arrow" aria-label="Go back" title="Go back">&larr;</a>
+
+                <h2 class="auth-heading">Create account</h2>
+                <p class="auth-subtitle">Join Pastimes and start buying or selling pre-loved fashion</p>
 
                 <?php if ($error): ?>
                     <div class="error-message auth-message">
@@ -215,9 +216,9 @@ $conn->close();
                         >
                     </div>
 
-                    <button type="submit" class="auth-btn auth-btn-primary">Create Account</button>
+                    <button type="submit" class="auth-btn auth-btn-primary">Sign up</button>
 
-                    <p class="auth-switch-text">Already have an account? <a href="login.php" class="auth-link">Sign in</a></p>
+                    <p class="auth-switch-text">Already have an account? <a href="login.php" class="auth-link">Login</a></p>
                 </form>
             </div>
         </section>

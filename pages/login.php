@@ -94,15 +94,16 @@ $conn->close();
             <div class="auth-visual-overlay">
                 <p class="auth-visual-kicker">Welcome Back</p>
                 <h1>Sign In</h1>
-                <p>Discover premium pre-loved fashion pieces and exclusive deals on Pastimes.</p>
             </div>
         </section>
 
         <section class="auth-panel" aria-label="Sign in section">
-            <div class="auth-section-label">Account</div>
+            <a href="javascript:history.back()" class="back-arrow" aria-label="Go back" title="Go back">&larr;</a>
             <div class="auth-card">
                 <a href="../index.php" class="auth-brand" aria-label="Pastimes Home">PASTIMES</a>
-                <a href="javascript:history.back()" class="back-arrow" aria-label="Go back" title="Go back">&larr;</a>
+                
+                <h2 class="auth-heading">Sign in</h2>
+                <p class="auth-subtitle">Welcome back! Please sign in to continue</p>
 
                 <?php if ($error): ?>
                     <div class="error-message auth-message">
@@ -111,6 +112,18 @@ $conn->close();
                 <?php endif; ?>
 
                 <form method="POST" action="login.php" class="auth-form">
+                    <div class="auth-field">
+                        <label for="username">Username</label>
+                        <input
+                            type="text"
+                            id="username"
+                            name="username"
+                            value="<?php echo htmlspecialchars($username); ?>"
+                            placeholder="Enter your username"
+                            required
+                        >
+                    </div>
+
                     <div class="auth-field">
                         <label for="email">Email</label>
                         <input
@@ -134,22 +147,9 @@ $conn->close();
                         >
                     </div>
 
-                    <div class="auth-field">
-                        <label for="username" style="display: none;">Username</label>
-                        <input
-                            type="text"
-                            id="username"
-                            name="username"
-                            value="<?php echo htmlspecialchars($username); ?>"
-                            placeholder="Username"
-                            required
-                            style="display: none;"
-                        >
-                    </div>
+                    <button type="submit" class="auth-btn auth-btn-primary">Login</button>
 
-                    <button type="submit" class="auth-btn auth-btn-primary">Sign In</button>
-
-                    <p class="auth-switch-text">Don't have an account? <a href="register.php" class="auth-link">Create one</a></p>
+                    <p class="auth-switch-text">Don't have an account? <a href="register.php" class="auth-link">Sign up</a></p>
                 </form>
             </div>
         </section>

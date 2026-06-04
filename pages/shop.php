@@ -545,20 +545,26 @@ $featuredItems = array(
 
         function filterDb() {
             var q      = searchInput ? searchInput.value.trim().toLowerCase() : '';
-            var minVal = minPrice    ? (parseFloat(minPrice.value) || 0)      : 0;
-            var maxVal = maxPrice    ? (parseFloat(maxPrice.value) || Infinity) : Infinity;
+            var minVal = minPrice && minPrice.value.trim() !== '' ? parseFloat(minPrice.value) : 0;
+            var maxVal = maxPrice && maxPrice.value.trim() !== '' ? parseFloat(maxPrice.value) : Infinity;
 
             dbCards.forEach(function (card) {
                 var show = true;
 
+                // Search filter
                 if (q && card.dataset.name && card.dataset.name.indexOf(q) === -1)
                     show = false;
 
+                // Category filter
                 if (activeCat && card.dataset.category && card.dataset.category.indexOf(activeCat) === -1)
                     show = false;
 
-                var price = parseFloat(card.dataset.price) || 0;
-                if (price < minVal || price > maxVal) show = false;
+                // Price filter - clean the price value first
+                var priceStr = (card.dataset.price || '0').toString().replace(/[R$,\s]/g, '');
+                var price = parseFloat(priceStr) || 0;
+                
+                if (minVal > 0 && price < minVal) show = false;
+                if (maxVal < Infinity && price > maxVal) show = false;
 
                 card.style.display = show ? '' : 'none';
             });
@@ -578,8 +584,14 @@ $featuredItems = array(
             });
         }
 
-        if (minPrice) minPrice.addEventListener('input', filterDb);
-        if (maxPrice) maxPrice.addEventListener('input', filterDb);
+        if (minPrice) {
+            minPrice.addEventListener('input', function () { filterDb(); });
+            minPrice.addEventListener('change', function () { filterDb(); });
+        }
+        if (maxPrice) {
+            maxPrice.addEventListener('input', function () { filterDb(); });
+            maxPrice.addEventListener('change', function () { filterDb(); });
+        }
 
 
         /* Mobile navbar toggle */
