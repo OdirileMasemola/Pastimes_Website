@@ -34,20 +34,13 @@ $conn->close();
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>My Account - Pastimes</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <link rel="stylesheet" href="../assets/style.css">
+    <link rel="stylesheet" href="../assets/style.css?v=3">
 </head>
 <body>
     <?php include '../includes/navbar.php'; ?>
     
-    <!-- Message Icon (only for logged-in users) -->
-    <?php if (isset($_SESSION['userID'])): ?>
-        <a href="<?php echo $myMessagesPath; ?>" class="message-icon-link" title="Messages">
-            <i class="fas fa-envelope"></i>
-            <?php if ($unreadMessageCount > 0): ?>
-                <span class="message-badge"><?php echo $unreadMessageCount; ?></span>
-            <?php endif; ?>
-        </a>
-    <?php endif; ?>
+    <!-- Message Icon + Notification Popover (only for logged-in users) -->
+    <?php include '../includes/messagePopover.php'; ?>
     
     <!-- Shopping Cart Icon -->
     <a href="cart.php" class="cart-icon-link" title="Shopping Cart">
@@ -102,7 +95,6 @@ $conn->close();
                     <h4>Quick Links</h4>
                     <ul>
                         <li><a href="my-orders.php" class="btn btn-secondary">My Orders</a></li>
-                        <li><a href="my-messages.php" class="btn btn-secondary">My Messages</a></li>
                         <li><a href="my-listings.php" class="btn btn-secondary">My Listings</a></li>
                         <li><a href="sell-item.php" class="btn btn-secondary">Sell an Item</a></li>
                     </ul>

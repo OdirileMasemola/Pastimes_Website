@@ -192,6 +192,32 @@ $clothesLoaded = loadDelimitedFile($conn, $dataDirectory . '/clothesData.txt', f
     return $result;
 });
 
+// Seed the curated featured products so they are real, buyable items.
+// They use approvalStatus = 'featured' so they do NOT appear in the shop's
+// "All Listings" grid (which only shows 'approved'), but can still be added
+// to the cart and checked out (cart/checkout do not filter by approval).
+$featuredProducts = array(
+    // clothingName, brand, category, description, price, quantity, imageURL
+    array('Portofino sneakers in calfskin and patent leather', 'Dolce & Gabbana', 'Men', 'Premium Dolce & Gabbana statement piece. Authentic designer fashion for the discerning shopper.', 18500.00, 5, '../images/dolce.jpg'),
+    array('Dsquared2 Denim Jean', 'Dsquared2', 'Men', 'Iconic Dsquared2 denim jean. Contemporary designer style with authentic craftsmanship.', 16000.00, 8, '../images/dsquared.png'),
+    array('Kenzo Graphic Tee', 'Kenzo', 'Unisex', 'Signature Kenzo graphic tee. Bold design meets comfort in this premium pre-loved piece.', 3500.00, 12, '../images/kenzo.jpg'),
+    array('Lacoste Monogram Jacket', 'Lacoste', 'Men', 'Classic Lacoste jacket. Timeless elegance and quality construction in this iconic piece.', 3000.00, 6, '../images/lacostejacket.png'),
+    array('Louboutin Sneaker', 'Christian Louboutin', 'Women', 'Luxury Christian Louboutin sneaker. Premium footwear with iconic design and superior craftsmanship.', 23000.00, 4, '../images/louboutin.jpg'),
+    array('Louis Vuitton Trainers', 'Louis Vuitton', 'Unisex', 'Prestigious Louis Vuitton sneaker. Premium luxury footwear with exceptional quality and design.', 30000.00, 3, '../images/LVSneaker.png'),
+);
+
+$featuredLoaded = 0;
+$featuredStmt = $conn->prepare("INSERT INTO tblClothes (clothingName, brand, category, description, price, quantity, imageURL, approvalStatus) VALUES (?, ?, ?, ?, ?, ?, ?, 'featured')");
+if ($featuredStmt) {
+    foreach ($featuredProducts as $fp) {
+        $featuredStmt->bind_param('ssssdis', $fp[0], $fp[1], $fp[2], $fp[3], $fp[4], $fp[5], $fp[6]);
+        if ($featuredStmt->execute()) {
+            $featuredLoaded++;
+        }
+    }
+    $featuredStmt->close();
+}
+
 $orderLoaded = loadDelimitedFile($conn, $dataDirectory . '/orderData.txt', function (array $parts, mysqli $conn): bool {
     if (count($parts) < 4) {
         return false;
@@ -215,7 +241,7 @@ $orderLoaded = loadDelimitedFile($conn, $dataDirectory . '/orderData.txt', funct
 });
 
 echo 'ClothingStore tables created successfully.<br>';
-echo 'Loaded ' . $adminLoaded . ' admin records, ' . $userLoaded . ' user records, ' . $clothesLoaded . ' clothing records, and ' . $orderLoaded . ' order records.<br>';
+echo 'Loaded ' . $adminLoaded . ' admin records, ' . $userLoaded . ' user records, ' . $clothesLoaded . ' clothing records, ' . $featuredLoaded . ' featured products, and ' . $orderLoaded . ' order records.<br>';
 
 $conn->close();
 ?>

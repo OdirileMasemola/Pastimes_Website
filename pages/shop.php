@@ -8,14 +8,40 @@
 session_start();
 include '../includes/DBConn.php';
 
-$sql = "SELECT * FROM tblClothes WHERE approvalStatus = 'approved'";
-$result = $conn->query($sql);
-$clothes = array();
+// Read price filter values from the URL (GET). Empty = no limit.
+$minPrice = (isset($_GET['min_price']) && $_GET['min_price'] !== '') ? (float) $_GET['min_price'] : null;
+$maxPrice = (isset($_GET['max_price']) && $_GET['max_price'] !== '') ? (float) $_GET['max_price'] : null;
 
-if ($result && $result->num_rows > 0) {
-    while ($row = $result->fetch_assoc()) {
-        $clothes[] = $row;
+// Build the query with optional price filtering using prepared statements.
+$sql    = "SELECT * FROM tblClothes WHERE approvalStatus = 'approved'";
+$types  = '';
+$params = array();
+
+if ($minPrice !== null) {
+    $sql     .= " AND price >= ?";
+    $types   .= 'd';
+    $params[] = $minPrice;
+}
+if ($maxPrice !== null) {
+    $sql     .= " AND price <= ?";
+    $types   .= 'd';
+    $params[] = $maxPrice;
+}
+
+$clothes = array();
+$stmt = $conn->prepare($sql);
+if ($stmt) {
+    if (!empty($params)) {
+        $stmt->bind_param($types, ...$params);
     }
+    $stmt->execute();
+    $result = $stmt->get_result();
+    if ($result) {
+        while ($row = $result->fetch_assoc()) {
+            $clothes[] = $row;
+        }
+    }
+    $stmt->close();
 }
 
 $maleFashionImages = array(
@@ -59,7 +85,8 @@ function pickFashionImage($category, $clothingName, $clothingID, $maleFashionIma
     return $femaleFashionImages[$clothingID % count($femaleFashionImages)];
 }
 
-$conn->close();
+/* Keep $conn open: navbar.php reuses it for the unread-message count.
+   PHP closes the connection automatically when the script finishes. */
 
 /* Featured curated items — names and prices match index.php */
 $featuredItems = array(
@@ -118,6 +145,23 @@ $featuredItems = array(
         'link'        => 'shop.php'
     ),
 );
+
+/* Attach real database IDs + stock to the featured items so they can be added
+   to the cart from the quick-view modal. Matched by product name. */
+$featuredLookup = array();
+if ($featuredResult = $conn->query("SELECT clothingID, clothingName, quantity FROM tblClothes WHERE approvalStatus = 'featured'")) {
+    while ($fRow = $featuredResult->fetch_assoc()) {
+        $featuredLookup[$fRow['clothingName']] = $fRow;
+    }
+}
+foreach ($featuredItems as $fi => $fItem) {
+    $featuredItems[$fi]['id'] = 0;
+    $featuredItems[$fi]['stock'] = 0;
+    if (isset($featuredLookup[$fItem['title']])) {
+        $featuredItems[$fi]['id'] = intval($featuredLookup[$fItem['title']]['clothingID']);
+        $featuredItems[$fi]['stock'] = intval($featuredLookup[$fItem['title']]['quantity']);
+    }
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -126,20 +170,13 @@ $featuredItems = array(
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Shop — Pastimes</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <link rel="stylesheet" href="../assets/style.css">
+    <link rel="stylesheet" href="../assets/style.css?v=3">
 </head>
 <body class="shop-page-body">
     <?php include '../includes/navbar.php'; ?>
     
-    <!-- Message Icon (only for logged-in users) -->
-    <?php if (isset($_SESSION['userID'])): ?>
-        <a href="<?php echo $myMessagesPath; ?>" class="message-icon-link" title="Messages">
-            <i class="fas fa-envelope"></i>
-            <?php if ($unreadMessageCount > 0): ?>
-                <span class="message-badge"><?php echo $unreadMessageCount; ?></span>
-            <?php endif; ?>
-        </a>
-    <?php endif; ?>
+    <!-- Message Icon + Notification Popover (only for logged-in users) -->
+    <?php include '../includes/messagePopover.php'; ?>
     
     <!-- Shopping Cart Icon -->
     <a href="cart.php" class="cart-icon-link" title="Shopping Cart">
@@ -212,11 +249,14 @@ $featuredItems = array(
                     <!-- Price range -->
                     <div class="sidebar-section">
                         <span class="sidebar-label">Price Range (R)</span>
-                        <div class="sidebar-price-row">
-                            <input id="minPrice" type="number" class="sidebar-price-input" placeholder="Min">
-                            <span class="sidebar-price-sep">to</span>
-                            <input id="maxPrice" type="number" class="sidebar-price-input" placeholder="Max">
-                        </div>
+                        <form method="get" action="shop.php" class="sidebar-price-form">
+                            <div class="sidebar-price-row">
+                                <input id="minPrice" name="min_price" type="number" min="0" step="0.01" class="sidebar-price-input" placeholder="Min" value="<?php echo htmlspecialchars(isset($_GET['min_price']) ? $_GET['min_price'] : ''); ?>">
+                                <span class="sidebar-price-sep">to</span>
+                                <input id="maxPrice" name="max_price" type="number" min="0" step="0.01" class="sidebar-price-input" placeholder="Max" value="<?php echo htmlspecialchars(isset($_GET['max_price']) ? $_GET['max_price'] : ''); ?>">
+                            </div>
+                            <button type="submit" class="sidebar-pill" style="width:100%;justify-content:center;margin-top:10px;">Apply Filter</button>
+                        </form>
                     </div>
 
                     <?php
@@ -254,6 +294,7 @@ $featuredItems = array(
                              data-filter="<?php echo htmlspecialchars($item['filter']); ?>"
                              data-index="<?php echo $i; ?>"
                              data-name="<?php echo htmlspecialchars(strtolower($item['title'])); ?>"
+                             data-price="<?php echo (float) preg_replace('/[^0-9.]/', '', $item['price']); ?>"
                              style="animation-delay: <?php echo ($i * 0.08); ?>s;">
 
                             <img class="gallery-card-img"
@@ -314,7 +355,14 @@ $featuredItems = array(
                                  data-brand="<?php echo htmlspecialchars(strtolower($dataBrand)); ?>"
                                  data-gender="<?php echo htmlspecialchars(strtolower($dataGender)); ?>"
                                  data-sale="<?php echo $dataSale; ?>"
-                                 data-price="<?php echo $item['price']; ?>">
+                                 data-price="<?php echo $item['price']; ?>"
+                                 data-id="<?php echo intval($item['clothingID']); ?>"
+                                 data-title="<?php echo htmlspecialchars($item['clothingName']); ?>"
+                                 data-image="<?php echo htmlspecialchars($imageToDisplay); ?>"
+                                 data-pricetext="R <?php echo number_format($item['price'], 2); ?>"
+                                 data-desc="<?php echo htmlspecialchars(isset($item['description']) ? $item['description'] : ''); ?>"
+                                 data-brandlabel="<?php echo htmlspecialchars($dataBrand); ?>"
+                                 data-stock="<?php echo intval(isset($item['quantity']) ? $item['quantity'] : 0); ?>">
 
                                 <div class="db-product-img-wrap">
                                     <img class="db-product-img"
@@ -357,7 +405,22 @@ $featuredItems = array(
                 <p class="lb-brand" id="lbBrand"></p>
                 <p class="lb-price" id="lbPrice"></p>
                 <p class="lb-desc"  id="lbDesc"></p>
-                <a href="#" class="lb-cta" id="lbCta">Browse Collection</a>
+
+                <p class="lb-stock" id="lbStock"></p>
+
+                <div class="lb-cart-row">
+                    <div class="lb-qty">
+                        <button type="button" class="lb-qty-btn" id="lbQtyMinus" aria-label="Decrease quantity">&minus;</button>
+                        <input type="text" class="lb-qty-input" id="lbQtyInput" value="1" readonly>
+                        <button type="button" class="lb-qty-btn" id="lbQtyPlus" aria-label="Increase quantity">&plus;</button>
+                    </div>
+
+                    <form method="POST" action="cart.php" id="lbCartForm">
+                        <input type="hidden" name="clothingID" id="lbCartId" value="">
+                        <input type="hidden" name="quantity" id="lbCartQty" value="1">
+                        <button type="submit" class="lb-cta" id="lbAddBtn">Add to Cart</button>
+                    </form>
+                </div>
             </div>
 
             <div class="lb-counter" id="lbCounter"></div>
@@ -433,6 +496,22 @@ $featuredItems = array(
         var pills      = document.querySelectorAll('#galleryFilters .sidebar-pill');
         var galCards   = document.querySelectorAll('#galleryGrid .gallery-card');
 
+        /* Price filter for hardcoded gallery cards.
+           Reads min_price / max_price from the URL on page load.
+           (DB products are already price-filtered by PHP/SQL.) */
+        var urlParams = new URLSearchParams(window.location.search);
+        var urlMin    = parseFloat(urlParams.get('min_price'));
+        var urlMax    = parseFloat(urlParams.get('max_price'));
+        if (isNaN(urlMin)) urlMin = 0;
+        if (isNaN(urlMax)) urlMax = Infinity;
+
+        galCards.forEach(function (card) {
+            var price = parseFloat(card.dataset.price) || 0;
+            if (price < urlMin || price > urlMax) {
+                card.style.display = 'none';
+            }
+        });
+
         pills.forEach(function (pill) {
             pill.addEventListener('click', function () {
                 pills.forEach(function (p) { p.classList.remove('active'); });
@@ -471,33 +550,77 @@ $featuredItems = array(
         });
 
 
-        /* Lightbox */
-        var items     = <?php echo json_encode(array_values($featuredItems)); ?>;
-        var current   = 0;
-        var overlay   = document.getElementById('lbOverlay');
-        var lbImg     = document.getElementById('lbImg');
-        var lbTitle   = document.getElementById('lbTitle');
-        var lbBrand   = document.getElementById('lbBrand');
-        var lbPrice   = document.getElementById('lbPrice');
-        var lbDesc    = document.getElementById('lbDesc');
-        var lbCta     = document.getElementById('lbCta');
-        var lbCounter = document.getElementById('lbCounter');
+        /* Lightbox / product quick-view */
+        var featuredItems = <?php echo json_encode(array_values($featuredItems)); ?>;
+        var activeItems   = featuredItems;
+        var current       = 0;
+        var currentStock  = 1;
 
-        function populate(idx) {
-            var item = items[idx];
-            if (!item) return;
-            lbImg.src             = item.image;
-            lbImg.alt             = item.title;
-            lbTitle.textContent   = item.title;
-            lbBrand.textContent   = item.brand;
-            lbPrice.textContent   = item.price;
-            lbDesc.textContent    = item.description;
-            lbCta.href            = item.link;
-            lbCounter.textContent = (idx + 1) + ' / ' + items.length;
-            current = idx;
+        var overlay    = document.getElementById('lbOverlay');
+        var lbImg      = document.getElementById('lbImg');
+        var lbTitle    = document.getElementById('lbTitle');
+        var lbBrand    = document.getElementById('lbBrand');
+        var lbPrice    = document.getElementById('lbPrice');
+        var lbDesc     = document.getElementById('lbDesc');
+        var lbCounter  = document.getElementById('lbCounter');
+        var lbStock    = document.getElementById('lbStock');
+        var lbQtyInput = document.getElementById('lbQtyInput');
+        var lbQtyMinus = document.getElementById('lbQtyMinus');
+        var lbQtyPlus  = document.getElementById('lbQtyPlus');
+        var lbCartId   = document.getElementById('lbCartId');
+        var lbCartQty  = document.getElementById('lbCartQty');
+        var lbAddBtn   = document.getElementById('lbAddBtn');
+
+        function setQty(v) {
+            if (isNaN(v) || v < 1) v = 1;
+            if (v > currentStock) v = currentStock;
+            lbQtyInput.value = v;
+            lbCartQty.value = v;
         }
 
-        window.openLightbox = function (idx) {
+        function populate(idx) {
+            var item = activeItems[idx];
+            if (!item) return;
+            current = idx;
+
+            lbImg.src            = item.image;
+            lbImg.alt            = item.title || '';
+            lbTitle.textContent  = item.title || '';
+            lbBrand.textContent  = item.brand || '';
+            lbPrice.textContent  = item.price || '';
+            lbDesc.textContent   = item.description || '';
+            lbCounter.textContent = (idx + 1) + ' / ' + activeItems.length;
+
+            var stock = parseInt(item.stock, 10);
+            if (isNaN(stock)) stock = 1;
+            currentStock = stock;
+
+            var pid = parseInt(item.id, 10) || 0;
+            lbCartId.value = pid;
+
+            // Only real DB products (have an id and stock) can be added to cart
+            var purchasable = (pid > 0 && stock > 0);
+
+            if (pid <= 0) {
+                // Featured showcase item (not a real database product)
+                lbStock.textContent = '';
+                lbStock.classList.remove('lb-stock-out');
+            } else if (stock > 0) {
+                lbStock.textContent = 'Available: ' + stock + ' unit' + (stock === 1 ? '' : 's');
+                lbStock.classList.remove('lb-stock-out');
+            } else {
+                lbStock.textContent = 'Out of stock';
+                lbStock.classList.add('lb-stock-out');
+            }
+
+            setQty(1);
+
+            lbAddBtn.disabled   = !purchasable;
+            lbQtyMinus.disabled = !purchasable;
+            lbQtyPlus.disabled  = !purchasable;
+        }
+
+        function openAt(idx) {
             populate(idx);
             overlay.style.display = 'flex';
             requestAnimationFrame(function () {
@@ -506,6 +629,12 @@ $featuredItems = array(
                 });
             });
             document.body.style.overflow = 'hidden';
+        }
+
+        // Featured gallery cards call this (keeps existing onclick handlers working)
+        window.openLightbox = function (idx) {
+            activeItems = featuredItems;
+            openAt(idx);
         };
 
         function closeLightbox() {
@@ -521,17 +650,42 @@ $featuredItems = array(
         overlay.addEventListener('click', function (e) { if (e.target === overlay) closeLightbox(); });
 
         document.getElementById('lbPrev').addEventListener('click', function () {
-            populate((current - 1 + items.length) % items.length);
+            populate((current - 1 + activeItems.length) % activeItems.length);
         });
         document.getElementById('lbNext').addEventListener('click', function () {
-            populate((current + 1) % items.length);
+            populate((current + 1) % activeItems.length);
         });
+
+        lbQtyMinus.addEventListener('click', function () { setQty((parseInt(lbQtyInput.value, 10) || 1) - 1); });
+        lbQtyPlus.addEventListener('click', function () { setQty((parseInt(lbQtyInput.value, 10) || 1) + 1); });
 
         document.addEventListener('keydown', function (e) {
             if (!overlay.classList.contains('visible')) return;
             if (e.key === 'Escape')      closeLightbox();
-            if (e.key === 'ArrowLeft')   populate((current - 1 + items.length) % items.length);
-            if (e.key === 'ArrowRight')  populate((current + 1) % items.length);
+            if (e.key === 'ArrowLeft')   populate((current - 1 + activeItems.length) % activeItems.length);
+            if (e.key === 'ArrowRight')  populate((current + 1) % activeItems.length);
+        });
+
+        /* DB product quick-view: build modal items from the rendered cards */
+        var dbCardEls = document.querySelectorAll('#productsGrid .db-product-card');
+        var dbItems = [];
+        dbCardEls.forEach(function (card, i) {
+            dbItems.push({
+                id:          card.dataset.id,
+                title:       card.dataset.title,
+                brand:       card.dataset.brandlabel || '',
+                price:       card.dataset.pricetext || '',
+                description: card.dataset.desc || '',
+                image:       card.dataset.image,
+                stock:       card.dataset.stock
+            });
+            card.style.cursor = 'pointer';
+            card.addEventListener('click', function (e) {
+                if (e.target.closest('.db-product-btn')) return; // keep "View Details" working
+                e.preventDefault();
+                activeItems = dbItems;
+                openAt(i);
+            });
         });
 
 

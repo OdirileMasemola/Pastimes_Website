@@ -52,20 +52,25 @@ if ($isAdminPage) {
     $myMessagesPath = 'pages/my-messages.php';
 }
 
-// Count unread messages for logged-in users
+// Count unread messages for logged-in users.
+// Use a dedicated short-lived connection so the navbar never depends on the
+// including page's $conn, which may already have been closed (e.g. shop.php).
 $unreadMessageCount = 0;
 if (isset($_SESSION['userID'])) {
-    include_once __DIR__ . '/DBConn.php';
-    $msgStmt = $conn->prepare("SELECT COUNT(*) as unreadCount FROM tblMessage WHERE receiverID = ? AND isRead = 0");
-    if ($msgStmt) {
-        $msgStmt->bind_param("i", $_SESSION['userID']);
-        $msgStmt->execute();
-        $msgResult = $msgStmt->get_result();
-        if ($msgResult && $msgResult->num_rows > 0) {
-            $msgRow = $msgResult->fetch_assoc();
-            $unreadMessageCount = (int)$msgRow['unreadCount'];
+    $navConn = @new mysqli("localhost", "root", "", "ClothingStore");
+    if (!$navConn->connect_error) {
+        $msgStmt = $navConn->prepare("SELECT COUNT(*) as unreadCount FROM tblMessage WHERE receiverID = ? AND isRead = 0");
+        if ($msgStmt) {
+            $msgStmt->bind_param("i", $_SESSION['userID']);
+            $msgStmt->execute();
+            $msgResult = $msgStmt->get_result();
+            if ($msgResult && $msgResult->num_rows > 0) {
+                $msgRow = $msgResult->fetch_assoc();
+                $unreadMessageCount = (int)$msgRow['unreadCount'];
+            }
+            $msgStmt->close();
         }
-        $msgStmt->close();
+        $navConn->close();
     }
 }
 ?>
