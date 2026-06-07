@@ -105,22 +105,25 @@ ST10450294 	- Ripfumelo Mabasa
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Add Clothing - Admin Panel</title>
-    <link rel="stylesheet" href="../assets/style.css">
-    <style>
-        input[type="file"] {
-            padding: 5px;
-        }
-    </style>
+    <link rel="stylesheet" href="../assets/style.css?v=4">
 </head>
-<body>
+<body class="admin-page">
     <header>
         <?php include '../includes/navbar.php'; ?>
     </header>
 
     <main>
-        <div class="container">
-            <h2>Add New Clothing Item</h2>
-            
+        <div class="admin-container">
+            <nav class="admin-breadcrumb">Dashboard / Clothing / <span>Add Item</span></nav>
+
+            <div class="admin-page-head">
+                <div>
+                    <h1 class="admin-title">Add New Clothing Item</h1>
+                    <p class="admin-subtitle">Add a new product to the store inventory.</p>
+                </div>
+                <a href="manage-clothes.php" class="admin-action-btn ghost">Back to Clothing</a>
+            </div>
+
             <?php if ($error): ?>
                 <div class="error-message">
                     <p><?php echo htmlspecialchars($error); ?></p>
@@ -133,88 +136,90 @@ ST10450294 	- Ripfumelo Mabasa
                 </div>
             <?php endif; ?>
             
-            <form method="POST" action="add-clothing.php" enctype="multipart/form-data" novalidate>
-                <div class="form-group">
-                    <label for="clothingName">Clothing Name:</label>
-                    <input 
-                        type="text" 
-                        id="clothingName" 
-                        name="clothingName" 
-                        value="<?php echo htmlspecialchars($clothingName); ?>" 
-                        required
-                    >
+            <form method="POST" action="add-clothing.php" enctype="multipart/form-data" class="admin-form-card" novalidate>
+                <div class="admin-form-grid">
+                    <div class="form-group">
+                        <label for="clothingName">Clothing Name</label>
+                        <input 
+                            type="text" 
+                            id="clothingName" 
+                            name="clothingName" 
+                            value="<?php echo htmlspecialchars($clothingName); ?>" 
+                            required
+                        >
+                    </div>
+
+                    <div class="form-group">
+                        <label for="category">Category</label>
+                        <input 
+                            type="text" 
+                            id="category" 
+                            name="category" 
+                            value="<?php echo htmlspecialchars($category); ?>" 
+                            required
+                        >
+                    </div>
+
+                    <div class="form-group admin-full">
+                        <label for="description">Description</label>
+                        <textarea 
+                            id="description" 
+                            name="description"
+                        ><?php echo htmlspecialchars($description); ?></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="price">Price (R)</label>
+                        <input 
+                            type="number" 
+                            id="price" 
+                            name="price" 
+                            value="<?php echo htmlspecialchars($price); ?>" 
+                            step="0.01"
+                            min="0"
+                            required
+                        >
+                    </div>
+
+                    <div class="form-group">
+                        <label for="quantity">Quantity</label>
+                        <input 
+                            type="number" 
+                            id="quantity" 
+                            name="quantity" 
+                            value="<?php echo htmlspecialchars($quantity); ?>" 
+                            min="0"
+                            required
+                        >
+                    </div>
+
+                    <div class="form-group">
+                        <label for="imageFile">Upload Image from Device</label>
+                        <input 
+                            type="file" 
+                            id="imageFile" 
+                            name="imageFile"
+                            accept="image/jpeg,image/png,image/gif,image/webp"
+                        >
+                        <small style="display: block; margin-top: 5px;">Supported formats: JPEG, PNG, GIF, WebP. Max size: 5MB</small>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="imageURL">Or Paste Image URL</label>
+                        <input 
+                            type="text" 
+                            id="imageURL" 
+                            name="imageURL"
+                            value="<?php echo htmlspecialchars($imageURL); ?>"
+                            placeholder="e.g., https://example.com/shirt.jpg"
+                        >
+                        <small style="display: block; margin-top: 5px;">Use this if you have an image link instead of uploading</small>
+                    </div>
                 </div>
-                
-                <div class="form-group">
-                    <label for="category">Category:</label>
-                    <input 
-                        type="text" 
-                        id="category" 
-                        name="category" 
-                        value="<?php echo htmlspecialchars($category); ?>" 
-                        required
-                    >
-                </div>
-                
-                <div class="form-group">
-                    <label for="description">Description:</label>
-                    <textarea 
-                        id="description" 
-                        name="description"
-                    ><?php echo htmlspecialchars($description); ?></textarea>
-                </div>
-                
-                <div class="form-group">
-                    <label for="price">Price (R):</label>
-                    <input 
-                        type="number" 
-                        id="price" 
-                        name="price" 
-                        value="<?php echo htmlspecialchars($price); ?>" 
-                        step="0.01"
-                        min="0"
-                        required
-                    >
-                </div>
-                
-                <div class="form-group">
-                    <label for="quantity">Quantity:</label>
-                    <input 
-                        type="number" 
-                        id="quantity" 
-                        name="quantity" 
-                        value="<?php echo htmlspecialchars($quantity); ?>" 
-                        min="0"
-                        required
-                    >
-                </div>
-                
-                <div class="form-group">
-                    <label for="imageFile">Upload Image from Device:</label>
-                    <input 
-                        type="file" 
-                        id="imageFile" 
-                        name="imageFile"
-                        accept="image/jpeg,image/png,image/gif,image/webp"
-                    >
-                    <small style="color: #666; display: block; margin-top: 5px;">Supported formats: JPEG, PNG, GIF, WebP. Max size: 5MB</small>
-                </div>
-                
-                <div class="form-group">
-                    <label for="imageURL">Or Paste Image URL:</label>
-                    <input 
-                        type="text" 
-                        id="imageURL" 
-                        name="imageURL"
-                        value="<?php echo htmlspecialchars($imageURL); ?>"
-                        placeholder="e.g., https://example.com/shirt.jpg"
-                    >
-                    <small style="color: #666; display: block; margin-top: 5px;">Use this if you have an image link instead of uploading</small>
-                </div>
-                
-                <div class="form-group">
-                    <button type="submit" class="btn btn-primary">Add Clothing Item</button>
-                    <a href="manage-clothes.php" class="btn btn-secondary">Cancel</a>
+
+                <div class="admin-row-actions">
+                    <button type="submit" class="admin-action-btn primary">Add Clothing Item</button>
+                    <a href="manage-clothes.php" class="admin-action-btn ghost">Cancel</a>
                 </div>
             </form>
         </div>

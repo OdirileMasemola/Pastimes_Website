@@ -33,54 +33,70 @@ $conn->close();
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Manage Users - Admin Panel</title>
-    <link rel="stylesheet" href="../assets/style.css">
+    <link rel="stylesheet" href="../assets/style.css?v=4">
 </head>
-<body>
+<body class="admin-page">
     <header>
         <?php include '../includes/navbar.php'; ?>
     </header>
 
     <main>
-        <div class="container">
-            <h2>Manage Users</h2>
-            
-            <div class="admin-actions">
-                <a href="add-user.php" class="btn btn-primary">Add New User</a>
+        <div class="admin-container">
+            <nav class="admin-breadcrumb">Dashboard / <span>Users</span></nav>
+
+            <div class="admin-page-head">
+                <div>
+                    <h1 class="admin-title">Manage Users</h1>
+                    <p class="admin-subtitle">Verify registrations, edit details, and manage user accounts.</p>
+                </div>
+                <a href="add-user.php" class="admin-action-btn primary">Add New User</a>
             </div>
-            
-            <?php if (count($users) > 0): ?>
-                <table class="admin-table">
-                    <thead>
-                        <tr>
-                            <th>User ID</th>
-                            <th>Username</th>
-                            <th>Full Name</th>
-                            <th>Email</th>
-                            <th>Status</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <?php foreach ($users as $user): ?>
-                            <tr>
-                                <td><?php echo htmlspecialchars($user['userID']); ?></td>
-                                <td><?php echo htmlspecialchars($user['username']); ?></td>
-                                <td><?php echo htmlspecialchars($user['fullName']); ?></td>
-                                <td><?php echo htmlspecialchars($user['email']); ?></td>
-                                <td><?php echo $user['isVerified'] ? 'Verified' : 'Pending'; ?></td>
-                                <td>
-                                    <a href="edit-user.php?id=<?php echo $user['userID']; ?>" class="btn btn-secondary">Edit</a>
-                                    <a href="delete-user.php?id=<?php echo $user['userID']; ?>" class="btn btn-danger" onclick="return confirm('Are you sure?');">Delete</a>
-                                </td>
-                            </tr>
-                        <?php endforeach; ?>
-                    </tbody>
-                </table>
-            <?php else: ?>
-                <p>No users found.</p>
-            <?php endif; ?>
-            
-            <a href="dashboard.php" class="btn btn-secondary">Back to Dashboard</a>
+
+            <div class="admin-card">
+                <?php if (count($users) > 0): ?>
+                    <div class="admin-table-wrap">
+                        <table class="admin-table">
+                            <thead>
+                                <tr>
+                                    <th>User ID</th>
+                                    <th>Username</th>
+                                    <th>Full Name</th>
+                                    <th>Email</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php foreach ($users as $user): ?>
+                                    <tr>
+                                        <td>#<?php echo htmlspecialchars($user['userID']); ?></td>
+                                        <td><?php echo htmlspecialchars($user['username']); ?></td>
+                                        <td><?php echo htmlspecialchars($user['fullName']); ?></td>
+                                        <td><?php echo htmlspecialchars($user['email']); ?></td>
+                                        <td>
+                                            <?php if ($user['isVerified']): ?>
+                                                <span class="admin-badge is-green">Verified</span>
+                                            <?php else: ?>
+                                                <span class="admin-badge is-amber">Pending</span>
+                                            <?php endif; ?>
+                                        </td>
+                                        <td>
+                                            <div class="admin-row-actions">
+                                                <a href="edit-user.php?id=<?php echo $user['userID']; ?>" class="admin-action-btn ghost">Edit</a>
+                                                <a href="delete-user.php?id=<?php echo $user['userID']; ?>" class="admin-action-btn danger" onclick="return confirm('Are you sure?');">Delete</a>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                <?php endforeach; ?>
+                            </tbody>
+                        </table>
+                    </div>
+                <?php else: ?>
+                    <p class="admin-empty">No users found.</p>
+                <?php endif; ?>
+            </div>
+
+            <a href="dashboard.php" class="admin-action-btn ghost admin-back">Back to Dashboard</a>
         </div>
     </main>
 

@@ -80,43 +80,52 @@ ST10450294 	- Ripfumelo Mabasa
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Add User - Admin Panel</title>
-    <link rel="stylesheet" href="../assets/style.css">
+    <link rel="stylesheet" href="../assets/style.css?v=4">
 </head>
-<body>
+<body class="admin-page">
     <header>
         <?php include '../includes/navbar.php'; ?>
     </header>
 
     <main>
-        <div class="container">
-            <h2>Add New User</h2>
-            
+        <div class="admin-container">
+            <nav class="admin-breadcrumb">Dashboard / Users / <span>Add User</span></nav>
+
+            <div class="admin-page-head">
+                <div>
+                    <h1 class="admin-title">Add New User</h1>
+                    <p class="admin-subtitle">Create a new customer account. The account will be verified automatically.</p>
+                </div>
+                <a href="manage-users.php" class="admin-action-btn ghost">Back to Users</a>
+            </div>
+
             <?php if ($error): ?>
                 <div class="error-message">
                     <p><?php echo htmlspecialchars($error); ?></p>
                 </div>
             <?php endif; ?>
-            
+
             <?php if ($success): ?>
                 <div class="success-message">
                     <p><?php echo htmlspecialchars($success); ?></p>
                 </div>
             <?php endif; ?>
-            
-                <form method="POST" action="add-user.php">
-                <div class="form-group">
-                    <label for="fullName">Full Name:</label>
-                    <input 
-                        type="text" 
-                        id="fullName" 
-                        name="fullName" 
-                        value="<?php echo htmlspecialchars($fullName); ?>" 
-                        required
-                    >
-                </div>
+
+            <form method="POST" action="add-user.php" class="admin-form-card">
+                <div class="admin-form-grid">
+                    <div class="form-group">
+                        <label for="fullName">Full Name</label>
+                        <input 
+                            type="text" 
+                            id="fullName" 
+                            name="fullName" 
+                            value="<?php echo htmlspecialchars($fullName); ?>" 
+                            required
+                        >
+                    </div>
 
                     <div class="form-group">
-                        <label for="username">Username:</label>
+                        <label for="username">Username</label>
                         <input 
                             type="text" 
                             id="username" 
@@ -125,31 +134,32 @@ ST10450294 	- Ripfumelo Mabasa
                             required
                         >
                     </div>
-                
-                <div class="form-group">
-                    <label for="email">Email:</label>
-                    <input 
-                        type="email" 
-                        id="email" 
-                        name="email" 
-                        value="<?php echo htmlspecialchars($email); ?>" 
-                        required
-                    >
+
+                    <div class="form-group">
+                        <label for="email">Email</label>
+                        <input 
+                            type="email" 
+                            id="email" 
+                            name="email" 
+                            value="<?php echo htmlspecialchars($email); ?>" 
+                            required
+                        >
+                    </div>
+
+                    <div class="form-group">
+                        <label for="password">Password</label>
+                        <input 
+                            type="password" 
+                            id="password" 
+                            name="password" 
+                            required
+                        >
+                    </div>
                 </div>
-                
-                <div class="form-group">
-                    <label for="password">Password:</label>
-                    <input 
-                        type="password" 
-                        id="password" 
-                        name="password" 
-                        required
-                    >
-                </div>
-                
-                <div class="form-group">
-                    <button type="submit" class="btn btn-primary">Add User</button>
-                    <a href="manage-users.php" class="btn btn-secondary">Cancel</a>
+
+                <div class="admin-row-actions">
+                    <button type="submit" class="admin-action-btn primary">Add User</button>
+                    <a href="manage-users.php" class="admin-action-btn ghost">Cancel</a>
                 </div>
             </form>
         </div>

@@ -24,6 +24,16 @@ if ($result && $result->num_rows > 0) {
 }
 
 $conn->close();
+
+if (!function_exists('adminBadgeClass')) {
+    function adminBadgeClass($status) {
+        $s = strtolower(trim($status));
+        if (in_array($s, array('verified', 'approved', 'delivered', 'active', 'featured'), true)) return 'is-green';
+        if (in_array($s, array('pending', 'processing', 'shipped'), true)) return 'is-amber';
+        if (in_array($s, array('rejected', 'cancelled', 'canceled', 'unverified'), true)) return 'is-red';
+        return 'is-neutral';
+    }
+}
 ?>
 
 <!DOCTYPE html>
@@ -32,58 +42,76 @@ $conn->close();
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Manage Clothes - Admin Panel</title>
-    <link rel="stylesheet" href="../assets/style.css">
+    <link rel="stylesheet" href="../assets/style.css?v=4">
 </head>
-<body>
+<body class="admin-page">
     <header>
         <?php include '../includes/navbar.php'; ?>
     </header>
 
     <main>
-        <div class="container">
-            <h2>Manage Clothing</h2>
-            
-            <div class="admin-actions">
-                <a href="add-clothing.php" class="btn btn-primary">Add New Clothing Item</a>
+        <div class="admin-container">
+            <nav class="admin-breadcrumb">Dashboard / <span>Clothing</span></nav>
+
+            <div class="admin-page-head">
+                <div>
+                    <h1 class="admin-title">Manage Clothing</h1>
+                    <p class="admin-subtitle">Add, update, and remove clothing items from the inventory.</p>
+                </div>
+                <a href="add-clothing.php" class="admin-action-btn primary">Add New Item</a>
             </div>
-            
-            <?php if (count($clothes) > 0): ?>
-                <table class="admin-table">
-                    <thead>
-                        <tr>
-                            <th>ID</th>
-                            <th>Name</th>
-                            <th>Brand</th>
-                            <th>Category</th>
-                            <th>Price</th>
-                            <th>Quantity</th>
-                            <th>Status</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <?php foreach ($clothes as $item): ?>
-                            <tr>
-                                <td><?php echo htmlspecialchars($item['clothingID']); ?></td>
-                                <td><?php echo htmlspecialchars($item['clothingName']); ?></td>
-                                <td><?php echo htmlspecialchars($item['brand'] ?? 'N/A'); ?></td>
-                                <td><?php echo htmlspecialchars($item['category']); ?></td>
-                                <td>R <?php echo number_format($item['price'], 2); ?></td>
-                                <td><?php echo htmlspecialchars($item['quantity']); ?></td>
-                                <td><?php echo htmlspecialchars(ucfirst($item['approvalStatus'])); ?></td>
-                                <td>
-                                    <a href="edit-clothing.php?id=<?php echo $item['clothingID']; ?>" class="btn btn-secondary">Edit</a>
-                                    <a href="delete-clothing.php?id=<?php echo $item['clothingID']; ?>" class="btn btn-danger" onclick="return confirm('Are you sure?');">Delete</a>
-                                </td>
-                            </tr>
-                        <?php endforeach; ?>
-                    </tbody>
-                </table>
-            <?php else: ?>
-                <p>No clothing items found.</p>
-            <?php endif; ?>
-            
-            <a href="dashboard.php" class="btn btn-secondary">Back to Dashboard</a>
+
+            <div class="admin-card">
+                <?php if (count($clothes) > 0): ?>
+                    <div class="admin-table-wrap">
+                        <table class="admin-table">
+                            <thead>
+                                <tr>
+                                    <th>Image</th>
+                                    <th>ID</th>
+                                    <th>Name</th>
+                                    <th>Brand</th>
+                                    <th>Category</th>
+                                    <th>Price</th>
+                                    <th>Qty</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php foreach ($clothes as $item): ?>
+                                    <tr>
+                                        <td>
+                                            <?php if (!empty($item['imageURL'])): ?>
+                                                <img class="admin-thumb" src="<?php echo htmlspecialchars($item['imageURL']); ?>" alt="<?php echo htmlspecialchars($item['clothingName']); ?>" onerror="this.style.display='none';">
+                                            <?php else: ?>
+                                                <span class="admin-thumb"></span>
+                                            <?php endif; ?>
+                                        </td>
+                                        <td>#<?php echo htmlspecialchars($item['clothingID']); ?></td>
+                                        <td><?php echo htmlspecialchars($item['clothingName']); ?></td>
+                                        <td><?php echo htmlspecialchars($item['brand'] ?? 'N/A'); ?></td>
+                                        <td><?php echo htmlspecialchars($item['category']); ?></td>
+                                        <td>R <?php echo number_format($item['price'], 2); ?></td>
+                                        <td><?php echo htmlspecialchars($item['quantity']); ?></td>
+                                        <td><span class="admin-badge <?php echo adminBadgeClass($item['approvalStatus']); ?>"><?php echo htmlspecialchars(ucfirst($item['approvalStatus'])); ?></span></td>
+                                        <td>
+                                            <div class="admin-row-actions">
+                                                <a href="edit-clothing.php?id=<?php echo $item['clothingID']; ?>" class="admin-action-btn ghost">Edit</a>
+                                                <a href="delete-clothing.php?id=<?php echo $item['clothingID']; ?>" class="admin-action-btn danger" onclick="return confirm('Are you sure?');">Delete</a>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                <?php endforeach; ?>
+                            </tbody>
+                        </table>
+                    </div>
+                <?php else: ?>
+                    <p class="admin-empty">No clothing items found.</p>
+                <?php endif; ?>
+            </div>
+
+            <a href="dashboard.php" class="admin-action-btn ghost admin-back">Back to Dashboard</a>
         </div>
     </main>
 

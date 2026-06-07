@@ -165,7 +165,7 @@ $conn->close();
                             id="fullName"
                             name="fullName"
                             value="<?php echo htmlspecialchars($fullName); ?>"
-                            placeholder="John Doe"
+                            placeholder="Your Full Name"
                             required
                         >
                     </div>
@@ -189,7 +189,7 @@ $conn->close();
                             id="email"
                             name="email"
                             value="<?php echo htmlspecialchars($email); ?>"
-                            placeholder="your@email.com"
+                            placeholder="youremail@domain.com"
                             required
                         >
                     </div>

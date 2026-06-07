@@ -75,17 +75,25 @@ ST10450294 	- Ripfumelo Mabasa
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Edit Clothing - Admin Panel</title>
-    <link rel="stylesheet" href="../assets/style.css">
+    <link rel="stylesheet" href="../assets/style.css?v=4">
 </head>
-<body>
+<body class="admin-page">
     <header>
         <?php include '../includes/navbar.php'; ?>
     </header>
 
     <main>
-        <div class="container">
-            <h2>Edit Clothing Item</h2>
-            
+        <div class="admin-container">
+            <nav class="admin-breadcrumb">Dashboard / Clothing / <span>Edit Item</span></nav>
+
+            <div class="admin-page-head">
+                <div>
+                    <h1 class="admin-title">Edit Clothing Item</h1>
+                    <p class="admin-subtitle">Update the details for this product.</p>
+                </div>
+                <a href="manage-clothes.php" class="admin-action-btn ghost">Back to Clothing</a>
+            </div>
+
             <?php if ($error): ?>
                 <div class="error-message">
                     <p><?php echo htmlspecialchars($error); ?></p>
@@ -99,65 +107,67 @@ ST10450294 	- Ripfumelo Mabasa
             <?php endif; ?>
             
             <?php if ($clothing): ?>
-                <form method="POST" action="edit-clothing.php?id=<?php echo $clothingID; ?>" novalidate>
-                    <div class="form-group">
-                        <label for="clothingName">Clothing Name:</label>
-                        <input 
-                            type="text" 
-                            id="clothingName" 
-                            name="clothingName" 
-                            value="<?php echo htmlspecialchars($clothing['clothingName']); ?>" 
-                            required
-                        >
+                <form method="POST" action="edit-clothing.php?id=<?php echo $clothingID; ?>" class="admin-form-card" novalidate>
+                    <div class="admin-form-grid">
+                        <div class="form-group">
+                            <label for="clothingName">Clothing Name</label>
+                            <input 
+                                type="text" 
+                                id="clothingName" 
+                                name="clothingName" 
+                                value="<?php echo htmlspecialchars($clothing['clothingName']); ?>" 
+                                required
+                            >
+                        </div>
+
+                        <div class="form-group">
+                            <label for="category">Category</label>
+                            <input 
+                                type="text" 
+                                id="category" 
+                                name="category" 
+                                value="<?php echo htmlspecialchars($clothing['category']); ?>" 
+                                required
+                            >
+                        </div>
+
+                        <div class="form-group admin-full">
+                            <label for="description">Description</label>
+                            <textarea 
+                                id="description" 
+                                name="description"
+                            ><?php echo htmlspecialchars($clothing['description']); ?></textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="price">Price (R)</label>
+                            <input 
+                                type="number" 
+                                id="price" 
+                                name="price" 
+                                value="<?php echo htmlspecialchars($clothing['price']); ?>" 
+                                step="0.01"
+                                min="0"
+                                required
+                            >
+                        </div>
+
+                        <div class="form-group">
+                            <label for="quantity">Quantity</label>
+                            <input 
+                                type="number" 
+                                id="quantity" 
+                                name="quantity" 
+                                value="<?php echo htmlspecialchars($clothing['quantity']); ?>" 
+                                min="0"
+                                required
+                            >
+                        </div>
                     </div>
-                    
-                    <div class="form-group">
-                        <label for="category">Category:</label>
-                        <input 
-                            type="text" 
-                            id="category" 
-                            name="category" 
-                            value="<?php echo htmlspecialchars($clothing['category']); ?>" 
-                            required
-                        >
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="description">Description:</label>
-                        <textarea 
-                            id="description" 
-                            name="description"
-                        ><?php echo htmlspecialchars($clothing['description']); ?></textarea>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="price">Price (R):</label>
-                        <input 
-                            type="number" 
-                            id="price" 
-                            name="price" 
-                            value="<?php echo htmlspecialchars($clothing['price']); ?>" 
-                            step="0.01"
-                            min="0"
-                            required
-                        >
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="quantity">Quantity:</label>
-                        <input 
-                            type="number" 
-                            id="quantity" 
-                            name="quantity" 
-                            value="<?php echo htmlspecialchars($clothing['quantity']); ?>" 
-                            min="0"
-                            required
-                        >
-                    </div>
-                    
-                    <div class="form-group">
-                        <button type="submit" class="btn btn-primary">Update Clothing Item</button>
-                        <a href="manage-clothes.php" class="btn btn-secondary">Cancel</a>
+
+                    <div class="admin-row-actions">
+                        <button type="submit" class="admin-action-btn primary">Update Clothing Item</button>
+                        <a href="manage-clothes.php" class="admin-action-btn ghost">Cancel</a>
                     </div>
                 </form>
             <?php endif; ?>

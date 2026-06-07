@@ -95,23 +95,25 @@ All rights reserved.
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Edit User - Admin Panel</title>
-    <link rel="stylesheet" href="../assets/style.css">
+    <link rel="stylesheet" href="../assets/style.css?v=4">
 </head>
-<body class="edit-user-page">
+<body class="admin-page">
     <header>
         <?php include '../includes/navbar.php'; ?>
     </header>
 
     <main>
-        <div class="container">
-            <section class="edit-user-header">
+        <div class="admin-container">
+            <nav class="admin-breadcrumb">Dashboard / Users / <span>Edit User</span></nav>
+
+            <div class="admin-page-head">
                 <div>
-                    <h2>Edit User</h2>
-                    <p>Update customer details and verification status.</p>
+                    <h1 class="admin-title">Edit User</h1>
+                    <p class="admin-subtitle">Update customer details and verification status.</p>
                 </div>
-                <a href="manage-users.php" class="btn btn-secondary">Back to Users</a>
-            </section>
-            
+                <a href="manage-users.php" class="admin-action-btn ghost">Back to Users</a>
+            </div>
+
             <?php if ($error): ?>
                 <div class="error-message">
                     <p><?php echo htmlspecialchars($error); ?></p>
@@ -125,8 +127,8 @@ All rights reserved.
             <?php endif; ?>
             
             <?php if ($user): ?>
-                <form method="POST" action="edit-user.php?id=<?php echo $userID; ?>" class="edit-user-form" novalidate>
-                    <div class="edit-user-grid">
+                <form method="POST" action="edit-user.php?id=<?php echo $userID; ?>" class="admin-form-card" novalidate>
+                    <div class="admin-form-grid">
                         <div class="form-group">
                             <label for="fullName">Full Name</label>
                             <input 
@@ -148,17 +150,17 @@ All rights reserved.
                                 required
                             >
                         </div>
-                    </div>
 
-                    <div class="form-group">
-                        <label for="email">Email</label>
-                        <input 
-                            type="email" 
-                            id="email" 
-                            name="email" 
-                            value="<?php echo htmlspecialchars($user['email']); ?>" 
-                            readonly
-                        >
+                        <div class="form-group admin-full">
+                            <label for="email">Email</label>
+                            <input 
+                                type="email" 
+                                id="email" 
+                                name="email" 
+                                value="<?php echo htmlspecialchars($user['email']); ?>" 
+                                readonly
+                            >
+                        </div>
                     </div>
 
                     <label for="isVerified" class="verify-toggle">
@@ -174,9 +176,9 @@ All rights reserved.
                         </span>
                     </label>
 
-                    <div class="form-group edit-user-actions">
-                        <button type="submit" class="btn btn-primary">Update User</button>
-                        <a href="manage-users.php" class="btn btn-secondary">Cancel</a>
+                    <div class="admin-row-actions">
+                        <button type="submit" class="admin-action-btn primary">Update User</button>
+                        <a href="manage-users.php" class="admin-action-btn ghost">Cancel</a>
                     </div>
                 </form>
             <?php endif; ?>

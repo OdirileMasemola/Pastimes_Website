@@ -63,6 +63,16 @@ if ($result && $result->num_rows > 0) {
 }
 
 $conn->close();
+
+if (!function_exists('adminBadgeClass')) {
+    function adminBadgeClass($status) {
+        $s = strtolower(trim($status));
+        if (in_array($s, array('verified', 'approved', 'delivered', 'active'), true)) return 'is-green';
+        if (in_array($s, array('pending', 'processing', 'shipped'), true)) return 'is-amber';
+        if (in_array($s, array('rejected', 'cancelled', 'canceled', 'unverified'), true)) return 'is-red';
+        return 'is-neutral';
+    }
+}
 ?>
 
 <!DOCTYPE html>
@@ -71,67 +81,78 @@ $conn->close();
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Manage Orders - Admin Panel</title>
-    <link rel="stylesheet" href="../assets/style.css">
+    <link rel="stylesheet" href="../assets/style.css?v=4">
 </head>
-<body>
+<body class="admin-page">
     <header>
         <?php include '../includes/navbar.php'; ?>
     </header>
 
     <main>
-        <div class="container">
-            <h2>Manage Orders</h2>
+        <div class="admin-container">
+            <nav class="admin-breadcrumb">Dashboard / <span>Orders</span></nav>
+
+            <div class="admin-page-head">
+                <div>
+                    <h1 class="admin-title">Manage Orders</h1>
+                    <p class="admin-subtitle">View customer orders and update their fulfilment status.</p>
+                </div>
+            </div>
 
             <?php if ($message): ?>
                 <div class="success-message">
                     <p><?php echo htmlspecialchars($message); ?></p>
                 </div>
             <?php endif; ?>
-            
-            <?php if (count($orders) > 0): ?>
-                <table class="admin-table">
-                    <thead>
-                        <tr>
-                            <th>Order ID</th>
-                            <th>Customer Name</th>
-                            <th>Email</th>
-                            <th>Order Date</th>
-                            <th>Total Amount</th>
-                            <th>Status</th>
-                            <th>Update Status</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <?php foreach ($orders as $order): ?>
-                            <tr>
-                                <td><?php echo htmlspecialchars($order['orderID']); ?></td>
-                                <td><?php echo htmlspecialchars($order['fullName']); ?></td>
-                                <td><?php echo htmlspecialchars($order['email']); ?></td>
-                                <td><?php echo htmlspecialchars($order['orderDate']); ?></td>
-                                <td>R <?php echo number_format($order['totalAmount'], 2); ?></td>
-                                <td><?php echo htmlspecialchars(ucfirst(strtolower($order['status']))); ?></td>
-                                <td>
-                                    <form method="POST" action="manage-orders.php" style="display: flex; gap: 8px; align-items: center;">
-                                        <input type="hidden" name="orderID" value="<?php echo $order['orderID']; ?>">
-                                        <select name="status" class="form-group" style="margin: 0;">
-                                            <option value="pending" <?php echo strtolower($order['status']) === 'pending' ? 'selected' : ''; ?>>Pending</option>
-                                            <option value="processing" <?php echo strtolower($order['status']) === 'processing' ? 'selected' : ''; ?>>Processing</option>
-                                            <option value="shipped" <?php echo strtolower($order['status']) === 'shipped' ? 'selected' : ''; ?>>Shipped</option>
-                                            <option value="delivered" <?php echo strtolower($order['status']) === 'delivered' ? 'selected' : ''; ?>>Delivered</option>
-                                            <option value="cancelled" <?php echo strtolower($order['status']) === 'cancelled' ? 'selected' : ''; ?>>Cancelled</option>
-                                        </select>
-                                        <button type="submit" class="btn btn-primary">Update</button>
-                                    </form>
-                                </td>
-                            </tr>
-                        <?php endforeach; ?>
-                    </tbody>
-                </table>
-            <?php else: ?>
-                <p>No orders found.</p>
-            <?php endif; ?>
-            
-            <a href="dashboard.php" class="btn btn-secondary">Back to Dashboard</a>
+
+            <div class="admin-card">
+                <?php if (count($orders) > 0): ?>
+                    <div class="admin-table-wrap">
+                        <table class="admin-table">
+                            <thead>
+                                <tr>
+                                    <th>Order ID</th>
+                                    <th>Customer Name</th>
+                                    <th>Email</th>
+                                    <th>Order Date</th>
+                                    <th>Total Amount</th>
+                                    <th>Status</th>
+                                    <th>Update Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php foreach ($orders as $order): ?>
+                                    <tr>
+                                        <td>#<?php echo htmlspecialchars($order['orderID']); ?></td>
+                                        <td><?php echo htmlspecialchars($order['fullName']); ?></td>
+                                        <td><?php echo htmlspecialchars($order['email']); ?></td>
+                                        <td><?php echo htmlspecialchars($order['orderDate']); ?></td>
+                                        <td>R <?php echo number_format($order['totalAmount'], 2); ?></td>
+                                        <td><span class="admin-badge <?php echo adminBadgeClass($order['status']); ?>"><?php echo htmlspecialchars(ucfirst(strtolower($order['status']))); ?></span></td>
+                                        <td>
+                                            <form method="POST" action="manage-orders.php" class="admin-inline-form">
+                                                <input type="hidden" name="orderID" value="<?php echo $order['orderID']; ?>">
+                                                <select name="status">
+                                                    <option value="pending" <?php echo strtolower($order['status']) === 'pending' ? 'selected' : ''; ?>>Pending</option>
+                                                    <option value="processing" <?php echo strtolower($order['status']) === 'processing' ? 'selected' : ''; ?>>Processing</option>
+                                                    <option value="shipped" <?php echo strtolower($order['status']) === 'shipped' ? 'selected' : ''; ?>>Shipped</option>
+                                                    <option value="delivered" <?php echo strtolower($order['status']) === 'delivered' ? 'selected' : ''; ?>>Delivered</option>
+                                                    <option value="cancelled" <?php echo strtolower($order['status']) === 'cancelled' ? 'selected' : ''; ?>>Cancelled</option>
+                                                </select>
+                                                <button type="submit" class="admin-action-btn primary">Update</button>
+                                            </form>
+                                        </td>
+                                    </tr>
+                                <?php endforeach; ?>
+                            </tbody>
+                        </table>
+                    </div>
+                <?php else: ?>
+                    <p class="admin-empty">No orders found.</p>
+                <?php endif; ?>
+            </div>
+
+            <a href="dashboard.php" class="admin-action-btn ghost admin-back">Back to Dashboard</a>
         </div>
     </main>
 

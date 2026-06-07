@@ -131,7 +131,7 @@ $conn->close();
                             id="email"
                             name="email"
                             value="<?php echo htmlspecialchars($email); ?>"
-                            placeholder="your@email.com"
+                            placeholder="youremail@domain.com"
                             required
                         >
                     </div>
