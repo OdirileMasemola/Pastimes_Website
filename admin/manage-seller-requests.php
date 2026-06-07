@@ -91,171 +91,146 @@ $conn->close();
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Manage Seller Requests - Admin Panel</title>
-    <link rel="stylesheet" href="../assets/style.css">
-    <style>
-        .message {
-            padding: 10px;
-            margin-bottom: 15px;
-            border-radius: 4px;
-        }
-        
-        .message.success {
-            background-color: #d4edda;
-            color: #155724;
-            border: 1px solid #c3e6cb;
-        }
-        
-        .message.error {
-            background-color: #f8d7da;
-            color: #721c24;
-            border: 1px solid #f5c6cb;
-        }
-        
-        .seller-request-card {
-            background-color: #f9f9f9;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            padding: 15px;
-            margin-bottom: 20px;
-        }
-        
-        .seller-request-card h3 {
-            margin-top: 0;
-        }
-        
-        .seller-info {
-            background-color: #e7f3ff;
-            padding: 10px;
-            border-radius: 4px;
-            margin: 10px 0;
-        }
-        
-        .seller-info p {
-            margin: 5px 0;
-        }
-        
-        .item-details {
-            margin: 10px 0;
-        }
-        
-        .item-details p {
-            margin: 5px 0;
-        }
-        
-        .action-buttons {
-            margin-top: 15px;
-        }
-        
-        .btn {
-            display: inline-block;
-            padding: 8px 15px;
-            margin-right: 10px;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            text-decoration: none;
-            font-size: 14px;
-        }
-        
-        .btn-approve {
-            background-color: #28a745;
-            color: white;
-        }
-        
-        .btn-approve:hover {
-            background-color: #218838;
-        }
-        
-        .btn-reject {
-            background-color: #dc3545;
-            color: white;
-        }
-        
-        .btn-reject:hover {
-            background-color: #c82333;
-        }
-        
-        .btn-secondary {
-            background-color: #6c757d;
-            color: white;
-        }
-        
-        .btn-secondary:hover {
-            background-color: #5a6268;
-        }
-    </style>
+    <link rel="stylesheet" href="../assets/style.css?v=5">
 </head>
-<body>
+<body class="admin-page">
     <header>
-        <nav class="navbar">
-            <div class="container">
-                <div class="logo">
-                    <h1>Pastimes - Admin Panel</h1>
-                </div>
-                <ul class="nav-menu">
-                    <li><a href="dashboard.php">Dashboard</a></li>
-                    <li><a href="manage-clothes.php">Manage Clothes</a></li>
-                    <li><a href="manage-seller-requests.php">Seller Requests</a></li>
-                    <li><a href="admin-logout.php">Logout</a></li>
-                </ul>
-            </div>
-        </nav>
+        <?php include '../includes/navbar.php'; ?>
     </header>
 
     <main>
-        <div class="container">
-            <h2>Manage Seller Requests</h2>
-            
+        <div class="admin-container">
+            <nav class="admin-breadcrumb">Dashboard / <span>Seller Requests</span></nav>
+
+            <div class="admin-page-head">
+                <div>
+                    <h1 class="admin-title">Manage Seller Requests</h1>
+                    <p class="admin-subtitle">Review items submitted by sellers and approve, reject, or remove them.</p>
+                </div>
+                <a href="dashboard.php" class="admin-action-btn ghost">Back to Dashboard</a>
+            </div>
+
             <?php if (!empty($message)): ?>
-                <div class="message <?php echo htmlspecialchars($messageType); ?>">
-                    <?php echo htmlspecialchars($message); ?>
+                <div class="<?php echo $messageType === 'success' ? 'success-message' : 'error-message'; ?>">
+                    <p><?php echo htmlspecialchars($message); ?></p>
                 </div>
             <?php endif; ?>
-            
+
             <?php if (count($pendingItems) > 0): ?>
-                <p><?php echo count($pendingItems); ?> pending request<?php echo count($pendingItems) !== 1 ? 's' : ''; ?></p>
-                
+                <p class="admin-subtitle" style="margin-bottom:1.25rem;">
+                    <?php echo count($pendingItems); ?> pending request<?php echo count($pendingItems) !== 1 ? 's' : ''; ?>
+                </p>
+
                 <?php foreach ($pendingItems as $item): ?>
-                    <div class="seller-request-card">
-                        <h3><?php echo htmlspecialchars($item['clothingName']); ?></h3>
-                        
-                        <div class="seller-info">
-                            <strong>Submitted by:</strong>
-                            <p>
-                                Name: <?php echo htmlspecialchars($item['fullName'] ?? 'Unknown'); ?> <br>
-                                Username: <?php echo htmlspecialchars($item['username'] ?? 'Unknown'); ?> <br>
-                                Email: <?php echo htmlspecialchars($item['email'] ?? 'Unknown'); ?>
-                            </p>
+                    <div class="admin-card admin-request">
+                        <div class="admin-request-top">
+                            <?php if (!empty($item['imageURL'])): ?>
+                                <img class="admin-request-img" src="<?php echo htmlspecialchars($item['imageURL']); ?>" alt="<?php echo htmlspecialchars($item['clothingName']); ?>" onerror="this.style.display='none';">
+                            <?php endif; ?>
+                            <div style="flex:1; min-width:0;">
+                                <div class="admin-request-head">
+                                    <h3><?php echo htmlspecialchars($item['clothingName']); ?></h3>
+                                    <span class="admin-badge is-amber">Pending</span>
+                                </div>
+                                <div class="admin-meta-grid">
+                                    <div><span class="admin-meta-label">Brand</span><span class="admin-meta-value"><?php echo htmlspecialchars($item['brand'] ?? 'N/A'); ?></span></div>
+                                    <div><span class="admin-meta-label">Category</span><span class="admin-meta-value"><?php echo htmlspecialchars($item['category']); ?></span></div>
+                                    <div><span class="admin-meta-label">Size</span><span class="admin-meta-value"><?php echo htmlspecialchars($item['size']); ?></span></div>
+                                    <div><span class="admin-meta-label">Condition</span><span class="admin-meta-value"><?php echo htmlspecialchars($item['clothingCondition']); ?></span></div>
+                                    <div><span class="admin-meta-label">Price</span><span class="admin-meta-value">R <?php echo number_format($item['price'], 2); ?></span></div>
+                                    <div><span class="admin-meta-label">Submitted</span><span class="admin-meta-value"><?php echo htmlspecialchars($item['createdDate']); ?></span></div>
+                                </div>
+                            </div>
                         </div>
-                        
-                        <div class="item-details">
-                            <p><strong>Brand:</strong> <?php echo htmlspecialchars($item['brand'] ?? 'N/A'); ?></p>
-                            <p><strong>Category:</strong> <?php echo htmlspecialchars($item['category']); ?></p>
-                            <p><strong>Size:</strong> <?php echo htmlspecialchars($item['size']); ?></p>
-                            <p><strong>Condition:</strong> <?php echo htmlspecialchars($item['clothingCondition']); ?></p>
-                            <p><strong>Price:</strong> R <?php echo number_format($item['price'], 2); ?></p>
-                            <p><strong>Description:</strong> <?php echo htmlspecialchars($item['description'] ?? 'N/A'); ?></p>
-                            <p><strong>Image URL:</strong> <?php echo htmlspecialchars($item['imageURL'] ?? 'None'); ?></p>
-                            <p><strong>Submitted:</strong> <?php echo htmlspecialchars($item['createdDate']); ?></p>
+
+                        <div class="admin-seller-block">
+                            <span class="admin-meta-label">Submitted by</span>
+                            <p>Name: <?php echo htmlspecialchars($item['fullName'] ?? 'Unknown'); ?></p>
+                            <p>Username: <?php echo htmlspecialchars($item['username'] ?? 'Unknown'); ?></p>
+                            <p>Email: <?php echo htmlspecialchars($item['email'] ?? 'Unknown'); ?></p>
                         </div>
-                        
-                        <div class="action-buttons">
-                            <a href="?action=approve&id=<?php echo $item['clothingID']; ?>" class="btn btn-approve" onclick="return confirm('Approve this item?');">Approve</a>
-                            <a href="?action=reject&id=<?php echo $item['clothingID']; ?>" class="btn btn-reject" onclick="return confirm('Reject this item?');">Reject</a>
-                            <a href="?action=delete&id=<?php echo $item['clothingID']; ?>" class="btn btn-reject" onclick="return confirm('Delete this item permanently?');">Delete</a>
+
+                        <?php if (!empty($item['description'])): ?>
+                            <p class="admin-request-desc"><?php echo htmlspecialchars($item['description']); ?></p>
+                        <?php endif; ?>
+
+                        <div class="admin-row-actions">
+                            <a href="?action=approve&id=<?php echo $item['clothingID']; ?>" class="admin-action-btn success" onclick="return confirm('Approve this item?');">Approve</a>
+                            <a href="?action=reject&id=<?php echo $item['clothingID']; ?>" class="admin-action-btn danger" onclick="return confirm('Reject this item?');">Reject</a>
+                            <a href="?action=delete&id=<?php echo $item['clothingID']; ?>" class="admin-action-btn danger" onclick="return confirm('Delete this item permanently?');">Delete</a>
                         </div>
                     </div>
                 <?php endforeach; ?>
             <?php else: ?>
-                <p>No pending seller requests at this time.</p>
+                <div class="admin-card">
+                    <p class="admin-empty">No pending seller requests at this time.</p>
+                </div>
             <?php endif; ?>
-            
-            <a href="dashboard.php" class="btn btn-secondary">Back to Dashboard</a>
+
+            <a href="dashboard.php" class="admin-action-btn ghost admin-back">Back to Dashboard</a>
         </div>
     </main>
 
-    <footer>
-        <p>&copy; 2026 Pastimes. All rights reserved.</p>
+    <!-- Footer Section -->
+    <footer class="footer">
+        <!-- Top Card Area -->
+        <div class="footer-top-card"></div>
+
+        <!-- Footer Content -->
+        <div class="footer-content">
+            <!-- Brand Section -->
+            <div class="footer-brand">
+                <h2 class="footer-brand-title">Pastimes</h2>
+                <p class="footer-copyright">&copy; 2026 Pastimes. All rights reserved.</p>
+            </div>
+
+            <!-- Footer Grid (4 Columns) -->
+            <div class="footer-grid">
+                <!-- Product Column -->
+                <div class="footer-column">
+                    <h4 class="footer-heading">Product</h4>
+                    <ul class="footer-links">
+                        <li><a href="pages/shop.php" class="footer-link">Shop</a></li>
+                        <li><a href="pages/sell-item.php" class="footer-link">Sell Item</a></li>
+                        <li><a href="pages/cart.php" class="footer-link">Cart</a></li>
+                        <li><a href="pages/my-orders.php" class="footer-link">My Orders</a></li>
+                    </ul>
+                </div>
+
+                <!-- Company Column -->
+                <div class="footer-column">
+                    <h4 class="footer-heading">Company</h4>
+                    <ul class="footer-links">
+                        <li><a href="index.php" class="footer-link">About</a></li>
+                        <li><a href="pages/account.php" class="footer-link">Account</a></li>
+                        <li><a href="pages/login.php" class="footer-link">Login</a></li>
+                        <li><a href="pages/register.php" class="footer-link">Register</a></li>
+                    </ul>
+                </div>
+
+                <!-- Resources Column -->
+                <div class="footer-column">
+                    <h4 class="footer-heading">Resources</h4>
+                    <ul class="footer-links">
+                        <li><a href="index.php" class="footer-link">Help</a></li>
+                        <li><a href="pages/my-messages.php" class="footer-link">Messages</a></li>
+                        <li><a href="pages/my-listings.php" class="footer-link">Seller Listings</a></li>
+                        <li><a href="admin/admin-login.php" class="footer-link">Admin</a></li>
+                    </ul>
+                </div>
+
+                <!-- Social Links Column -->
+                <div class="footer-column">
+                    <h4 class="footer-heading">Social</h4>
+                    <ul class="footer-links">
+                        <li><a href="#" class="footer-link">Facebook</a></li>
+                        <li><a href="#" class="footer-link">Instagram</a></li>
+                        <li><a href="#" class="footer-link">YouTube</a></li>
+                        <li><a href="#" class="footer-link">LinkedIn</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
     </footer>
 </body>
 </html>

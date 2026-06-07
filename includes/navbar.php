@@ -9,19 +9,19 @@ $isAdminPage = strpos($_SERVER['PHP_SELF'], '/admin/') !== false;
 $isPagePage = strpos($_SERVER['PHP_SELF'], '/pages/') !== false;
 
 if ($isAdminPage) {
-    // Admin pages: admin/xxx.php
-    $indexPath = '../../index.php';
-    $shopPath = '../../pages/shop.php';
-    $sellPath = '../../pages/sell-item.php';
-    $loginPath = '../../pages/login.php';
-    $registerPath = '../../pages/register.php';
-    $accountPath = '../../pages/account.php';
-    $logoutPath = '../../pages/logout.php';
+    // Admin pages: admin/xxx.php (admin/ is one level below the project root)
+    $indexPath = '../index.php';
+    $shopPath = '../pages/shop.php';
+    $sellPath = '../pages/sell-item.php';
+    $loginPath = '../pages/login.php';
+    $registerPath = '../pages/register.php';
+    $accountPath = '../pages/account.php';
+    $logoutPath = '../pages/logout.php';
     $adminDashboardPath = 'dashboard.php';
     $adminLoginPath = 'admin-login.php';
-    $myOrdersPath = '../../pages/my-orders.php';
-    $cartPath = '../../pages/cart.php';
-    $myMessagesPath = '../../pages/my-messages.php';
+    $myOrdersPath = '../pages/my-orders.php';
+    $cartPath = '../pages/cart.php';
+    $myMessagesPath = '../pages/my-messages.php';
 } elseif ($isPagePage) {
     // Pages folder: pages/xxx.php
     $indexPath = '../index.php';

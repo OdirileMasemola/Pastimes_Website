@@ -5223,17 +5223,26 @@ body.admin-page {
 }
 
 /* Let the admin area span the viewport so the container can center */
+/* Top padding clears the fixed navbar (body already adds 80px) and gives
+   consistent breathing room so page content never clashes with the navbar.
+   Shared by every admin page so they all match the dashboard rhythm. */
 body.admin-page main {
     background: transparent;
     max-width: 100%;
     margin: 0;
-    padding: 2rem 0 3.5rem;
+    padding: 5rem 0 3.5rem;
     border-radius: 0;
+}
+
+@media (max-width: 768px) {
+    body.admin-page main {
+        padding-top: 2.5rem;
+    }
 }
 
 .admin-container {
     width: 100%;
-    max-width: 1120px;
+    max-width: 1280px;
     margin: 0 auto;
     padding: 0 20px;
     box-sizing: border-box;
@@ -5642,6 +5651,107 @@ body.admin-page .error-message {
 body.admin-page .success-message p,
 body.admin-page .error-message p {
     margin: 0;
+}
+
+/* Approve (green) button variant */
+.admin-action-btn.success {
+    background: rgba(46, 160, 67, 0.18);
+    color: #6ee7a0;
+    border-color: rgba(46, 160, 67, 0.4);
+}
+
+.admin-action-btn.success:hover {
+    background: rgba(46, 160, 67, 0.3);
+    border-color: rgba(46, 160, 67, 0.6);
+    color: #8fe3a0;
+}
+
+/* Seller request cards */
+.admin-request {
+    padding: 1.4rem;
+}
+
+.admin-request-head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+    flex-wrap: wrap;
+    margin-bottom: 1rem;
+}
+
+.admin-request-head h3 {
+    margin: 0 0 0.4rem;
+    font-size: 1.1rem;
+    color: #ffffff;
+}
+
+.admin-request-top {
+    display: flex;
+    gap: 1.1rem;
+    align-items: flex-start;
+}
+
+.admin-request-img {
+    width: 110px;
+    height: 110px;
+    object-fit: cover;
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    background: #1a1a1a;
+    flex-shrink: 0;
+}
+
+.admin-meta-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 0.85rem 1.25rem;
+    margin: 0.5rem 0 0;
+}
+
+.admin-meta-label {
+    display: block;
+    font-size: 0.68rem;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    color: #6b7280;
+    margin-bottom: 0.2rem;
+}
+
+.admin-meta-value {
+    color: #e5e5e5;
+    font-size: 0.9rem;
+    word-break: break-word;
+}
+
+.admin-seller-block {
+    background: #161616;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 12px;
+    padding: 0.9rem 1rem;
+    margin: 1.1rem 0;
+}
+
+.admin-seller-block .admin-meta-label {
+    margin-bottom: 0.5rem;
+}
+
+.admin-seller-block p {
+    margin: 0.2rem 0;
+    color: #c9c9c9;
+    font-size: 0.88rem;
+}
+
+.admin-request-desc {
+    color: #b3b3b3;
+    font-size: 0.9rem;
+    line-height: 1.55;
+    margin: 0 0 1.1rem;
+}
+
+@media (max-width: 560px) {
+    .admin-request-top { flex-direction: column; }
+    .admin-request-img { width: 100%; height: 200px; }
 }
 
 @media (max-width: 900px) {
