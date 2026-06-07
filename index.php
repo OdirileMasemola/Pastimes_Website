@@ -20,7 +20,7 @@ session_start();
 <body class="home-page">
     <?php include 'includes/navbar.php'; ?>
     
-    <!-- Message Icon + Notification Popover (only for logged-in users) -->
+    <!-- Message Icon + Notification Popover..... only for logged-in users -->
     <?php include 'includes/messagePopover.php'; ?>
     
     <!-- Shopping Cart Icon -->
@@ -36,7 +36,7 @@ session_start();
             <div class="hero-overlay"></div>
             <div class="hero-content">
                 <h1 class="hero-title">Buy and Sell Pre-Loved Fashion</h1>
-                <p class="hero-subtitle">Discover quality second-hand clothing, list your own items, and shop affordable fashion in one simple marketplace.</p>
+                <p class="hero-subtitle">Discover quality second-hand clothing, list your own items, and shop luxury fashion in one simple marketplace.</p>
                 <div class="hero-buttons">
                     <a href="pages/shop.php" class="hero-btn hero-btn-primary">Shop Now</a>
                     <a href="pages/sell-item.php" class="hero-btn hero-btn-secondary">Sell an Item</a>
