@@ -374,7 +374,7 @@ foreach ($featuredItems as $fi => $fItem) {
                                 <div class="db-product-body">
                                     <p class="db-product-name"><?php echo htmlspecialchars($item['clothingName']); ?></p>
                                     <p class="db-product-price">R <?php echo number_format($item['price'], 2); ?></p>
-                                    <a href="product-details.php?id=<?php echo $item['clothingID']; ?>" class="db-product-btn">View Details</a>
+                                    <button type="button" class="db-product-btn">View Details</button>
                                 </div>
                             </div>
                         <?php endforeach; ?>
@@ -679,9 +679,7 @@ foreach ($featuredItems as $fi => $fItem) {
                 stock:       card.dataset.stock
             });
             card.style.cursor = 'pointer';
-            card.addEventListener('click', function (e) {
-                if (e.target.closest('.db-product-btn')) return; // keep "View Details" working
-                e.preventDefault();
+            card.addEventListener('click', function () {
                 activeItems = dbItems;
                 openAt(i);
             });

@@ -3505,6 +3505,7 @@ body.shop-page-body footer {
     text-transform: uppercase;
     color: #F6F7F8;
     text-decoration: none;
+    cursor: pointer;
     transition: background 0.22s ease, border-color 0.22s ease;
     margin-top: auto;
 }
