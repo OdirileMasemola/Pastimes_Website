@@ -449,7 +449,6 @@ foreach ($featuredItems as $fi => $fItem) {
                         <li><a href="pages/shop.php" class="footer-link">Shop</a></li>
                         <li><a href="pages/sell-item.php" class="footer-link">Sell Item</a></li>
                         <li><a href="pages/cart.php" class="footer-link">Cart</a></li>
-                        <li><a href="pages/my-orders.php" class="footer-link">My Orders</a></li>
                     </ul>
                 </div>
 

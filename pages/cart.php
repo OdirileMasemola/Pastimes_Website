@@ -135,6 +135,53 @@ if (count($_SESSION['cart']) > 0) {
 }
 
 $cartCount = count($cartProducts);
+
+$userOrders = array();
+if (isset($_SESSION['userID'])) {
+    $orderUserID = intval($_SESSION['userID']);
+    $orderStmt = $conn->prepare("SELECT orderID, orderDate, totalAmount, status FROM tblOrder WHERE userID = ? ORDER BY orderDate DESC LIMIT 10");
+    if ($orderStmt) {
+        $orderStmt->bind_param("i", $orderUserID);
+        $orderStmt->execute();
+        $orderResult = $orderStmt->get_result();
+        if ($orderResult) {
+            while ($orderRow = $orderResult->fetch_assoc()) {
+                $userOrders[] = $orderRow;
+            }
+        }
+        $orderStmt->close();
+    }
+}
+
+if (!function_exists('pastimesOrderBadgeClass')) {
+    function pastimesOrderBadgeClass($status) {
+        $s = strtolower(trim($status));
+        if (in_array($s, array('delivered'), true)) {
+            return 'is-green';
+        }
+        if (in_array($s, array('pending', 'processing', 'shipped'), true)) {
+            return 'is-amber';
+        }
+        if (in_array($s, array('cancelled', 'canceled'), true)) {
+            return 'is-red';
+        }
+        return 'is-neutral';
+    }
+}
+
+if (!function_exists('pastimesOrderProgressStep')) {
+    function pastimesOrderProgressStep($status) {
+        $s = strtolower(trim($status));
+        $steps = array(
+            'pending'    => 1,
+            'processing' => 2,
+            'shipped'    => 3,
+            'delivered'  => 4
+        );
+        return isset($steps[$s]) ? $steps[$s] : 0;
+    }
+}
+
 $conn->close();
 ?>
 
@@ -145,7 +192,7 @@ $conn->close();
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Shopping Cart - Pastimes</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <link rel="stylesheet" href="../assets/style.css?v=3">
+    <link rel="stylesheet" href="../assets/style.css?v=6">
 </head>
 <body class="cart-page-body">
     <?php include '../includes/navbar.php'; ?>
@@ -230,11 +277,130 @@ $conn->close();
                 <?php endif; ?>
 
             </div>
+
+            <?php if (isset($_SESSION['userID'])): ?>
+                <div class="order-track-card">
+                    <div class="cart-card-header">
+                        <div class="cart-card-title">
+                            <i class="fa-solid fa-truck-fast"></i>
+                            <span>Track Your Orders</span>
+                        </div>
+                    </div>
+
+                    <?php if (count($userOrders) > 0): ?>
+                        <div class="order-track-list">
+                            <?php foreach ($userOrders as $order): ?>
+                                <?php
+                                $orderStatus = strtolower(trim($order['status']));
+                                $progressStep = pastimesOrderProgressStep($order['status']);
+                                $statusLabel = ucfirst($orderStatus);
+                                ?>
+                                <div class="order-track-item">
+                                    <div class="order-track-top">
+                                        <div class="order-track-info">
+                                            <span class="order-track-id">Order #<?php echo htmlspecialchars($order['orderID']); ?></span>
+                                            <span class="order-track-date"><?php echo htmlspecialchars(date('M d, Y', strtotime($order['orderDate']))); ?></span>
+                                        </div>
+                                        <div class="order-track-amount">R <?php echo number_format($order['totalAmount'], 2); ?></div>
+                                    </div>
+
+                                    <div class="order-track-status-row">
+                                        <span class="admin-badge <?php echo pastimesOrderBadgeClass($order['status']); ?>"><?php echo htmlspecialchars($statusLabel); ?></span>
+                                    </div>
+
+                                    <?php if ($progressStep > 0): ?>
+                                        <div class="order-track-progress" aria-label="Order progress">
+                                            <div class="order-track-step <?php echo $progressStep >= 1 ? 'is-done' : ''; ?> <?php echo $progressStep === 1 ? 'is-current' : ''; ?>">
+                                                <span class="order-track-dot"></span>
+                                                <span class="order-track-label">Pending</span>
+                                            </div>
+                                            <div class="order-track-line <?php echo $progressStep >= 2 ? 'is-done' : ''; ?>"></div>
+                                            <div class="order-track-step <?php echo $progressStep >= 2 ? 'is-done' : ''; ?> <?php echo $progressStep === 2 ? 'is-current' : ''; ?>">
+                                                <span class="order-track-dot"></span>
+                                                <span class="order-track-label">Processing</span>
+                                            </div>
+                                            <div class="order-track-line <?php echo $progressStep >= 3 ? 'is-done' : ''; ?>"></div>
+                                            <div class="order-track-step <?php echo $progressStep >= 3 ? 'is-done' : ''; ?> <?php echo $progressStep === 3 ? 'is-current' : ''; ?>">
+                                                <span class="order-track-dot"></span>
+                                                <span class="order-track-label">Shipped</span>
+                                            </div>
+                                            <div class="order-track-line <?php echo $progressStep >= 4 ? 'is-done' : ''; ?>"></div>
+                                            <div class="order-track-step <?php echo $progressStep >= 4 ? 'is-done' : ''; ?> <?php echo $progressStep === 4 ? 'is-current' : ''; ?>">
+                                                <span class="order-track-dot"></span>
+                                                <span class="order-track-label">Delivered</span>
+                                            </div>
+                                        </div>
+                                    <?php endif; ?>
+                                </div>
+                            <?php endforeach; ?>
+                        </div>
+                    <?php else: ?>
+                        <div class="order-track-empty">You have not placed any orders yet.</div>
+                    <?php endif; ?>
+                </div>
+            <?php endif; ?>
         </div>
     </main>
 
-    <footer>
-        <p>&copy; 2026 Pastimes. All rights reserved.</p>
+    <!-- Footer Section -->
+    <footer class="footer">
+        <!-- Top Card Area -->
+        <div class="footer-top-card"></div>
+
+        <!-- Footer Content -->
+        <div class="footer-content">
+            <!-- Brand Section -->
+            <div class="footer-brand">
+                <h2 class="footer-brand-title">Pastimes</h2>
+                <p class="footer-copyright">&copy; 2026 Pastimes. All rights reserved.</p>
+            </div>
+
+            <!-- Footer Grid (4 Columns) -->
+            <div class="footer-grid">
+                <!-- Product Column -->
+                <div class="footer-column">
+                    <h4 class="footer-heading">Product</h4>
+                    <ul class="footer-links">
+                        <li><a href="pages/shop.php" class="footer-link">Shop</a></li>
+                        <li><a href="pages/sell-item.php" class="footer-link">Sell Item</a></li>
+                        <li><a href="pages/cart.php" class="footer-link">Cart</a></li>
+                    </ul>
+                </div>
+
+                <!-- Company Column -->
+                <div class="footer-column">
+                    <h4 class="footer-heading">Company</h4>
+                    <ul class="footer-links">
+                        <li><a href="index.php" class="footer-link">About</a></li>
+                        <li><a href="pages/account.php" class="footer-link">Account</a></li>
+                        <li><a href="pages/login.php" class="footer-link">Login</a></li>
+                        <li><a href="pages/register.php" class="footer-link">Register</a></li>
+                    </ul>
+                </div>
+
+                <!-- Resources Column -->
+                <div class="footer-column">
+                    <h4 class="footer-heading">Resources</h4>
+                    <ul class="footer-links">
+                        <li><a href="index.php" class="footer-link">Help</a></li>
+                        <li><a href="pages/my-messages.php" class="footer-link">Messages</a></li>
+                        <li><a href="pages/my-listings.php" class="footer-link">Seller Listings</a></li>
+                        <li><a href="admin/admin-login.php" class="footer-link">Admin</a></li>
+                    </ul>
+                </div>
+
+                <!-- Social Links Column -->
+                <div class="footer-column">
+                    <h4 class="footer-heading">Social</h4>
+                    <ul class="footer-links">
+                        <li><a href="#" class="footer-link">Facebook</a></li>
+                        <li><a href="#" class="footer-link">Instagram</a></li>
+                        <li><a href="#" class="footer-link">YouTube</a></li>
+                        <li><a href="#" class="footer-link">LinkedIn</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
     </footer>
 
     <script>
@@ -265,6 +431,5 @@ $conn->close();
 This code is the original work of:
 ST10441421 - Odirile Masemola
 ST10450294 - Ripfumelo Mabasa
-All rights reserved.
 */
 ?>

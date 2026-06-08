@@ -5461,6 +5461,376 @@ body.admin-page .error-message p {
     .admin-page-head { flex-direction: column; }
 }
 
+/* ===== CHECKOUT PAGE — PREMIUM DARK ===== */
+.checkout-card {
+    margin-top: 0.5rem;
+}
+
+.checkout-alert {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    padding: 0.95rem 1.1rem;
+    border-radius: 12px;
+    margin-bottom: 1.25rem;
+    font-size: 0.92rem;
+}
+
+.checkout-alert p {
+    margin: 0;
+    line-height: 1.45;
+}
+
+.checkout-alert i {
+    margin-top: 0.1rem;
+    flex-shrink: 0;
+}
+
+.checkout-alert-error {
+    background: rgba(220, 68, 68, 0.12);
+    border: 1px solid rgba(220, 68, 68, 0.35);
+    color: #ff8585;
+}
+
+.checkout-alert-success {
+    background: rgba(46, 160, 67, 0.12);
+    border: 1px solid rgba(46, 160, 67, 0.35);
+    color: #6ee7a0;
+}
+
+.checkout-summary-title {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #ffffff;
+    margin: 0 0 1rem;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+}
+
+.checkout-summary-items {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.checkout-summary-row {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.85rem 1rem;
+    background: #151515;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 12px;
+}
+
+.checkout-summary-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+    min-width: 0;
+}
+
+.checkout-summary-name {
+    color: #ffffff;
+    font-weight: 600;
+    font-size: 0.95rem;
+}
+
+.checkout-summary-qty {
+    color: #b3b3b3;
+    font-size: 0.82rem;
+}
+
+.checkout-summary-line {
+    color: #ffffff;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.checkout-form {
+    margin-top: 0.25rem;
+}
+
+/* ===== MESSAGE FULL VIEW MODAL ===== */
+.message-pop-item {
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.message-pop-item:hover {
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.message-modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.72);
+    backdrop-filter: blur(4px);
+    z-index: 1200;
+    opacity: 0;
+    transition: opacity 0.25s ease;
+}
+
+.message-modal-overlay.active {
+    display: block;
+    opacity: 1;
+}
+
+.message-modal-wrap {
+    display: none;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0.95);
+    z-index: 1201;
+    width: min(560px, calc(100vw - 32px));
+    max-height: min(85vh, 680px);
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 0.75rem;
+    opacity: 0;
+    transition: opacity 0.25s ease, transform 0.25s ease;
+    pointer-events: none;
+}
+
+.message-modal-wrap.active {
+    display: flex;
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+    pointer-events: auto;
+}
+
+.message-modal {
+    position: relative;
+    top: auto;
+    left: auto;
+    transform: none;
+    width: 100%;
+    max-height: min(75vh, 600px);
+    overflow-y: auto;
+    background: #111111;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 18px;
+    box-shadow: 0 30px 60px rgba(0, 0, 0, 0.55);
+    color: #ffffff;
+}
+
+.message-modal-close {
+    position: relative;
+    top: auto;
+    right: auto;
+    flex-shrink: 0;
+    width: 36px;
+    height: 36px;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.04);
+    color: #ffffff;
+    font-size: 1.4rem;
+    line-height: 1;
+    cursor: pointer;
+    transition: background 0.2s, border-color 0.2s;
+}
+
+.message-modal-close:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.25);
+}
+
+.message-modal-content {
+    padding: 1.75rem 1.5rem 1.5rem;
+}
+
+.message-modal-meta {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 0.5rem 1rem;
+    margin-bottom: 0.75rem;
+}
+
+.message-modal-from {
+    font-size: 0.82rem;
+    color: #9ca3af;
+}
+
+.message-modal-sent {
+    font-size: 0.78rem;
+    color: #6b7280;
+}
+
+.message-modal-subject {
+    margin: 0 0 1rem;
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #ffffff;
+    line-height: 1.3;
+}
+
+.message-modal-body {
+    font-size: 0.95rem;
+    line-height: 1.65;
+    color: #d1d5db;
+    white-space: pre-wrap;
+    word-break: break-word;
+}
+
+/* ===== ORDER TRACKING (CART PAGE) ===== */
+.order-track-card {
+    margin-top: 2rem;
+    background: #111111;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 18px;
+    box-shadow: 0 30px 60px rgba(0, 0, 0, 0.5);
+    padding: 32px;
+    box-sizing: border-box;
+}
+
+.order-track-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.order-track-item {
+    background: #151515;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 14px;
+    padding: 1.1rem 1.15rem;
+}
+
+.order-track-top {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 0.75rem;
+}
+
+.order-track-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+}
+
+.order-track-id {
+    font-weight: 600;
+    color: #ffffff;
+    font-size: 0.98rem;
+}
+
+.order-track-date {
+    color: #b3b3b3;
+    font-size: 0.82rem;
+}
+
+.order-track-amount {
+    font-weight: 700;
+    color: #ffffff;
+    white-space: nowrap;
+}
+
+.order-track-status-row {
+    margin-bottom: 0.85rem;
+}
+
+.order-track-empty {
+    color: #b3b3b3;
+    font-size: 0.92rem;
+    padding: 0.5rem 0 0.25rem;
+}
+
+.order-track-progress {
+    display: flex;
+    align-items: flex-start;
+    gap: 0;
+    margin-top: 0.25rem;
+}
+
+.order-track-step {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.35rem;
+    flex: 0 0 auto;
+    min-width: 58px;
+}
+
+.order-track-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    background: #0e0e0e;
+    box-sizing: border-box;
+}
+
+.order-track-step.is-done .order-track-dot {
+    border-color: #6ee7a0;
+    background: #6ee7a0;
+}
+
+.order-track-step.is-current .order-track-dot {
+    border-color: #f5c84b;
+    background: #f5c84b;
+    box-shadow: 0 0 0 4px rgba(245, 200, 75, 0.18);
+}
+
+.order-track-label {
+    font-size: 0.62rem;
+    color: #6b7280;
+    text-align: center;
+    line-height: 1.2;
+    max-width: 64px;
+}
+
+.order-track-step.is-done .order-track-label,
+.order-track-step.is-current .order-track-label {
+    color: #d1d5db;
+}
+
+.order-track-line {
+    flex: 1;
+    height: 2px;
+    background: rgba(255, 255, 255, 0.12);
+    margin-top: 5px;
+    min-width: 12px;
+}
+
+.order-track-line.is-done {
+    background: rgba(110, 231, 160, 0.55);
+}
+
+body.cart-page-body .admin-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.28rem 0.65rem;
+    border-radius: 999px;
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    border: 1px solid transparent;
+}
+
+@media (max-width: 600px) {
+    .order-track-card {
+        padding: 20px 16px;
+    }
+
+    .order-track-progress {
+        overflow-x: auto;
+        padding-bottom: 0.25rem;
+    }
+
+    .checkout-summary-row {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+}
+
 /*
 This code is the original work of:
 ST10441421 	- Odirile Masemola

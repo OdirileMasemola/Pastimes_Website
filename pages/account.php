@@ -94,7 +94,6 @@ $conn->close();
                 <div class="dashboard-links">
                     <h4>Quick Links</h4>
                     <ul>
-                        <li><a href="my-orders.php" class="btn btn-secondary">My Orders</a></li>
                         <li><a href="my-listings.php" class="btn btn-secondary">My Listings</a></li>
                         <li><a href="sell-item.php" class="btn btn-secondary">Sell an Item</a></li>
                     </ul>

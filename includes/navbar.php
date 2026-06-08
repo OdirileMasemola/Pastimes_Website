@@ -19,7 +19,6 @@ if ($isAdminPage) {
     $logoutPath = '../pages/logout.php';
     $adminDashboardPath = 'dashboard.php';
     $adminLoginPath = 'admin-login.php';
-    $myOrdersPath = '../pages/my-orders.php';
     $cartPath = '../pages/cart.php';
     $myMessagesPath = '../pages/my-messages.php';
 } elseif ($isPagePage) {
@@ -33,7 +32,6 @@ if ($isAdminPage) {
     $logoutPath = 'logout.php';
     $adminDashboardPath = '../admin/dashboard.php';
     $adminLoginPath = '../admin/admin-login.php';
-    $myOrdersPath = 'my-orders.php';
     $cartPath = 'cart.php';
     $myMessagesPath = 'my-messages.php';
 } else {
@@ -47,7 +45,6 @@ if ($isAdminPage) {
     $logoutPath = 'pages/logout.php';
     $adminDashboardPath = 'admin/dashboard.php';
     $adminLoginPath = 'admin/admin-login.php';
-    $myOrdersPath = 'pages/my-orders.php';
     $cartPath = 'pages/cart.php';
     $myMessagesPath = 'pages/my-messages.php';
 }
@@ -107,14 +104,6 @@ if (isset($_SESSION['userID'])) {
                     <span>Sell</span>
                 </div>
             </a>
-            <?php if (isset($_SESSION['userID'])): ?>
-                <a href="<?php echo $myOrdersPath; ?>" class="nav-link">
-                    <div class="nav-link-inner">
-                        <span>Orders</span>
-                        <span>Orders</span>
-                    </div>
-                </a>
-            <?php endif; ?>
         </div>
         
         <div class="navbar-actions">

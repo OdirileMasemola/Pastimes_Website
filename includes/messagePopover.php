@@ -114,8 +114,17 @@ if (isset($_SESSION['userID'])):
                     if (strlen($popMsg['messageText']) > 70) {
                         $previewText .= '...';
                     }
+                    $sentDisplay = date('M d, Y \a\t g:i A', strtotime($popMsg['sentDate']));
                     ?>
-                    <div class="message-pop-item <?php echo $popMsg['isRead'] ? '' : 'unread'; ?>">
+                    <div class="message-pop-item <?php echo $popMsg['isRead'] ? '' : 'unread'; ?>"
+                         role="button"
+                         tabindex="0"
+                         data-message-id="<?php echo intval($popMsg['messageID']); ?>"
+                         data-from="<?php echo htmlspecialchars($fromName, ENT_QUOTES, 'UTF-8'); ?>"
+                         data-subject="<?php echo htmlspecialchars($popMsg['subject'], ENT_QUOTES, 'UTF-8'); ?>"
+                         data-body="<?php echo htmlspecialchars($popMsg['messageText'], ENT_QUOTES, 'UTF-8'); ?>"
+                         data-sent="<?php echo htmlspecialchars($sentDisplay, ENT_QUOTES, 'UTF-8'); ?>"
+                         data-unread="<?php echo $popMsg['isRead'] ? '0' : '1'; ?>">
                         <?php if (!$popMsg['isRead']): ?>
                             <span class="message-dot" title="Unread"></span>
                         <?php endif; ?>
@@ -132,6 +141,21 @@ if (isset($_SESSION['userID'])):
     </div>
 </div>
 
+<div class="message-modal-overlay" id="messageModalOverlay" style="display:none;" aria-hidden="true"></div>
+<div class="message-modal-wrap" id="messageModalWrap" style="display:none;">
+    <button type="button" class="message-modal-close" id="messageModalClose" aria-label="Close message">&times;</button>
+    <div class="message-modal" id="messageModal" role="dialog" aria-modal="true" aria-labelledby="messageModalSubject">
+        <div class="message-modal-content">
+            <div class="message-modal-meta">
+                <span class="message-modal-from" id="messageModalFrom"></span>
+                <span class="message-modal-sent" id="messageModalSent"></span>
+            </div>
+            <h3 class="message-modal-subject" id="messageModalSubject"></h3>
+            <div class="message-modal-body" id="messageModalBody"></div>
+        </div>
+    </div>
+</div>
+
 <script>
 (function () {
     var btn      = document.getElementById('messageIconBtn');
@@ -139,9 +163,108 @@ if (isset($_SESSION['userID'])):
     var markBtn  = document.getElementById('markAllReadBtn');
     var badge    = document.getElementById('messageBadge');
     var unreadTxt = document.getElementById('messagePopoverUnread');
+    var modalOverlay = document.getElementById('messageModalOverlay');
+    var modalWrap    = document.getElementById('messageModalWrap');
+    var modal      = document.getElementById('messageModal');
+    var modalClose = document.getElementById('messageModalClose');
+    var modalFrom  = document.getElementById('messageModalFrom');
+    var modalSubject = document.getElementById('messageModalSubject');
+    var modalBody  = document.getElementById('messageModalBody');
+    var modalSent  = document.getElementById('messageModalSent');
+    var activeMessageItem = null;
 
     if (!btn || !popover) {
         return;
+    }
+
+    function updateUnreadUI(count) {
+        if (badge) {
+            if (count > 0) {
+                badge.textContent = count;
+                badge.style.display = '';
+            } else {
+                badge.style.display = 'none';
+            }
+        }
+        if (unreadTxt) {
+            if (count > 0) {
+                unreadTxt.textContent = count + ' unread';
+                unreadTxt.style.display = '';
+            } else {
+                unreadTxt.style.display = 'none';
+            }
+        }
+        if (markBtn) {
+            markBtn.style.display = count > 0 ? '' : 'none';
+        }
+    }
+
+    function markMessageRead(messageID, itemEl) {
+        if (!messageID) {
+            return;
+        }
+
+        fetch('<?php echo $popEndpoint; ?>', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: 'messageID=' + encodeURIComponent(messageID)
+        })
+            .then(function (response) { return response.json(); })
+            .then(function (data) {
+                if (itemEl) {
+                    itemEl.classList.remove('unread');
+                    itemEl.setAttribute('data-unread', '0');
+                    var dot = itemEl.querySelector('.message-dot');
+                    if (dot) { dot.parentNode.removeChild(dot); }
+                }
+                if (data && typeof data.unreadCount !== 'undefined') {
+                    updateUnreadUI(data.unreadCount);
+                }
+            })
+            .catch(function () { /* stay silent on error */ });
+    }
+
+    function openMessageModal(itemEl) {
+        if (!modalWrap || !modalOverlay || !itemEl) {
+            return;
+        }
+
+        activeMessageItem = itemEl;
+        var fromName = itemEl.getAttribute('data-from') || 'Admin User';
+        var subject = itemEl.getAttribute('data-subject') || 'Message';
+        var bodyText = itemEl.getAttribute('data-body') || '';
+        var sentDate = itemEl.getAttribute('data-sent') || '';
+        var messageID = itemEl.getAttribute('data-message-id');
+        var isUnread = itemEl.getAttribute('data-unread') === '1';
+
+        if (modalFrom) { modalFrom.textContent = 'From: ' + fromName; }
+        if (modalSubject) { modalSubject.textContent = subject; }
+        if (modalBody) { modalBody.textContent = bodyText; }
+        if (modalSent) { modalSent.textContent = sentDate; }
+
+        modalOverlay.style.display = 'block';
+        modalOverlay.classList.add('active');
+        modalWrap.style.display = 'flex';
+        modalWrap.classList.add('active');
+        modalOverlay.setAttribute('aria-hidden', 'false');
+        closePopover();
+
+        if (isUnread) {
+            markMessageRead(messageID, itemEl);
+        }
+    }
+
+    function closeMessageModal() {
+        if (!modalWrap || !modalOverlay) {
+            return;
+        }
+
+        modalOverlay.style.display = 'none';
+        modalOverlay.classList.remove('active');
+        modalWrap.style.display = 'none';
+        modalWrap.classList.remove('active');
+        modalOverlay.setAttribute('aria-hidden', 'true');
+        activeMessageItem = null;
     }
 
     // Show/hide using an inline style so the popover is always hidden by
@@ -175,24 +298,64 @@ if (isset($_SESSION['userID'])):
         closePopover();
     });
 
-    // Escape key closes it too
+    // Escape key closes popover or modal
     document.addEventListener('keydown', function (e) {
         if (e.key === 'Escape') {
-            closePopover();
+            if (modalWrap && modalWrap.classList.contains('active')) {
+                closeMessageModal();
+            } else {
+                closePopover();
+            }
         }
     });
+
+    // Open full message modal from popover items
+    var popItems = popover.querySelectorAll('.message-pop-item');
+    popItems.forEach(function (item) {
+        item.addEventListener('click', function () {
+            openMessageModal(item);
+        });
+        item.addEventListener('keydown', function (e) {
+            if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                openMessageModal(item);
+            }
+        });
+    });
+
+    if (modalClose) {
+        modalClose.addEventListener('click', function () {
+            closeMessageModal();
+        });
+    }
+
+    if (modalOverlay) {
+        modalOverlay.addEventListener('click', function () {
+            closeMessageModal();
+        });
+    }
+
+    if (modalWrap) {
+        modalWrap.addEventListener('click', function (e) {
+            e.stopPropagation();
+        });
+    }
 
     // Mark all as read
     if (markBtn) {
         markBtn.addEventListener('click', function () {
             fetch('<?php echo $popEndpoint; ?>', { method: 'POST' })
-                .then(function () {
-                    if (badge) { badge.style.display = 'none'; }
-                    if (unreadTxt) { unreadTxt.style.display = 'none'; }
-                    markBtn.style.display = 'none';
+                .then(function (response) { return response.json(); })
+                .then(function (data) {
+                    if (data && typeof data.unreadCount !== 'undefined') {
+                        updateUnreadUI(data.unreadCount);
+                    } else {
+                        updateUnreadUI(0);
+                    }
                     var items = popover.querySelectorAll('.message-pop-item.unread');
                     items.forEach(function (item) {
                         item.classList.remove('unread');
+                        item.setAttribute('data-unread', '0');
                         var dot = item.querySelector('.message-dot');
                         if (dot) { dot.parentNode.removeChild(dot); }
                     });

@@ -23,10 +23,11 @@ $error = '';
 $success = '';
 $previewTotal = 0;
 $previewItems = isset($_SESSION['cart']) ? array_sum($_SESSION['cart']) : 0;
+$previewProducts = array();
 
-// Work out the current cart total for display.
+// Work out the current cart total and line items for display.
 if ($previewItems > 0) {
-    $previewStmt = $conn->prepare("SELECT price FROM tblClothes WHERE clothingID = ?");
+    $previewStmt = $conn->prepare("SELECT clothingName, price FROM tblClothes WHERE clothingID = ?");
 
     if ($previewStmt) {
         foreach ($_SESSION['cart'] as $clothingID => $quantity) {
@@ -43,7 +44,16 @@ if ($previewItems > 0) {
 
             if ($previewResult && $previewResult->num_rows > 0) {
                 $previewProduct = $previewResult->fetch_assoc();
-                $previewTotal += floatval($previewProduct['price']) * $quantity;
+                $unitPrice = floatval($previewProduct['price']);
+                $lineTotal = $unitPrice * $quantity;
+                $previewTotal += $lineTotal;
+
+                $previewProducts[] = array(
+                    'name'      => $previewProduct['clothingName'],
+                    'quantity'  => $quantity,
+                    'unitPrice' => $unitPrice,
+                    'lineTotal' => $lineTotal
+                );
             }
         }
 
@@ -139,6 +149,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                     $_SESSION['cart'] = array();
                     $previewTotal = 0;
                     $previewItems = 0;
+                    $previewProducts = array();
                 } catch (Exception $exception) {
                     $conn->rollback();
                     $error = $exception->getMessage();
@@ -160,9 +171,9 @@ $conn->close();
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Checkout - Pastimes</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <link rel="stylesheet" href="../assets/style.css?v=3">
+    <link rel="stylesheet" href="../assets/style.css?v=6">
 </head>
-<body>
+<body class="cart-page-body">
     <?php include '../includes/navbar.php'; ?>
     
     <!-- Message Icon + Notification Popover (only for logged-in users) -->
@@ -177,33 +188,84 @@ $conn->close();
     </a>
 
     <main>
-        <div class="container">
-            <h2>Checkout</h2>
+        <div class="cart-shell">
+            <div class="cart-card checkout-card">
 
-            <?php if ($error): ?>
-                <div class="error-message">
-                    <p><?php echo htmlspecialchars($error); ?></p>
-                </div>
-            <?php endif; ?>
-
-            <?php if ($success): ?>
-                <div class="success-message">
-                    <p><?php echo htmlspecialchars($success); ?></p>
-                </div>
-            <?php endif; ?>
-
-            <form method="POST" action="checkout.php">
-                <div class="checkout-section">
-                    <h3>Order Summary</h3>
-                    <p>Total Items: <?php echo htmlspecialchars($previewItems); ?></p>
-                    <p>Total Amount: R <?php echo number_format($previewTotal, 2); ?></p>
+                <div class="cart-card-header">
+                    <div class="cart-card-title">
+                        <i class="fa-solid fa-credit-card"></i>
+                        <span>Checkout</span>
+                    </div>
+                    <?php if ($previewItems > 0): ?>
+                        <span class="cart-card-count"><?php echo $previewItems; ?> item<?php echo $previewItems !== 1 ? 's' : ''; ?></span>
+                    <?php endif; ?>
                 </div>
 
-                <div class="form-group">
-                    <button type="submit" class="btn btn-primary" <?php echo $previewItems === 0 ? 'disabled' : ''; ?>>Place Order</button>
-                    <a href="cart.php" class="btn btn-secondary">Back to Cart</a>
-                </div>
-            </form>
+                <?php if ($error): ?>
+                    <div class="checkout-alert checkout-alert-error">
+                        <i class="fa-solid fa-circle-exclamation"></i>
+                        <p><?php echo htmlspecialchars($error); ?></p>
+                    </div>
+                <?php endif; ?>
+
+                <?php if ($success): ?>
+                    <div class="checkout-alert checkout-alert-success">
+                        <i class="fa-solid fa-circle-check"></i>
+                        <p><?php echo htmlspecialchars($success); ?></p>
+                    </div>
+                <?php endif; ?>
+
+                <?php if (count($previewProducts) > 0): ?>
+                    <div class="checkout-summary">
+                        <h3 class="checkout-summary-title">Order Summary</h3>
+
+                        <div class="checkout-summary-items">
+                            <?php foreach ($previewProducts as $item): ?>
+                                <div class="checkout-summary-row">
+                                    <div class="checkout-summary-info">
+                                        <span class="checkout-summary-name"><?php echo htmlspecialchars($item['name']); ?></span>
+                                        <span class="checkout-summary-qty">Qty: <?php echo $item['quantity']; ?> &times; R <?php echo number_format($item['unitPrice'], 2); ?></span>
+                                    </div>
+                                    <span class="checkout-summary-line">R <?php echo number_format($item['lineTotal'], 2); ?></span>
+                                </div>
+                            <?php endforeach; ?>
+                        </div>
+
+                        <div class="cart-divider"></div>
+
+                        <div class="cart-totals">
+                            <div class="cart-total-row">
+                                <span>Total Items</span>
+                                <span><?php echo $previewItems; ?></span>
+                            </div>
+                            <div class="cart-total-row cart-total-grand">
+                                <span>Total Amount</span>
+                                <span>R <?php echo number_format($previewTotal, 2); ?></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <form method="POST" action="checkout.php" class="checkout-form">
+                        <div class="cart-card-actions">
+                            <a href="cart.php" class="sell-btn sell-btn-ghost">Back to Cart</a>
+                            <button type="submit" class="sell-btn sell-btn-primary">Place Order</button>
+                        </div>
+                    </form>
+                <?php else: ?>
+                    <div class="cart-empty">
+                        <?php if ($success): ?>
+                            <i class="fa-solid fa-circle-check"></i>
+                            <p>Your order has been placed. Track its status from your cart page.</p>
+                            <a href="cart.php" class="sell-btn sell-btn-primary">View Order Tracking</a>
+                        <?php else: ?>
+                            <i class="fa-solid fa-bag-shopping"></i>
+                            <p>Your cart is empty. Add items before checking out.</p>
+                            <a href="shop.php" class="sell-btn sell-btn-primary">Continue Shopping</a>
+                        <?php endif; ?>
+                    </div>
+                <?php endif; ?>
+
+            </div>
         </div>
     </main>
 
