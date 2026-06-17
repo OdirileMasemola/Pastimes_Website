@@ -56,7 +56,14 @@ $unreadMessageCount = 0;
 if (isset($_SESSION['userID'])) {
     $navConn = @new mysqli("localhost", "root", "", "ClothingStore");
     if (!$navConn->connect_error) {
-        $msgStmt = $navConn->prepare("SELECT COUNT(*) as unreadCount FROM tblMessage WHERE receiverID = ? AND isRead = 0");
+        require_once __DIR__ . '/messageSchema.php';
+        pastimesEnsureMessageSchema($navConn);
+
+        $msgStmt = $navConn->prepare("SELECT COUNT(*) as unreadCount
+                                      FROM tblMessage
+                                      WHERE receiverType = 'user'
+                                        AND receiverID = ?
+                                        AND isRead = 0");
         if ($msgStmt) {
             $msgStmt->bind_param("i", $_SESSION['userID']);
             $msgStmt->execute();

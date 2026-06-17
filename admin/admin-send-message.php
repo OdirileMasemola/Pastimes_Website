@@ -7,6 +7,8 @@
 
 session_start();
 include '../includes/DBConn.php';
+require_once '../includes/messageSchema.php';
+pastimesEnsureMessageSchema($conn);
 
 if (!isset($_SESSION['adminID'])) {
     header("Location: admin-login.php");
@@ -35,10 +37,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['userID'])) {
     if ($receiverID > 0 && !empty($subject) && !empty($messageText)) {
         $senderType = 'admin';
         $senderID = $_SESSION['adminID'];
+        $receiverType = 'user';
         
-        $stmt = $conn->prepare("INSERT INTO tblMessage (senderType, senderID, receiverID, subject, messageText) VALUES (?, ?, ?, ?, ?)");
+        $stmt = $conn->prepare("INSERT INTO tblMessage (senderType, senderID, receiverType, receiverID, subject, messageText, isRead, sentDate) VALUES (?, ?, ?, ?, ?, ?, 0, NOW())");
         if ($stmt) {
-            $stmt->bind_param("siiss", $senderType, $senderID, $receiverID, $subject, $messageText);
+            $stmt->bind_param("sisiss", $senderType, $senderID, $receiverType, $receiverID, $subject, $messageText);
             if ($stmt->execute()) {
                 $message = "Message sent successfully.";
                 $messageType = "success";

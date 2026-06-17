@@ -8,6 +8,8 @@
 
 session_start();
 include '../includes/DBConn.php';
+require_once '../includes/messageSchema.php';
+pastimesEnsureMessageSchema($conn);
 
 if (!isset($_SESSION['userID'])) {
     header("Location: login.php");
@@ -26,23 +28,36 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['action'])) {
         
         if (!empty($replyText)) {
             $senderType = 'user';
-            $receiverID = 1;
+            $receiverType = 'admin';
+            $receiverID = 0;
             $subject = 'Re: ' . (isset($_POST['originalSubject']) ? trim($_POST['originalSubject']) : 'Message');
+
+            if ($adminResult = $conn->query("SELECT adminID FROM tblAdmin ORDER BY adminID ASC LIMIT 1")) {
+                if ($adminRow = $adminResult->fetch_assoc()) {
+                    $receiverID = (int) $adminRow['adminID'];
+                }
+                $adminResult->free();
+            }
             
-            $stmt = $conn->prepare("INSERT INTO tblMessage (senderType, senderID, receiverID, subject, messageText) VALUES (?, ?, ?, ?, ?)");
-            if (!$stmt) {
-                $message = "Error preparing statement: " . $conn->error;
+            if ($receiverID <= 0) {
+                $message = "No admin account is available to receive messages.";
                 $messageType = "error";
             } else {
-                $stmt->bind_param("siiss", $senderType, $userID, $receiverID, $subject, $replyText);
-                if ($stmt->execute()) {
-                    $message = "Reply sent successfully.";
-                    $messageType = "success";
-                } else {
-                    $message = "Error sending reply: " . $stmt->error;
+                $stmt = $conn->prepare("INSERT INTO tblMessage (senderType, senderID, receiverType, receiverID, subject, messageText, isRead, sentDate) VALUES (?, ?, ?, ?, ?, ?, 0, NOW())");
+                if (!$stmt) {
+                    $message = "Error preparing statement: " . $conn->error;
                     $messageType = "error";
+                } else {
+                    $stmt->bind_param("sisiss", $senderType, $userID, $receiverType, $receiverID, $subject, $replyText);
+                    if ($stmt->execute()) {
+                        $message = "Reply sent successfully.";
+                        $messageType = "success";
+                    } else {
+                        $message = "Error sending reply: " . $stmt->error;
+                        $messageType = "error";
+                    }
+                    $stmt->close();
                 }
-                $stmt->close();
             }
         } else {
             $message = "Please enter a message to send.";
@@ -50,7 +65,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['action'])) {
         }
     } elseif ($_POST['action'] === 'mark_read' && isset($_POST['messageID'])) {
         $messageID = intval($_POST['messageID']);
-        $stmt = $conn->prepare("UPDATE tblMessage SET isRead = 1 WHERE messageID = ? AND receiverID = ?");
+        $stmt = $conn->prepare("UPDATE tblMessage
+                                SET isRead = 1
+                                WHERE messageID = ?
+                                  AND receiverType = 'user'
+                                  AND receiverID = ?");
         if ($stmt) {
             $stmt->bind_param("ii", $messageID, $userID);
             $stmt->execute();
@@ -67,7 +86,9 @@ $sql = "SELECT m.messageID, m.senderType, m.senderID, m.subject, m.messageText, 
                u.username, u.fullName
         FROM tblMessage m
         LEFT JOIN tblUser u ON m.senderID = u.userID
-        WHERE m.receiverID = ?
+        WHERE m.receiverType = 'user'
+          AND m.receiverID = ?
+          AND m.senderType = 'admin'
         ORDER BY m.sentDate DESC";
 $stmt = $conn->prepare($sql);
 

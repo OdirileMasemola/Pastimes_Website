@@ -111,12 +111,13 @@ $tableSql = array(
         messageID INT AUTO_INCREMENT PRIMARY KEY,
         senderType VARCHAR(20) NOT NULL,
         senderID INT NOT NULL,
+        receiverType VARCHAR(20) NOT NULL DEFAULT 'user',
         receiverID INT NOT NULL,
+        productID INT NULL,
         subject VARCHAR(200) NOT NULL,
         messageText TEXT NOT NULL,
-        sentDate TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         isRead TINYINT(1) NOT NULL DEFAULT 0,
-        CONSTRAINT fk_message_receiver FOREIGN KEY (receiverID) REFERENCES tblUser(userID) ON DELETE CASCADE ON UPDATE CASCADE
+        sentDate TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4"
 );
 

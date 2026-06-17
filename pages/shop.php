@@ -44,6 +44,34 @@ if ($stmt) {
     $stmt->close();
 }
 
+$currentUserID = isset($_SESSION['userID']) ? (int) $_SESSION['userID'] : 0;
+$sellerNameMap = array();
+$sellerIDs = array();
+foreach ($clothes as $row) {
+    $sid = isset($row['sellerID']) ? (int) $row['sellerID'] : 0;
+    if ($sid > 0) {
+        $sellerIDs[$sid] = true;
+    }
+}
+if (!empty($sellerIDs)) {
+    $sellerIDList = array_keys($sellerIDs);
+    $placeholders = implode(',', array_fill(0, count($sellerIDList), '?'));
+    $sellerSql = "SELECT userID, fullName FROM tblUser WHERE userID IN ($placeholders)";
+    $sellerStmt = $conn->prepare($sellerSql);
+    if ($sellerStmt) {
+        $sellerTypes = str_repeat('i', count($sellerIDList));
+        $sellerStmt->bind_param($sellerTypes, ...$sellerIDList);
+        $sellerStmt->execute();
+        $sellerRes = $sellerStmt->get_result();
+        if ($sellerRes) {
+            while ($sellerRow = $sellerRes->fetch_assoc()) {
+                $sellerNameMap[(int) $sellerRow['userID']] = $sellerRow['fullName'];
+            }
+        }
+        $sellerStmt->close();
+    }
+}
+
 $maleFashionImages = array(
     '../images/charles-etoroma-PpLrGyWo7-Q-unsplash.jpg',
     '../images/daniel-adesina-sIARkv6B7fI-unsplash.jpg',
@@ -346,6 +374,8 @@ foreach ($featuredItems as $fi => $fItem) {
 
                             $dataBrand  = isset($item['brand'])  ? $item['brand']  : '';
                             $dataGender = isset($item['gender']) ? $item['gender'] : '';
+                            $dataSellerID = isset($item['sellerID']) ? (int) $item['sellerID'] : 0;
+                            $dataSellerName = ($dataSellerID > 0 && isset($sellerNameMap[$dataSellerID])) ? $sellerNameMap[$dataSellerID] : '';
                             $dataSale   = isset($item['onSale']) ? ($item['onSale'] ? '1' : '0')
                                         : (isset($item['sale']) ? ($item['sale']   ? '1' : '0') : '');
                             ?>
@@ -362,7 +392,9 @@ foreach ($featuredItems as $fi => $fItem) {
                                  data-pricetext="R <?php echo number_format($item['price'], 2); ?>"
                                  data-desc="<?php echo htmlspecialchars(isset($item['description']) ? $item['description'] : ''); ?>"
                                  data-brandlabel="<?php echo htmlspecialchars($dataBrand); ?>"
-                                 data-stock="<?php echo intval(isset($item['quantity']) ? $item['quantity'] : 0); ?>">
+                                 data-stock="<?php echo intval(isset($item['quantity']) ? $item['quantity'] : 0); ?>"
+                                 data-sellerid="<?php echo $dataSellerID; ?>"
+                                 data-sellername="<?php echo htmlspecialchars($dataSellerName); ?>">
 
                                 <div class="db-product-img-wrap">
                                     <img class="db-product-img"
@@ -420,10 +452,39 @@ foreach ($featuredItems as $fi => $fItem) {
                         <input type="hidden" name="quantity" id="lbCartQty" value="1">
                         <button type="submit" class="lb-cta" id="lbAddBtn">Add to Cart</button>
                     </form>
+                    <button type="button" class="lb-cta lb-cta-secondary" id="lbEnquireBtn">Message Admin</button>
                 </div>
             </div>
 
             <div class="lb-counter" id="lbCounter"></div>
+        </div>
+    </div>
+
+    <div class="shop-enquiry-overlay" id="shopEnquiryOverlay" style="display:none;" aria-hidden="true"></div>
+    <div class="shop-enquiry-wrap" id="shopEnquiryWrap" style="display:none;">
+        <button type="button" class="shop-enquiry-close" id="shopEnquiryClose" aria-label="Close enquiry">&times;</button>
+        <div class="shop-enquiry-modal">
+            <h3 id="shopEnquiryTitle">Enquire About Product</h3>
+            <p class="shop-enquiry-product" id="shopEnquiryProduct"></p>
+            <p class="shop-enquiry-price" id="shopEnquiryPrice"></p>
+            <p class="shop-enquiry-seller" id="shopEnquirySeller" style="display:none;"></p>
+
+            <?php if (isset($_SESSION['userID'])): ?>
+                <form id="shopEnquiryForm" class="shop-enquiry-form">
+                    <input type="hidden" name="productID" id="shopEnquiryProductID" value="">
+                    <label for="shopEnquirySubject">Subject</label>
+                    <input type="text" id="shopEnquirySubject" name="subject" required maxlength="200">
+                    <label for="shopEnquiryText">Message</label>
+                    <textarea id="shopEnquiryText" name="messageText" rows="5" required placeholder="Hi admin, I would like to enquire about this product..."></textarea>
+                    <button type="submit" class="shop-enquiry-send">Send Message</button>
+                    <p class="shop-enquiry-status" id="shopEnquiryStatus" aria-live="polite"></p>
+                </form>
+            <?php else: ?>
+                <div class="shop-enquiry-login">
+                    <p id="shopEnquiryLoginText">Please log in to enquire about this product.</p>
+                    <a href="login.php" class="shop-enquiry-login-btn">Log In</a>
+                </div>
+            <?php endif; ?>
         </div>
     </div>
 
@@ -569,6 +630,22 @@ foreach ($featuredItems as $fi => $fItem) {
         var lbCartId   = document.getElementById('lbCartId');
         var lbCartQty  = document.getElementById('lbCartQty');
         var lbAddBtn   = document.getElementById('lbAddBtn');
+        var lbEnquireBtn = document.getElementById('lbEnquireBtn');
+        var enquiryOverlay = document.getElementById('shopEnquiryOverlay');
+        var enquiryWrap = document.getElementById('shopEnquiryWrap');
+        var enquiryClose = document.getElementById('shopEnquiryClose');
+        var enquiryProduct = document.getElementById('shopEnquiryProduct');
+        var enquiryPrice = document.getElementById('shopEnquiryPrice');
+        var enquiryForm = document.getElementById('shopEnquiryForm');
+        var enquiryProductID = document.getElementById('shopEnquiryProductID');
+        var enquirySubject = document.getElementById('shopEnquirySubject');
+        var enquiryStatus = document.getElementById('shopEnquiryStatus');
+        var enquiryText = document.getElementById('shopEnquiryText');
+        var enquiryTitle = document.getElementById('shopEnquiryTitle');
+        var enquirySeller = document.getElementById('shopEnquirySeller');
+        var enquiryLoginText = document.getElementById('shopEnquiryLoginText');
+        var currentViewerId = <?php echo $currentUserID; ?>;
+        var enquiryMode = 'admin';
 
         function setQty(v) {
             if (isNaN(v) || v < 1) v = 1;
@@ -617,6 +694,56 @@ foreach ($featuredItems as $fi => $fItem) {
             lbAddBtn.disabled   = !purchasable;
             lbQtyMinus.disabled = !purchasable;
             lbQtyPlus.disabled  = !purchasable;
+
+            if (enquiryProduct) {
+                enquiryProduct.textContent = item.title || '';
+            }
+            if (enquiryPrice) {
+                enquiryPrice.textContent = item.price || '';
+            }
+            if (enquiryProductID) {
+                enquiryProductID.value = pid > 0 ? String(pid) : '';
+            }
+            if (enquirySubject) {
+                enquirySubject.value = 'Product enquiry: ' + (item.title || 'Product');
+            }
+
+            var sellerID = parseInt(item.sellerID || 0, 10);
+            var sellerName = item.sellerName || '';
+            enquiryMode = 'admin';
+
+            if (pid > 0 && sellerID > 0) {
+                if (currentViewerId > 0 && currentViewerId === sellerID) {
+                    lbEnquireBtn.textContent = 'This is your listing';
+                    lbEnquireBtn.disabled = true;
+                    enquiryMode = 'self';
+                } else {
+                    lbEnquireBtn.textContent = 'Message Seller';
+                    lbEnquireBtn.disabled = false;
+                    enquiryMode = 'seller';
+                }
+            } else {
+                lbEnquireBtn.textContent = 'Message Admin';
+                lbEnquireBtn.disabled = false;
+            }
+
+            if (enquiryTitle) {
+                enquiryTitle.textContent = enquiryMode === 'seller' ? 'Message Seller' : 'Enquire About Product';
+            }
+            if (enquirySeller) {
+                if (enquiryMode === 'seller' && sellerName) {
+                    enquirySeller.style.display = 'block';
+                    enquirySeller.textContent = 'Seller: ' + sellerName;
+                } else {
+                    enquirySeller.style.display = 'none';
+                    enquirySeller.textContent = '';
+                }
+            }
+            if (enquiryLoginText) {
+                enquiryLoginText.textContent = enquiryMode === 'seller'
+                    ? 'Please log in to message the seller.'
+                    : 'Please log in to enquire about this product.';
+            }
         }
 
         function openAt(idx) {
@@ -643,10 +770,47 @@ foreach ($featuredItems as $fi => $fItem) {
                 overlay.style.display = '';
                 document.body.style.overflow = '';
             }, 360);
+            closeEnquiry();
+        }
+
+        function openEnquiry() {
+            if (!enquiryWrap || !enquiryOverlay) return;
+            enquiryOverlay.style.display = 'block';
+            enquiryOverlay.classList.add('active');
+            enquiryWrap.style.display = 'flex';
+            enquiryWrap.classList.add('active');
+            enquiryOverlay.setAttribute('aria-hidden', 'false');
+            if (enquiryStatus) {
+                enquiryStatus.textContent = '';
+                enquiryStatus.classList.remove('success', 'error');
+            }
+        }
+
+        function closeEnquiry() {
+            if (!enquiryWrap || !enquiryOverlay) return;
+            enquiryOverlay.style.display = 'none';
+            enquiryOverlay.classList.remove('active');
+            enquiryWrap.style.display = 'none';
+            enquiryWrap.classList.remove('active');
+            enquiryOverlay.setAttribute('aria-hidden', 'true');
         }
 
         document.getElementById('lbClose').addEventListener('click', closeLightbox);
         overlay.addEventListener('click', function (e) { if (e.target === overlay) closeLightbox(); });
+        if (lbEnquireBtn) {
+            lbEnquireBtn.addEventListener('click', function () {
+                if (lbEnquireBtn.disabled || enquiryMode === 'self') {
+                    return;
+                }
+                openEnquiry();
+            });
+        }
+        if (enquiryClose) {
+            enquiryClose.addEventListener('click', closeEnquiry);
+        }
+        if (enquiryOverlay) {
+            enquiryOverlay.addEventListener('click', closeEnquiry);
+        }
 
         document.getElementById('lbPrev').addEventListener('click', function () {
             populate((current - 1 + activeItems.length) % activeItems.length);
@@ -665,6 +829,38 @@ foreach ($featuredItems as $fi => $fItem) {
             if (e.key === 'ArrowRight')  populate((current + 1) % activeItems.length);
         });
 
+        if (enquiryForm) {
+            enquiryForm.addEventListener('submit', function (e) {
+                e.preventDefault();
+                var fd = new FormData(enquiryForm);
+
+                fetch('send-message.php', {
+                    method: 'POST',
+                    body: fd
+                })
+                    .then(function (res) { return res.json(); })
+                    .then(function (data) {
+                        if (!enquiryStatus) return;
+                        if (data && data.ok) {
+                            enquiryStatus.textContent = data.message || 'Message sent successfully.';
+                            enquiryStatus.classList.remove('error');
+                            enquiryStatus.classList.add('success');
+                            if (enquiryText) enquiryText.value = '';
+                        } else {
+                            enquiryStatus.textContent = (data && data.message) ? data.message : 'Could not send message.';
+                            enquiryStatus.classList.remove('success');
+                            enquiryStatus.classList.add('error');
+                        }
+                    })
+                    .catch(function () {
+                        if (!enquiryStatus) return;
+                        enquiryStatus.textContent = 'Could not send message right now. Please try again.';
+                        enquiryStatus.classList.remove('success');
+                        enquiryStatus.classList.add('error');
+                    });
+            });
+        }
+
         /* DB product quick-view: build modal items from the rendered cards */
         var dbCardEls = document.querySelectorAll('#productsGrid .db-product-card');
         var dbItems = [];
@@ -676,7 +872,9 @@ foreach ($featuredItems as $fi => $fItem) {
                 price:       card.dataset.pricetext || '',
                 description: card.dataset.desc || '',
                 image:       card.dataset.image,
-                stock:       card.dataset.stock
+                stock:       card.dataset.stock,
+                sellerID:    card.dataset.sellerid || '0',
+                sellerName:  card.dataset.sellername || ''
             });
             card.style.cursor = 'pointer';
             card.addEventListener('click', function () {

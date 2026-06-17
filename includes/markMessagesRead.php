@@ -19,6 +19,8 @@ if ($conn->connect_error) {
     echo json_encode(array('ok' => false));
     exit();
 }
+require_once __DIR__ . '/messageSchema.php';
+pastimesEnsureMessageSchema($conn);
 
 $userID = $_SESSION['userID'];
 $ok = false;
@@ -37,14 +39,23 @@ if (isset($_POST['messageID'])) {
 }
 
 if ($messageID > 0) {
-    $stmt = $conn->prepare("UPDATE tblMessage SET isRead = 1 WHERE messageID = ? AND receiverID = ? AND isRead = 0");
+    $stmt = $conn->prepare("UPDATE tblMessage
+                            SET isRead = 1
+                            WHERE messageID = ?
+                              AND receiverType = 'user'
+                              AND receiverID = ?
+                              AND isRead = 0");
     if ($stmt) {
         $stmt->bind_param("ii", $messageID, $userID);
         $ok = $stmt->execute();
         $stmt->close();
     }
 } else {
-    $stmt = $conn->prepare("UPDATE tblMessage SET isRead = 1 WHERE receiverID = ? AND isRead = 0");
+    $stmt = $conn->prepare("UPDATE tblMessage
+                            SET isRead = 1
+                            WHERE receiverType = 'user'
+                              AND receiverID = ?
+                              AND isRead = 0");
     if ($stmt) {
         $stmt->bind_param("i", $userID);
         $ok = $stmt->execute();
@@ -53,7 +64,11 @@ if ($messageID > 0) {
 }
 
 $unreadCount = 0;
-$countStmt = $conn->prepare("SELECT COUNT(*) AS unreadCount FROM tblMessage WHERE receiverID = ? AND isRead = 0");
+$countStmt = $conn->prepare("SELECT COUNT(*) AS unreadCount
+                             FROM tblMessage
+                             WHERE receiverType = 'user'
+                               AND receiverID = ?
+                               AND isRead = 0");
 if ($countStmt) {
     $countStmt->bind_param("i", $userID);
     $countStmt->execute();

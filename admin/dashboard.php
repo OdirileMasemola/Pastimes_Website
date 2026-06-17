@@ -143,6 +143,7 @@ if (!function_exists('adminBadgeClass')) {
                     <a href="add-clothing.php" class="admin-action-btn ghost">Add Clothing</a>
                     <a href="manage-seller-requests.php" class="admin-action-btn ghost">Seller Requests (<?php echo $pendingSellerCount; ?>)</a>
                     <a href="manage-orders.php" class="admin-action-btn ghost">Manage Orders</a>
+                    <a href="messages.php" class="admin-action-btn ghost">User Messages</a>
                     <a href="admin-send-message.php" class="admin-action-btn ghost">Send Message</a>
                 </div>
             </div>
