@@ -50,7 +50,11 @@ if (isset($_SESSION['userID'])):
     if (!$popConn->connect_error) {
         pastimesEnsureMessageSchema($popConn);
 
-        // Latest received messages for this user (admin + seller/user)
+        // Seller/buyer/admin inbox query:
+        // receiverType='user' and receiverID=current user includes:
+        // - admin -> user
+        // - buyer -> seller
+        // - seller -> buyer
         $popSql = "SELECT m.messageID, m.senderType, m.senderID, m.subject, m.messageText,
                           m.sentDate, m.isRead, m.productID,
                           a.adminName, u.fullName AS userFullName, u.username AS userUsername,
@@ -123,7 +127,7 @@ if (isset($_SESSION['userID'])):
                 <?php foreach ($popMessages as $popMsg): ?>
                     <?php
                     if ($popMsg['senderType'] === 'admin') {
-                        $fromName = !empty($popMsg['adminName']) ? $popMsg['adminName'] : 'Admin User';
+                        $fromName = 'Admin User';
                     } else {
                         if (!empty($popMsg['userFullName'])) {
                             $fromName = $popMsg['userFullName'];

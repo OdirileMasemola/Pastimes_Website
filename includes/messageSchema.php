@@ -39,8 +39,10 @@ if (!function_exists('pastimesEnsureMessageSchema')) {
             $colResult->free();
         }
 
+        $addedReceiverType = false;
         if (!isset($columns['receiverType'])) {
             $conn->query("ALTER TABLE tblMessage ADD COLUMN receiverType VARCHAR(20) NOT NULL DEFAULT 'user' AFTER senderID");
+            $addedReceiverType = true;
         }
         if (!isset($columns['receiverID'])) {
             $conn->query("ALTER TABLE tblMessage ADD COLUMN receiverID INT NOT NULL AFTER receiverType");
@@ -72,10 +74,27 @@ if (!function_exists('pastimesEnsureMessageSchema')) {
             $fkResult->free();
         }
 
-        // Backfill receiver routing for legacy data
-        $conn->query("UPDATE tblMessage
-                      SET receiverType = 'admin'
-                      WHERE senderType = 'user' AND receiverType = 'user'");
+        // Legacy routing backfill should run only once, when receiverType is
+        // first introduced. Running this on every request would incorrectly
+        // convert buyer->seller user messages to admin messages.
+        if ($addedReceiverType) {
+            $conn->query("UPDATE tblMessage
+                          SET receiverType = 'admin'
+                          WHERE senderType = 'user' AND receiverType = 'user'");
+        }
+
+        // Safety repair for any already-misrouted product enquiries:
+        // if a user-sent product message has a valid seller owner, ensure it
+        // routes to that seller as receiverType='user'.
+        $conn->query("UPDATE tblMessage m
+                      INNER JOIN tblClothes c ON m.productID = c.clothingID
+                      SET m.receiverType = 'user',
+                          m.receiverID = c.sellerID
+                      WHERE m.senderType = 'user'
+                        AND m.productID IS NOT NULL
+                        AND c.sellerID IS NOT NULL
+                        AND c.sellerID > 0
+                        AND m.receiverType = 'admin'");
 
         $conn->query("CREATE INDEX idx_tblMessage_receiver_lookup ON tblMessage (receiverType, receiverID, isRead, sentDate)");
         $conn->query("CREATE INDEX idx_tblMessage_sender_lookup ON tblMessage (senderType, senderID, sentDate)");

@@ -31,6 +31,7 @@ pastimesEnsureMessageSchema($conn);
 $action = isset($_POST['action']) ? trim((string) $_POST['action']) : 'send';
 $senderType = 'user';
 $senderID = (int) $_SESSION['userID'];
+$debugMessaging = false;
 
 if ($action === 'reply') {
     $replyMessageID = isset($_POST['replyMessageID']) ? intval($_POST['replyMessageID']) : 0;
@@ -160,6 +161,9 @@ if ($productID > 0) {
     $cleanProductID = (int) $product['clothingID'];
     $sellerID = isset($product['sellerID']) ? intval($product['sellerID']) : 0;
 
+    // Routing check:
+    // - sellerID > 0 => buyer -> seller
+    // - no sellerID   => buyer -> admin
     if ($sellerID > 0) {
         if ($sellerID === $senderID) {
             echo json_encode(array('ok' => false, 'message' => 'You cannot message yourself about your own listing.'));
@@ -169,6 +173,11 @@ if ($productID > 0) {
         $receiverType = 'user';
         $receiverID = $sellerID;
         $successMessage = 'Message sent to seller successfully.';
+    }
+
+    // Optional safe debug trace for assignment testing (off by default).
+    if ($debugMessaging) {
+        error_log('Pastimes message route check: productID=' . $cleanProductID . ', sellerID=' . $sellerID . ', receiverType=' . $receiverType . ', receiverID=' . $receiverID);
     }
 }
 
@@ -213,6 +222,10 @@ if ($cleanProductID !== null) {
 $ok = $insertStmt ? $insertStmt->execute() : false;
 if ($insertStmt) {
     $insertStmt->close();
+}
+
+if ($debugMessaging) {
+    error_log('Pastimes message insert result: ok=' . ($ok ? '1' : '0') . ', senderID=' . $senderID . ', receiverType=' . $receiverType . ', receiverID=' . $receiverID . ', productID=' . ($cleanProductID !== null ? $cleanProductID : 0));
 }
 
 $conn->close();

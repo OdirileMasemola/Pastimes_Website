@@ -3,7 +3,7 @@
  * My Messages Page
  * 
  * Displays messages for logged-in users
- * Users can read messages from admin and reply
+ * Users can read messages from admin/other users and reply
  */
 
 session_start();
@@ -28,35 +28,62 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['action'])) {
         
         if (!empty($replyText)) {
             $senderType = 'user';
-            $receiverType = 'admin';
-            $receiverID = 0;
-            $subject = 'Re: ' . (isset($_POST['originalSubject']) ? trim($_POST['originalSubject']) : 'Message');
-
-            if ($adminResult = $conn->query("SELECT adminID FROM tblAdmin ORDER BY adminID ASC LIMIT 1")) {
-                if ($adminRow = $adminResult->fetch_assoc()) {
-                    $receiverID = (int) $adminRow['adminID'];
-                }
-                $adminResult->free();
-            }
-            
-            if ($receiverID <= 0) {
-                $message = "No admin account is available to receive messages.";
+            $replyLookupSql = "SELECT senderType, senderID, subject, productID
+                               FROM tblMessage
+                               WHERE messageID = ?
+                                 AND receiverType = 'user'
+                                 AND receiverID = ?
+                               LIMIT 1";
+            $lookupStmt = $conn->prepare($replyLookupSql);
+            if (!$lookupStmt) {
+                $message = "Error preparing reply lookup: " . $conn->error;
                 $messageType = "error";
             } else {
-                $stmt = $conn->prepare("INSERT INTO tblMessage (senderType, senderID, receiverType, receiverID, subject, messageText, isRead, sentDate) VALUES (?, ?, ?, ?, ?, ?, 0, NOW())");
-                if (!$stmt) {
-                    $message = "Error preparing statement: " . $conn->error;
+                $lookupStmt->bind_param("ii", $originalMessageID, $userID);
+                $lookupStmt->execute();
+                $lookupResult = $lookupStmt->get_result();
+                $originalMsg = $lookupResult ? $lookupResult->fetch_assoc() : null;
+                $lookupStmt->close();
+
+                if (!$originalMsg) {
+                    $message = "Original message not found.";
                     $messageType = "error";
                 } else {
-                    $stmt->bind_param("sisiss", $senderType, $userID, $receiverType, $receiverID, $subject, $replyText);
-                    if ($stmt->execute()) {
-                        $message = "Reply sent successfully.";
-                        $messageType = "success";
-                    } else {
-                        $message = "Error sending reply: " . $stmt->error;
+                    $receiverType = $originalMsg['senderType'] === 'admin' ? 'admin' : 'user';
+                    $receiverID = (int) $originalMsg['senderID'];
+                    $subject = 'RE: ' . preg_replace('/^\s*RE:\s*/i', '', (string) $originalMsg['subject']);
+                    $productID = isset($originalMsg['productID']) && intval($originalMsg['productID']) > 0 ? intval($originalMsg['productID']) : null;
+
+                    if ($receiverType === 'user' && $receiverID === $userID) {
+                        $message = "You cannot message yourself.";
                         $messageType = "error";
+                    } else {
+                        if ($productID !== null) {
+                            $stmt = $conn->prepare("INSERT INTO tblMessage (senderType, senderID, receiverType, receiverID, productID, subject, messageText, isRead, sentDate) VALUES (?, ?, ?, ?, ?, ?, ?, 0, NOW())");
+                            if ($stmt) {
+                                $stmt->bind_param("sisisss", $senderType, $userID, $receiverType, $receiverID, $productID, $subject, $replyText);
+                            }
+                        } else {
+                            $stmt = $conn->prepare("INSERT INTO tblMessage (senderType, senderID, receiverType, receiverID, subject, messageText, isRead, sentDate) VALUES (?, ?, ?, ?, ?, ?, 0, NOW())");
+                            if ($stmt) {
+                                $stmt->bind_param("sisiss", $senderType, $userID, $receiverType, $receiverID, $subject, $replyText);
+                            }
+                        }
+
+                        if (!$stmt) {
+                            $message = "Error preparing statement: " . $conn->error;
+                            $messageType = "error";
+                        } else {
+                            if ($stmt->execute()) {
+                                $message = "Reply sent successfully.";
+                                $messageType = "success";
+                            } else {
+                                $message = "Error sending reply: " . $stmt->error;
+                                $messageType = "error";
+                            }
+                            $stmt->close();
+                        }
                     }
-                    $stmt->close();
                 }
             }
         } else {
@@ -83,12 +110,15 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['action'])) {
 
 // Fetch messages for this user
 $sql = "SELECT m.messageID, m.senderType, m.senderID, m.subject, m.messageText, m.sentDate, m.isRead,
-               u.username, u.fullName
+               u.username, u.fullName,
+               a.adminName,
+               c.clothingName AS productName
         FROM tblMessage m
-        LEFT JOIN tblUser u ON m.senderID = u.userID
+        LEFT JOIN tblUser u ON (m.senderType = 'user' AND m.senderID = u.userID)
+        LEFT JOIN tblAdmin a ON (m.senderType = 'admin' AND m.senderID = a.adminID)
+        LEFT JOIN tblClothes c ON m.productID = c.clothingID
         WHERE m.receiverType = 'user'
           AND m.receiverID = ?
-          AND m.senderType = 'admin'
         ORDER BY m.sentDate DESC";
 $stmt = $conn->prepare($sql);
 
@@ -287,11 +317,20 @@ $conn->close();
                             <div class="message-header">
                                 <div>
                                     <div class="message-from">
-                                        <?php echo htmlspecialchars($msg['senderType'] === 'admin' ? 'Admin' : ($msg['fullName'] ?? 'Unknown')); ?>
+                                        <?php
+                                        if ($msg['senderType'] === 'admin') {
+                                            echo 'Admin User';
+                                        } else {
+                                            echo htmlspecialchars($msg['fullName'] ?? ($msg['username'] ?? 'Unknown User'));
+                                        }
+                                        ?>
                                     </div>
                                     <div class="message-subject">
                                         <?php echo htmlspecialchars($msg['subject']); ?>
                                     </div>
+                                    <?php if (!empty($msg['productName'])): ?>
+                                        <div class="message-preview">Product: <?php echo htmlspecialchars($msg['productName']); ?></div>
+                                    <?php endif; ?>
                                     <div class="message-preview">
                                         <?php echo htmlspecialchars(substr($msg['messageText'], 0, 80)) . (strlen($msg['messageText']) > 80 ? '...' : ''); ?>
                                     </div>
@@ -305,11 +344,14 @@ $conn->close();
                         <div id="detail-<?php echo $msg['messageID']; ?>" class="message-detail">
                             <div class="message-detail-header">
                                 <div class="message-from">
-                                    From: <?php echo htmlspecialchars($msg['senderType'] === 'admin' ? 'Admin' : ($msg['fullName'] ?? 'Unknown')); ?>
+                                    From: <?php echo htmlspecialchars($msg['senderType'] === 'admin' ? 'Admin User' : ($msg['fullName'] ?? ($msg['username'] ?? 'Unknown User'))); ?>
                                 </div>
                                 <div class="message-date">
                                     <?php echo date('M d, Y \a\t H:i', strtotime($msg['sentDate'])); ?>
                                 </div>
+                                <?php if (!empty($msg['productName'])): ?>
+                                    <div class="message-date">Product: <?php echo htmlspecialchars($msg['productName']); ?></div>
+                                <?php endif; ?>
                                 <div class="message-subject">
                                     <?php echo htmlspecialchars($msg['subject']); ?>
                                 </div>
