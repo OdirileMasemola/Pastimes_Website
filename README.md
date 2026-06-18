@@ -1,154 +1,156 @@
-# Pastimes Website - Project Skeleton
+# Pastimes
+
+> A PHP/MySQL second-hand fashion marketplace with seller workflows, cart and checkout, messaging, and admin moderation — all in one.
+
+![PHP](https://img.shields.io/badge/PHP-777BB4?style=flat&logo=php&logoColor=white)
+![MySQL](https://img.shields.io/badge/MySQL-4479A1?style=flat&logo=mysql&logoColor=white)
+![JavaScript](https://img.shields.io/badge/JavaScript-F7DF1E?style=flat&logo=javascript&logoColor=black)
+![Session Auth](https://img.shields.io/badge/Session_Auth-grey?style=flat)
+
+---
+
+## Features
+
+### Authentication & Accounts
+- User registration, login, and logout
+- Separate admin login/logout flow
+- Admin verification workflow for user accounts (`isVerified` flow)
+- Account profile page
+
+### Shopping & Cart
+- Product browsing and shop page
+- Product details page
+- Session-based cart with quantity increase, decrease, and remove
+- Cart totals and order summary
+
+### Orders & Checkout
+- Auth-gated checkout — unauthenticated attempts redirect to login/register with a return path
+- Order creation and order-item persistence on checkout
+- Purchase history page
+- Order tracking and status view for logged-in users
+- Admin order management
+
+### Messaging
+- User inbox and message sending
+- Admin messages view and reply
+- Message popover with unread/read state handling
+
+### Seller Workflow
+- Seller item submission
+- My listings page
+- Admin seller request moderation (approve/reject)
+
+### Admin Panel
+- Dashboard overview
+- Full CRUD for users, clothing items, and orders
+
+---
 
 ## Project Structure
 
-```
+```text
 Pastimes_Website/
-├── index.php                 # Home page
-├── includes/
-│   ├── DBConn.php           # Database connection
-│   ├── createTable.php      # Create tblUser script
-│   └── loadClothingStore.php # Load all database tables
-├── pages/
-│   ├── login.php            # User login page
-│   ├── register.php         # User registration page
-│   ├── logout.php           # User logout script
-│   ├── shop.php             # Shop page - all products
-│   ├── product-details.php  # Individual product details
-│   ├── cart.php             # Shopping cart
-│   ├── checkout.php         # Checkout page
-│   ├── account.php          # User dashboard
-│   ├── my-orders.php        # User orders history
-│   ├── my-messages.php      # User messages
-│   └── sell-item.php        # Sell item form
+├── index.php
+├── myClothingStore.sql
 ├── admin/
-│   ├── admin-login.php      # Admin login
-│   ├── dashboard.php        # Admin dashboard
-│   ├── admin-logout.php     # Admin logout
-│   ├── manage-users.php     # View all users
-│   ├── add-user.php         # Add new user
-│   ├── edit-user.php        # Edit user info
-│   ├── delete-user.php      # Delete user
-│   ├── manage-clothes.php   # View all clothes
-│   ├── add-clothing.php     # Add new clothing
-│   ├── edit-clothing.php    # Edit clothing
-│   ├── delete-clothing.php  # Delete clothing
-│   └── manage-orders.php    # View all orders
-├── data/
-│   ├── userData.txt         # User records
-│   ├── adminData.txt        # Admin records
-│   └── clothesData.txt      # Clothing records
+│   ├── dashboard.php
+│   ├── manage-clothes.php
+│   ├── manage-users.php
+│   ├── manage-orders.php
+│   ├── manage-seller-requests.php
+│   ├── messages.php
+│   └── ... (add/edit/delete/login/logout)
 ├── assets/
-│   └── style.css            # Stylesheet
-└── README.md                # This file
+│   └── style.css
+├── includes/
+│   ├── DBConn.php
+│   ├── navbar.php
+│   ├── messagePopover.php
+│   └── ... (createTable, loadClothingStore, markMessagesRead, messageSchema)
+├── images/
+│   ├── products/
+│   └── uploads/
+│       ├── admin/
+│       └── sellers/
+└── pages/
+    ├── shop.php
+    ├── product-details.php
+    ├── cart.php
+    ├── checkout.php
+    ├── login.php
+    ├── register.php
+    ├── sell-item.php
+    ├── my-listings.php
+    ├── my-messages.php
+    ├── purchase-history.php
+    └── account.php
 ```
+
+---
 
 ## Database Tables
 
-### tblUser
-- userID (Primary Key)
-- fullName
-- email (Unique)
-- passwordHash
-- address
-- city
-- zipCode
-- phone
-- isVerified
-- createdDate
-- updatedDate
+| Table | Description |
+|---|---|
+| `tblUser` | Registered users |
+| `tblAdmin` | Admin accounts |
+| `tblClothes` | Product/clothing listings |
+| `tblOrder` | Placed orders |
+| `tblOrderItem` | Line items per order |
+| Messaging tables | Managed via `messageSchema.php` |
 
-### tblAdmin
-- adminID (Primary Key)
-- adminName
-- adminEmail (Unique)
-- passwordHash
-- createdDate
+---
 
-### tblClothes
-- clothingID (Primary Key)
-- clothingName
-- category
-- description
-- price
-- quantity
-- imageURL
-- createdDate
+## Setup
 
-### tblOrder
-- orderID (Primary Key)
-- userID (Foreign Key → tblUser.userID)
-- orderDate
-- totalAmount
-- status
-- FOREIGN KEY (userID) REFERENCES tblUser(userID)
+**1. Create a MySQL database**
 
-## User Roles
+Commonly named `ClothingStore`. Use your MySQL client or CLI.
 
-### Regular User
-- Register an account
-- Login (after admin verification)
-- Browse products
-- Add products to cart
-- Checkout
-- View order history
-- View profile information
+**2. Configure credentials**
 
-### Admin
-- Verify new user registrations
-- Manage users (Add, Edit, Delete)
-- Manage clothing inventory (Add, Edit, Delete)
-- View all orders
-- Manage orders status
+Open `includes/DBConn.php` and set your host, username, password, and database name.
 
-## Features Implemented
+**3. Initialise the schema**
 
-- Database connection (DBConn.php)
-- Create/Load database tables
-- User registration with pending verification
-- User login with password hashing
-- Admin login
-- User authentication & sessions
-- Shopping cart functionality
-- Product catalog
-- Admin management panels
-- Basic responsive CSS styling
+Option A — import the SQL dump:
+```bash
+mysql -u your_user -p ClothingStore < myClothingStore.sql
+```
 
-## Features To Complete
+Option B — run the PHP loader:
+```
+http://localhost/Pastimes_Website/includes/loadClothingStore.php
+```
+Run `includes/createTable.php` first if tables don't exist yet.
 
-- Complete checkout process (calculate totals, process payments)
-- Order management (update order status)
-- User messaging system
-- Product image uploads
-- Email notifications
-- Advanced search/filtering
-- User reviews and ratings
-- Sell items functionality
-- More comprehensive error handling
-- Input validation enhancements
+**4. Serve via WAMP / Apache**
 
-## Setup Instructions
+Open in your browser:
+```
+http://localhost/Pastimes_Website/
+```
 
-1. Create database "ClothingStore" in MySQL
-2. Run `/includes/loadClothingStore.php` to create tables
-3. Optionally run `/includes/createTable.php` to load sample user data
-4. Access application via web server (http://localhost/Pastimes_Website/)
+The admin panel is at:
+```
+http://localhost/Pastimes_Website/admin/
+```
 
-## Default Test Credentials
-
-**Admin:**
-- Email: admin@abc.co.za
-- Password: admin
-
-**Sample Users (from userData.txt):**
-- Email: john.doe@abc.co.za
-- Email: jane.smith@abc.co.za
-- (All with their respective hashed passwords)
+---
 
 ## Notes
 
-- All passwords are stored as MD5 hashes
-- User accounts must be verified by admin before login
-- Shopping cart uses PHP sessions
-- Database uses MySQLi for improved security
-- Default CSS is basic - can be enhanced for better UX
+> **Passwords** are currently hashed with `MD5`. For any production deployment, upgrade to `password_hash()` with `PASSWORD_BCRYPT`.
+
+> **Cart state** is stored in PHP sessions. Unauthenticated checkout attempts redirect to the login/register flow and return the user to checkout after authentication.
+
+---
+
+## Tech Stack
+
+| Layer | Technology |
+|---|---|
+| Server-side | PHP (server-side rendering) |
+| Database | MySQL + MySQLi |
+| Frontend | HTML, CSS, Vanilla JavaScript |
+| Auth & State | Session-based (PHP `$_SESSION`) |

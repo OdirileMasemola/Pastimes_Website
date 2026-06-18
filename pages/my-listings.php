@@ -209,7 +209,7 @@ $conn->close();
                 </div>
             </div>
         </div>
-    </main>
+    </main> 
 
     <footer>
         <p>&copy; 2026 Pastimes. All rights reserved.</p>
