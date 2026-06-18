@@ -11,7 +11,7 @@ session_start();
 include '../includes/DBConn.php';
 
 if (!isset($_SESSION['userID'])) {
-    header("Location: login.php");
+    header("Location: login.php?message=checkout_required&next=checkout");
     exit();
 }
 
@@ -69,42 +69,56 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $totalAmount = 0;
         $cartItems = array();
 
-        $priceStmt = $conn->prepare("SELECT price FROM tblClothes WHERE clothingID = ?");
+        $stockStmt = $conn->prepare("SELECT clothingName, price, quantity FROM tblClothes WHERE clothingID = ? FOR UPDATE");
+        $stockUpdateStmt = $conn->prepare("UPDATE tblClothes SET quantity = quantity - ? WHERE clothingID = ? AND quantity >= ?");
 
-        if (!$priceStmt) {
+        if (!$stockStmt || !$stockUpdateStmt) {
             $error = "Database error: " . $conn->error;
         } else {
-            foreach ($_SESSION['cart'] as $clothingID => $quantity) {
-                $clothingID = intval($clothingID);
-                $quantity = intval($quantity);
+            $conn->begin_transaction();
 
-                if ($clothingID <= 0 || $quantity <= 0) {
-                    continue;
-                }
+            try {
+                foreach ($_SESSION['cart'] as $clothingID => $quantity) {
+                    $clothingID = intval($clothingID);
+                    $quantity = intval($quantity);
 
-                $priceStmt->bind_param("i", $clothingID);
-                $priceStmt->execute();
-                $result = $priceStmt->get_result();
+                    if ($clothingID <= 0 || $quantity <= 0) {
+                        continue;
+                    }
 
-                if ($result && $result->num_rows > 0) {
-                    $product = $result->fetch_assoc();
+                    $stockStmt->bind_param("i", $clothingID);
+                    $stockStmt->execute();
+                    $stockResult = $stockStmt->get_result();
+
+                    if (!$stockResult || $stockResult->num_rows === 0) {
+                        throw new Exception("A product in your cart could not be found.");
+                    }
+
+                    $product = $stockResult->fetch_assoc();
+                    $availableQty = intval($product['quantity']);
+                    $productName = $product['clothingName'];
                     $price = floatval($product['price']);
-                    $totalAmount += $price * $quantity;
 
+                    if ($availableQty <= 0) {
+                        throw new Exception("`" . $productName . "` is out of stock.");
+                    }
+                    if ($quantity > $availableQty) {
+                        throw new Exception("Requested quantity for `" . $productName . "` exceeds available stock (" . $availableQty . ").");
+                    }
+
+                    $totalAmount += $price * $quantity;
                     $cartItems[] = array(
                         'clothingID' => $clothingID,
                         'quantity' => $quantity,
                         'price' => $price
                     );
                 }
-            }
 
-            if (count($cartItems) === 0) {
-                $error = "No valid items were found in your cart.";
-            } else {
-                $conn->begin_transaction();
+                if (count($cartItems) === 0) {
+                    throw new Exception("No valid items were found in your cart.");
+                }
 
-                try {
+                {
                     $orderSql = "INSERT INTO tblOrder (userID, totalAmount, status) VALUES (?, ?, 'pending')";
                     $orderStmt = $conn->prepare($orderSql);
 
@@ -140,6 +154,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                         if (!$itemStmt->execute()) {
                             throw new Exception("Error saving order items: " . $conn->error);
                         }
+
+                        $orderedQty = intval($item['quantity']);
+                        $orderedCID = intval($item['clothingID']);
+                        $stockUpdateStmt->bind_param("iii", $orderedQty, $orderedCID, $orderedQty);
+                        if (!$stockUpdateStmt->execute() || $stockUpdateStmt->affected_rows !== 1) {
+                            throw new Exception("Stock update failed for item ID " . $orderedCID . ". Please try again.");
+                        }
                     }
 
                     $itemStmt->close();
@@ -150,13 +171,14 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                     $previewTotal = 0;
                     $previewItems = 0;
                     $previewProducts = array();
-                } catch (Exception $exception) {
-                    $conn->rollback();
-                    $error = $exception->getMessage();
                 }
+            } catch (Exception $exception) {
+                $conn->rollback();
+                $error = $exception->getMessage();
             }
 
-            $priceStmt->close();
+            $stockStmt->close();
+            $stockUpdateStmt->close();
         }
     }
 }
@@ -256,7 +278,10 @@ $conn->close();
                         <?php if ($success): ?>
                             <i class="fa-solid fa-circle-check"></i>
                             <p>Your order has been placed. Track its status from your cart page.</p>
-                            <a href="cart.php" class="sell-btn sell-btn-primary">View Order Tracking</a>
+                            <div class="cart-card-actions">
+                                <a href="cart.php" class="sell-btn sell-btn-ghost">View Order Tracking</a>
+                                <a href="purchase-history.php" class="sell-btn sell-btn-primary">View Purchase History</a>
+                            </div>
                         <?php else: ?>
                             <i class="fa-solid fa-bag-shopping"></i>
                             <p>Your cart is empty. Add items before checking out.</p>
@@ -269,8 +294,60 @@ $conn->close();
         </div>
     </main>
 
-    <footer>
-        <p>&copy; 2026 Pastimes. All rights reserved.</p>
+        <!-- Footer Content -->
+        <div class="footer-content">
+            <!-- Brand Section -->
+            <div class="footer-brand">
+                <h2 class="footer-brand-title">Pastimes</h2>
+                <p class="footer-copyright">&copy; 2026 Pastimes. All rights reserved.</p>
+            </div>
+
+            <!-- Footer Grid (4 Columns) -->
+            <div class="footer-grid">
+                <!-- Product Column -->
+                <div class="footer-column">
+                    <h4 class="footer-heading">Product</h4>
+                    <ul class="footer-links">
+                        <li><a href="pages/shop.php" class="footer-link">Shop</a></li>
+                        <li><a href="pages/sell-item.php" class="footer-link">Sell Item</a></li>
+                        <li><a href="pages/cart.php" class="footer-link">Cart</a></li>
+                    </ul>
+                </div>
+
+                <!-- Company Column -->
+                <div class="footer-column">
+                    <h4 class="footer-heading">Company</h4>
+                    <ul class="footer-links">
+                        <li><a href="index.php" class="footer-link">About</a></li>
+                        <li><a href="pages/account.php" class="footer-link">Account</a></li>
+                        <li><a href="pages/login.php" class="footer-link">Login</a></li>
+                        <li><a href="pages/register.php" class="footer-link">Register</a></li>
+                    </ul>
+                </div>
+
+                <!-- Resources Column -->
+                <div class="footer-column">
+                    <h4 class="footer-heading">Resources</h4>
+                    <ul class="footer-links">
+                        <li><a href="index.php" class="footer-link">Help</a></li>
+                        <li><a href="pages/my-messages.php" class="footer-link">Messages</a></li>
+                        <li><a href="pages/my-listings.php" class="footer-link">Seller Listings</a></li>
+                        <li><a href="admin/admin-login.php" class="footer-link">Admin</a></li>
+                    </ul>
+                </div>
+
+                <!-- Social Links Column -->
+                <div class="footer-column">
+                    <h4 class="footer-heading">Social</h4>
+                    <ul class="footer-links">
+                        <li><a href="#" class="footer-link">Facebook</a></li>
+                        <li><a href="#" class="footer-link">Instagram</a></li>
+                        <li><a href="#" class="footer-link">YouTube</a></li>
+                        <li><a href="#" class="footer-link">LinkedIn</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
     </footer>
     
     <script>
@@ -301,6 +378,5 @@ $conn->close();
 This code is the original work of:
 ST10441421 - Odirile Masemola
 ST10450294 - Ripfumelo Mabasa
-All rights reserved.
 */
 ?>

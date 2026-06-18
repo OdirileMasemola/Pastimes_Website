@@ -17,6 +17,17 @@ $password = '';
 $confirmPassword = '';
 $error = '';
 $success = '';
+$next = isset($_GET['next']) ? strtolower(trim($_GET['next'])) : '';
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['next'])) {
+    $next = strtolower(trim($_POST['next']));
+}
+$allowedNext = array('checkout', 'cart');
+if (!in_array($next, $allowedNext, true)) {
+    $next = '';
+}
+$querySuffix = $next !== '' ? '?next=' . urlencode($next) : '';
+$loginLink = 'login.php' . $querySuffix;
+$formAction = 'register.php' . $querySuffix;
 
 /**
  * Ensures tblUser has the minimum columns required by this page.
@@ -157,7 +168,10 @@ $conn->close();
                     </div>
                 <?php endif; ?>
 
-                <form method="POST" action="register.php" class="auth-form">
+                <form method="POST" action="<?php echo htmlspecialchars($formAction); ?>" class="auth-form">
+                    <?php if ($next !== ''): ?>
+                        <input type="hidden" name="next" value="<?php echo htmlspecialchars($next); ?>">
+                    <?php endif; ?>
                     <div class="auth-field">
                         <label for="fullName">Full Name</label>
                         <input
@@ -218,7 +232,7 @@ $conn->close();
 
                     <button type="submit" class="auth-btn auth-btn-primary">Sign up</button>
 
-                    <p class="auth-switch-text">Already have an account? <a href="login.php" class="auth-link">Login</a></p>
+                    <p class="auth-switch-text">Already have an account? <a href="<?php echo htmlspecialchars($loginLink); ?>" class="auth-link">Login</a></p>
                 </form>
             </div>
         </section>

@@ -265,7 +265,7 @@ $conn->close();
                         <?php if (isset($_SESSION['userID'])): ?>
                             <a href="checkout.php" class="sell-btn sell-btn-primary">Proceed to Checkout</a>
                         <?php else: ?>
-                            <a href="login.php" class="sell-btn sell-btn-primary">Login to Checkout</a>
+                            <a href="login.php?message=checkout_required&next=checkout" class="sell-btn sell-btn-primary">Login to Checkout</a>
                         <?php endif; ?>
                     </div>
                 <?php else: ?>
@@ -337,6 +337,10 @@ $conn->close();
                     <?php else: ?>
                         <div class="order-track-empty">You have not placed any orders yet.</div>
                     <?php endif; ?>
+
+                    <div class="cart-card-actions order-track-actions">
+                        <a href="purchase-history.php" class="sell-btn sell-btn-ghost">View Full Purchase History</a>
+                    </div>
                 </div>
             <?php endif; ?>
         </div>

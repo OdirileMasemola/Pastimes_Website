@@ -96,7 +96,8 @@ if (!empty($user['createdDate'])) {
                 <section class="account-card account-actions-card" aria-label="Quick actions">
                     <h3 class="account-card-title">Quick Actions</h3>
                     <div class="account-actions-grid">
-                        <a href="cart.php" class="account-action-btn account-action-primary">View Orders</a>
+                        <a href="purchase-history.php" class="account-action-btn account-action-primary">Purchase History</a>
+                        <a href="cart.php" class="account-action-btn account-action-secondary">View Orders</a>
                         <a href="sell-item.php" class="account-action-btn account-action-secondary">Sell an Item</a>
                         <a href="my-listings.php" class="account-action-btn account-action-secondary">My Listings</a>
                         <button type="button" class="account-action-btn account-action-secondary" id="accountMessageAdminBtn">Message Admin</button>

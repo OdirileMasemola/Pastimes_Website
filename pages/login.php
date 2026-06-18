@@ -15,9 +15,35 @@ $password = '';
 $error = '';
 $loginSuccess = false;
 $userRecord = null;
+$infoMessage = '';
+$next = isset($_GET['next']) ? strtolower(trim($_GET['next'])) : '';
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['next'])) {
+    $next = strtolower(trim($_POST['next']));
+}
+$allowedNext = array('checkout', 'cart');
+if (!in_array($next, $allowedNext, true)) {
+    $next = '';
+}
+
+$messageCode = isset($_GET['message']) ? trim($_GET['message']) : '';
+if ($messageCode === 'checkout_required') {
+    $infoMessage = "Please log in or register before checking out.";
+} elseif ($messageCode === 'continue_checkout') {
+    $infoMessage = "You can now continue to checkout.";
+}
+
+$querySuffix = $next !== '' ? '?next=' . urlencode($next) : '';
+$registerLink = 'register.php' . $querySuffix;
+$formAction = 'login.php' . $querySuffix;
 
 if (isset($_SESSION['userID']) && $_SERVER['REQUEST_METHOD'] !== 'POST') {
-    header('Location: ../index.php');
+    if ($next === 'checkout') {
+        header('Location: checkout.php');
+    } elseif ($next === 'cart') {
+        header('Location: cart.php');
+    } else {
+        header('Location: ../index.php');
+    }
     exit();
 }
 
@@ -58,7 +84,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
                         $stmt->close();
                         $conn->close();
-                        header('Location: ../index.php');
+                        if ($next === 'checkout') {
+                            header('Location: checkout.php');
+                        } elseif ($next === 'cart') {
+                            header('Location: cart.php?message=continue_checkout');
+                        } else {
+                            header('Location: ../index.php');
+                        }
                         exit();
                     } else {
                         $error = "Invalid password.";
@@ -105,13 +137,22 @@ $conn->close();
                 <h2 class="auth-heading">Sign in</h2>
                 <p class="auth-subtitle">Welcome back! Please sign in to continue</p>
 
+                <?php if ($infoMessage): ?>
+                    <div class="success-message auth-message">
+                        <p><?php echo htmlspecialchars($infoMessage); ?></p>
+                    </div>
+                <?php endif; ?>
+
                 <?php if ($error): ?>
                     <div class="error-message auth-message">
                         <p><?php echo htmlspecialchars($error); ?></p>
                     </div>
                 <?php endif; ?>
 
-                <form method="POST" action="login.php" class="auth-form">
+                <form method="POST" action="<?php echo htmlspecialchars($formAction); ?>" class="auth-form">
+                    <?php if ($next !== ''): ?>
+                        <input type="hidden" name="next" value="<?php echo htmlspecialchars($next); ?>">
+                    <?php endif; ?>
                     <div class="auth-field">
                         <label for="username">Username</label>
                         <input
@@ -149,7 +190,7 @@ $conn->close();
 
                     <button type="submit" class="auth-btn auth-btn-primary">Login</button>
 
-                    <p class="auth-switch-text">Don't have an account? <a href="register.php" class="auth-link">Sign up</a></p>
+                    <p class="auth-switch-text">Don't have an account? <a href="<?php echo htmlspecialchars($registerLink); ?>" class="auth-link">Sign up</a></p>
                 </form>
             </div>
         </section>
